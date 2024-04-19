@@ -1,4 +1,5 @@
-AddRestartToMiscLine(filePath) {
+AddRestartToMiscLine(filePath)
+{
     ; Read the .fds file
     FileRead, fdsContent, %filePath%
 
@@ -9,12 +10,14 @@ AddRestartToMiscLine(filePath) {
     RegExMatch(fdsContent, "(\, RESTART=T.*\/)", restartContent)
 
     ; Check if a line is found
-    if ((miscLine != "") && (restartContent = "")) {
+    if ((miscLine != "") && (restartContent = ""))
+	{
         ; Add "RESTART=T" to the found line
         modifiedLine := StrReplace(miscLine, "/", ", RESTART=T/")
         ; Replace the original line with the modified line
         StringReplace, fdsContent, fdsContent, %miscLine%, %modifiedLine%
-    } Else If (restartContent != "") {
+    } Else If (restartContent != "")
+	{
 		;	MsgBox, % restartContent " already exists."
 	}
 

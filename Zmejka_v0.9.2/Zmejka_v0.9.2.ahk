@@ -66,22 +66,33 @@ StartButton:
 ;	CheckFDSInstallation()
 	GuiControlGet, folderPath, , folderPath
 	GuiControlGet, fileName, , fileName
-	If (FDSpath != "") {
+	If (FDSpath != "")
+	{
 		GuiControlGet, FDSpath, , FDSpath
-	} Else {
+	}
+	Else
+	{
 		ToolTip, No fds.exe specified
+			Sleep, 1000
 		SetTimer, RemoveToolTip, -1000
 	}
-	If (MPIpath != "") {
+	If (MPIpath != "")
+	{
 		GuiControlGet, MPIpath, , MPIpath
-	} Else {
+	}
+	Else
+	{
 		ToolTip, No mpiexec.exe specified
+			Sleep, 1000
 		SetTimer, RemoveToolTip, -1000
 	}
-	If FileExist(filePath) {
+	If FileExist(filePath)
+	{
 		FileMove, %folderPath%\%fileName%.fds, %A_ScriptDir%\%fileName%\*, 1
 		FileMove, %folderPath%\%fileName%*.*, %A_ScriptDir%\%fileName%\*, 1
-	} Else {
+	}
+	Else
+	{
 		MsgBox, No %filePath% file in %A_ScriptDir% folder
 	}
 	; Check if fdsscenario.restart file exists
@@ -89,16 +100,25 @@ StartButton:
 	If (FileExistsRestart) {
 		checkRTag := CheckRestartTag(filePath)
 		ToolTip, Restart file(s) found. Trying to resume FDS instance.
+			Sleep, 1000
 		SetTimer, RemoveToolTip, -1000
-	} Else {
+	}
+	Else
+	{
 		ToolTip, Restart file not found!
+			Sleep, 1000
 		SetTimer, RemoveToolTip, -1000
 		removeRTag := removeRestartFromMiscLine(filePath)
-		If (removeRTag) {
+		If (removeRTag)
+		{
 			ToolTip, "RESTART=T" successfully removed from the "&MISC" line.
+				Sleep, 1000
 			SetTimer, RemoveToolTip, -1000
-		} Else {
+		}
+		Else
+		{
 			ToolTip, Failed to remove "RESTART=T" from the "&MISC" line.
+				Sleep, 1000
 			SetTimer, RemoveToolTip, -1000
 		}
 	}
@@ -106,24 +126,40 @@ StartButton:
 	FileMove, %folderPath%\%fileName%*.*, %A_ScriptDir%\, 1
 	FileMove, %folderPath%\%fileName%.fds, %A_ScriptDir%\, 1
 	filePath := A_ScriptDir "\" filename ".fds"
-	If (FileExist(A_ScriptDir "\FDSpath.ini") && (FDSpath != "") && FileExist(A_ScriptDir "\MPIpath.ini") && (MPIpath != "")) {
+	If (FileExist(A_ScriptDir "\FDSpath.ini") && (FDSpath != "") && FileExist(A_ScriptDir "\MPIpath.ini") && (MPIpath != ""))
+	{
 		MPI_PROCESS_NUM := Parse_FDS(filePath)
-		MsgBox, % "Number of MPI processes detected: " MPI_PROCESS_NUM
+		ToolTip, % "Number of MPI processes detected: " MPI_PROCESS_NUM
+			Sleep, 1000
 		ToolTip, "%MPIpath%" -n %MPI_PROCESS_NUM% "%FDSpath%" "%folderPath%\%fileName%.fds"
+			Sleep, 1000
 		SetTimer, RemoveToolTip, -1000
 		RunWait, "%MPIpath%" -n %MPI_PROCESS_NUM% "%FDSpath%" "%filePath%"
-	} Else If (FileExist(A_ScriptDir "\FDSpath.ini") && (FDSpath != "")) {
-		MsgBox, FDSpath.ini exists and "%FDSpath%" is not empty.
-		MsgBox, mpiexec.exe will be omitted upon running %fileName%.fds
+	}
+	Else If (FileExist(A_ScriptDir "\FDSpath.ini") && (FDSpath != ""))
+	{
+		ToolTip, FDSpath.ini exists and "%FDSpath%" is not empty
+			Sleep, 1000
+		ToolTip, mpiexec.exe will be omitted upon running %fileName%.fds
+			Sleep, 1000
+		SetTimer, RemoveToolTip, -1000
 		RunWait, "%FDSpath%" "%filePath%"
-	} Else {
+	}
+	Else
+	{
 		CheckFDSExe := FileExist(A_ProgramFiles "\firemodels\FDS6\bin\fds.exe")
 		;	MsgBox, % CheckFDSExe
-		If (CheckFDSExe = "A") {
-			MsgBox, Path to fds.exe was not specified. Using the latest version of FDS, installed on this PC.
-			MsgBox, mpiexec.exe will be omitted upon running %fileName%.fds
+		If (CheckFDSExe = "A") 
+		{
+			ToolTip, Path to fds.exe was not specified. Using the latest version of FDS, installed on this PC
+				Sleep, 1000
+			ToolTip, mpiexec.exe will be omitted upon running %fileName%.fds
+				Sleep, 1000
+			SetTimer, RemoveToolTip, -1000
 			RunWait, fds "%filePath%"
-		} Else {
+		}
+		Else
+		{
 			MsgBox, Please specify the path to fds.exe within which %fileName%.fds was created.
 		}
 	}
@@ -141,24 +177,35 @@ Return
 PauseButton:
 	GuiControlGet, folderPath, , folderPath
 	GuiControlGet, fileName, , fileName
-	FileAppend, , %A_ScriptDir%\%filename%.stop
-	;	MsgBox, 4096, DEBUG, stopping FDS
-	WinWaitClose, fds
-	;	MsgBox, 4096, DEBUG, fds.exe is closed
+	IfWinExist, fds
+	{
+		FileAppend, , %A_ScriptDir%\%filename%.stop
+		ToolTip, stopping FDS
+			Sleep, 1000
+		WinWaitClose
+	}
 	FileMove, %A_ScriptDir%\%fileName%*.*, %folderPath%\, 1
-	;	MsgBox, 4096, DEBUG, files moved to %folderPath%
+	ToolTip, files moved to %folderPath%
+		Sleep, 1000
+	SetTimer, RemoveToolTip, -1000
 	IniRead, filePath, %A_ScriptDir%\filePath.ini, filePath, filePath
 	;	MsgBox, 4096, DEBUG, filePath is %filePath%
 	;	FileMove, %folderPath%\%fileName%.stop, %A_ScriptDir%\, 1
 	;	Check if RESTART tag already exists
 	checkRTag := CheckRestartTag(filePath)
-	If (checkRTag = 0) {
+	If (checkRTag = 0)
+	{
 		ToolTip, Restart tag was not found in the &MISC line.
+			Sleep, 1000
 		AddRestartToMiscLine(filePath)
 		ToolTip, Restart tag is now added to the &MISC line.
+			Sleep, 1000
 		SetTimer, RemoveToolTip, -1000
-	} Else {
+	}
+	Else
+	{
 		ToolTip, Restart tag is in the &MISC line.
+			Sleep, 1000
 		SetTimer, RemoveToolTip, -1000
 	}
 	;	MsgBox, 4096, DEBUG, checkRTag is %checkRTag%
@@ -168,16 +215,31 @@ Return
 StopButton:
 	GuiControlGet, folderPath, , folderPath
 	GuiControlGet, fileName, , fileName
-	FileAppend, , %folderPath%\%filename%.stop
-	FileMove, %folderPath%\%fileName%.stop, %A_ScriptDir%\, 1
+	IfWinExist, fds
+	{
+		FileAppend, , %A_ScriptDir%\%filename%.stop
+		ToolTip, stopping FDS
+			Sleep, 1000
+		WinWaitClose
+	}
+		ToolTip, fds.exe is closed
+			Sleep, 1000
 	FileMove, %A_ScriptDir%\%fileName%*.*, %folderPath%\, 1
+		ToolTip, files moved to %folderPath%
+			Sleep, 1000
 	IniRead, filePath, %A_ScriptDir%\filePath.ini, filePath, filePath
-	removeRTag := removeRestartFromMiscLine(filePath)
-	If (removeRTag) {
-		ToolTip, "RESTART=T" successfully removed from the "&MISC" line.
+	checkRTag := CheckRestartTag(filePath)
+	If (checkRTag = 1)
+	{
+		removeRTag := removeRestartFromMiscLine(filePath)
+		ToolTip, Restart tag is removed from the &MISC line.
+			Sleep, 1000
 		SetTimer, RemoveToolTip, -1000
-	} Else {
-		ToolTip, Failed to remove "RESTART=T" from the "&MISC" line.
+	}
+	Else
+	{
+		ToolTip, Restart tag is not in the &MISC line.
+			Sleep, 1000
 		SetTimer, RemoveToolTip, -1000
 	}
 Return
@@ -186,20 +248,28 @@ KillButton:
 	GuiControlGet, folderPath, , folderPath
 	GuiControlGet, fileName, , fileName
 	;	Close CMD with FDS ro MPI job instance
-	If (WinExist(AHK_exe fds.exe) || WinExist(AHK_exe mpiexec.exe)) {
+	If (WinExist(AHK_exe fds.exe) || WinExist(AHK_exe mpiexec.exe))
+	{
 		WinKill, ahk_class ConsoleWindowClass
-	} Else {
+	}
+	Else
+	{
 		MsgBox, There is no active FDS or MPI job running
 	}
 	FileMove, %A_ScriptDir%\%fileName%*.*, %folderPath%\, 1
 	FileDelete, %folderPath%\%filename%.stop
 	IniRead, filePath, %A_ScriptDir%\filePath.ini, filePath, filePath
 	removeRTag := removeRestartFromMiscLine(filePath)
-	If (removeRTag) {
+	If (removeRTag)
+	{
 		ToolTip, "RESTART=T" successfully removed from the "&MISC" line.
+			Sleep, 1000
 		SetTimer, RemoveToolTip, -1000
-	} Else {
+	}
+	Else
+	{
 		ToolTip, Failed to remove "RESTART=T" from the "&MISC" line.
+			Sleep, 1000
 		SetTimer, RemoveToolTip, -1000
 	}
 Return
@@ -213,9 +283,12 @@ BrowseFDSButton:
 	GetSelectedExe(FDSpath)
 	IniWrite, %FDSpath%, %A_ScriptDir%\FDSpath.ini, FDSpath, FDSpath
 	GuiControl, , FDSpath, % FDSpath
-	If !(FileExist(A_ScriptDir "\FDSpath.ini")) {
+	If !(FileExist(A_ScriptDir "\FDSpath.ini"))
+	{
 		IniWrite, %FDSpath%, %A_ScriptDir%\FDSpath.ini, FDSpath, FDSpath
-	} Else {
+	}
+	Else
+	{
 		IniRead, FDSpath, %A_ScriptDir%\FDSpath.ini, FDSpath, FDSpath
 	}
 Return
@@ -223,9 +296,12 @@ Return
 BrowseMPIButton:
 	GetSelectedExe(MPIpath)
 	GuiControl, , MPIpath, % MPIpath
-	If !(FileExist(A_ScriptDir "\MPIpath.ini")) {
+	If !(FileExist(A_ScriptDir "\MPIpath.ini"))
+	{
 		IniWrite, %MPIpath%, %A_ScriptDir%\MPIpath.ini, MPIpath, MPIpath
-	} Else {
+	}
+	Else
+	{
 		IniRead, MPIpath, %A_ScriptDir%\MPIpath.ini, MPIpath, MPIpath
 	}
 Return

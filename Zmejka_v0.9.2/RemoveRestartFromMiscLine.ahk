@@ -1,9 +1,11 @@
-RemoveRestartFromMiscLine(filePath) {
+RemoveRestartFromMiscLine(filePath)
+{
 	; Read the .fds file
 	FileRead, fdsContent, %filePath%
 
 	; Use a regular expression to find and modify the &MISC line containing "RESTART=T"
-	if (RegExMatch(fdsContent, "i)(&(MISC.+/))", miscLine)) {
+	if (RegExMatch(fdsContent, "i)(&(MISC.+/))", miscLine))
+	{
 		; If the line is found, remove ", RESTART=T" from it
 		modifiedLine := RegExReplace(miscLine1, "\, RESTART=T", "")
 		; Replace the original line within the full file content

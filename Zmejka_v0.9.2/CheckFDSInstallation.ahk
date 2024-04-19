@@ -6,18 +6,21 @@ CheckFDSInstallation()
         MsgBox, FDS is already installed.
     }
     else {
-		If !(FileExist(A_ScriptDir "\FDS-6.8.0_SMV-6.8.0_win.exe")) {
+		If !(FileExist(A_ScriptDir "\FDS-6.8.0_SMV-6.8.0_win.exe"))
+		{
 			; Download FDS installer
 			URLDownloadToFile, https://github.com/firemodels/fds/releases/download/FDS-6.8.0/FDS-6.8.0_SMV-6.8.0_win.exe, FDS-6.8.0_SMV-6.8.0_win.exe
 			ToolTip, Downloading FDS...
 			Return
 		}
-		If (FileExist(A_ScriptDir "\FDS-6.8.0_SMV-6.8.0_win.exe")) {
+		If (FileExist(A_ScriptDir "\FDS-6.8.0_SMV-6.8.0_win.exe"))
+		{
 			; Silent installation
 			ToolTip, Installing FDS...
 			Run, FDS-6.8.0_SMV-6.8.0_win.exe /S
 			WinWait, ahk_exe cmd.exe
-			Loop, {
+			Loop,
+			{
 				IfWinExist, ahk_exe cmd.exe
 				{
 					WinActivate, ahk_exe cmd.exe
@@ -25,7 +28,8 @@ CheckFDSInstallation()
 					ControlSend, , yes
 					sleep, 50
 					ControlSend, , {ENTER 1}
-					loop {
+					loop
+					{
 						Process, Wait, hydra_service.exe
 						if ErrorLevel <> 0
 						{

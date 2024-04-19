@@ -1,11 +1,13 @@
-﻿Parse_FDS(file){
+﻿Parse_FDS(file)
+{
     ;	Initialize the count
     count := 0
     ;	Read the file line by line
     Loop, Read, %file%
     {
         ;	Check if the current line starts with "&MESH" and ends with "/"
-        if (SubStr(A_LoopReadLine, 1, 5) = "&MESH" AND SubStr(A_LoopReadLine, 0) = "/") {
+        if (SubStr(A_LoopReadLine, 1, 5) = "&MESH" AND SubStr(A_LoopReadLine, 0) = "/")
+		{
             ;	Increment the count
             count++
         }
