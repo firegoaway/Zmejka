@@ -7,7 +7,7 @@
 ## Особенности и описание работы утилиты
 Программа взаимодействует с Fire Dynamics Simulator, raw-файлами .fds и консольной средой FDS, позволяя запускать, останавливать и продолжать моделирование пожара в любой удобный момент времени.
 
-## Поддерживаемые версии FDS
+### Поддерживаемые версии FDS
 > [**FDS 6.9.1**](https://github.com/firemodels/fds/releases/tag/FDS-6.9.1)
 > [**FDS 6.9.0**](https://github.com/firemodels/fds/releases/tag/FDS-6.9.0)
 > [**FDS 6.8.0**](https://github.com/firemodels/fds/releases/tag/FDS-6.8.0)
