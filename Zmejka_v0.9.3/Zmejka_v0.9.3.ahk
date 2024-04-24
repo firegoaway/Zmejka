@@ -5,6 +5,8 @@
 #Include AddRestartToMiscLine.ahk
 #Include RemoveRestartFromMiscLine.ahk
 #Include CheckRestartFile.ahk
+#Include ExtractLastTotalTime.ahk
+#Include SearchForTEND.ahk
 #SingleInstance Off
 #Persistent
 #NoEnv
@@ -19,6 +21,7 @@ If FileExist(A_ScriptDir "\MPIpath.ini")
 Else
 	MPIpath := ""
 
+/* OLD GUI
 ;Gui +Resize
 ;Gui, Add, Edit, vFilePath, % "Enter .fds file path here"
 Gui, Add, Tab3,, General|View|Settings
@@ -35,6 +38,28 @@ Gui, Add, Edit, x202 y99 w130 h20 vFDSpath, %FDSpath%
 Gui, Add, Button, x112 y129 w80 h20 gBrowseMPIButton, Browse mpi
 Gui, Add, Edit, x202 y129 w130 h20 vMPIpath, %MPIpath%
 Gui, Show
+Return
+*/
+
+Gui, Add, Tab3, x2 y-1 w390 h310 +BackgroundTrans, General|Settings
+Gui, Tab, General
+Gui, Add, Edit, x12 y39 vFolderPath w240 h20, % "Enter fds file folder path here"
+Gui, Add, Edit, x12 y69 vFileName w240 h20, % "File name is stored here"
+Gui, Add, Button, x262 y49 gBrowseFileButton w100 h30, Browse .fds
+Gui, Add, Button, x12 y109 w80 h30 gStartButton, Start
+Gui, Add, Button, x102 y109 w80 h30 gPauseButton, Pause
+Gui, Add, Button, x192 y109 w80 h30 gStopButton, Stop
+Gui, Add, Button, x282 y109 w80 h30 gKillButton, Kill
+Gui, Add, Button, x12 y149 w80 h30 gBrowseFDSButton, Browse fds.exe
+Gui, Add, Edit, x102 y149 w260 h30 vFDSpath, %FDSpath%
+Gui, Add, Button, x12 y189 w80 h30 gBrowseMPIButton, Browse mpi
+Gui, Add, Edit, x102 y189 w260 h30 vMPIpath, %MPIpath%
+Gui, Add, Button, x12 y229 w80 h30 gCheckFDS, Check FDS
+Gui, Tab, Settings
+Gui, Add, CheckBox, x12 y39 w120 h20 , Allow DT_RESTART
+Gui, Add, Edit, x162 y39 w100 h20 +BackgroundTrans, 100000
+Gui, Add, Text, x272 y39 w40 h20, sec
+Gui, Show, h310 w395, Zmejka_v0.9.3
 Return
 
 BrowseFileButton:
@@ -122,10 +147,11 @@ StartButton:
 			SetTimer, RemoveToolTip, -1000
 		}
 	}
-	FileDelete, %folderPath%\%filename%*.stop
+	FileDelete, %folderPath%\%fileName%*.stop
 	FileMove, %folderPath%\%fileName%*.*, %A_ScriptDir%\, 1
 	FileMove, %folderPath%\%fileName%.fds, %A_ScriptDir%\, 1
-	filePath := A_ScriptDir "\" filename ".fds"
+	filePath := A_ScriptDir "\" fileName ".fds"
+	OutfilePath := A_ScriptDir "\" fileName ".out"
 	If (FileExist(A_ScriptDir "\FDSpath.ini") && (FDSpath != "") && FileExist(A_ScriptDir "\MPIpath.ini") && (MPIpath != ""))
 	{
 		MPI_PROCESS_NUM := Parse_FDS(filePath)
@@ -156,7 +182,35 @@ StartButton:
 			ToolTip, mpiexec.exe will be omitted upon running %fileName%.fds
 				Sleep, 1000
 			SetTimer, RemoveToolTip, -1000
-			RunWait, fds "%filePath%"
+			Run, fds "%filePath%"
+			Loop
+			{
+				Sleep, 1000
+				If FileExist(A_ScriptDir "\" fileName ".out")
+					Break
+				Else If !(FileExist(A_ScriptDir "\" fileName ".out")) || (ExtractLastTotalTime(OutfilePath) < ExtractLastTotalTime(OutfilePath) + 10)
+					Continue
+				Else
+					Continue
+			}
+			Progress, M2 x500 y500 w250
+			Loop
+			{
+				If FileExist(A_ScriptDir "\" fileName ".out")
+				{
+					TEND := SearchForTEND(filePath)
+					TotalTime := Ceil(ExtractLastTotalTime(OutfilePath))
+					ProgressPercentage := Ceil((TotalTime / TEND) * 100)
+					Progress, %ProgressPercentage%
+					Sleep, 100
+					Continue
+				}
+				Else If (TotalTime = TEND) || !FileExist(A_ScriptDir "\" fileName ".out")
+					Break
+				Else
+					Continue
+			} Until (TotalTime >= TEND) || OutFileExists
+			Progress Off
 		}
 		Else
 		{
