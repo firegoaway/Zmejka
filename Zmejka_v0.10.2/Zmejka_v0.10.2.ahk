@@ -153,18 +153,18 @@ StartButton:
 	{
 		MPI_PROCESS_NUM := Parse_FDS(filePath)
 		ToolTip, % "Number of MPI processes detected: " MPI_PROCESS_NUM
-			Sleep, 1000
+		Sleep, 1000
 		ToolTip, "%MPIpath%" -n %MPI_PROCESS_NUM% "%FDSpath%" "%folderPath%\%fileName%.fds"
-			Sleep, 1000
+		Sleep, 1000
 		SetTimer, RemoveToolTip, -1000
 		RunWait, "%MPIpath%" -n %MPI_PROCESS_NUM% "%FDSpath%" "%filePath%"
 	}
 	Else If (FileExist(A_ScriptDir "\FDSpath.ini") && (FDSpath != ""))
 	{
 		ToolTip, FDSpath.ini exists and "%FDSpath%" is not empty
-			Sleep, 1000
+		Sleep, 1000
 		ToolTip, mpiexec.exe will be omitted upon running %fileName%.fds
-			Sleep, 1000
+		Sleep, 1000
 		SetTimer, RemoveToolTip, -1000
 		RunWait, "%FDSpath%" "%filePath%"
 	}
@@ -206,7 +206,7 @@ StartButton:
 					TotalTime := Ceil(ExtractLastTotalTime(OutfilePath))
 					ProgressPercentage := Ceil((TotalTime / TEND) * 100)
 					Progress, %ProgressPercentage%
-					Sleep, 100
+					Sleep, 250
 					Continue
 				}
 				Else If (TotalTime = TEND) || !FileExist(OutfilePath)
@@ -232,10 +232,19 @@ StartButton:
 		ResultsList .= A_LoopFileFullPath "`n"
 	}
 	;	Move the files to the %fileName%.fds folder
-	FileMove, %A_ScriptDir%\%fileName%*.*, %folderPath%\, 1
-	sleep, 500
-	FileMove, %A_ScriptDir%\%fileName%*.restart, %folderPath%\, 1
-	sleep, 500
+	file_Exist := A_ScriptDir "\" fileName "." "*"
+	if FileExist(file_Exist)
+	{
+		Loop,
+		{
+			FileMove, %A_ScriptDir%\%fileName%*.*, %folderPath%\, 1
+		}
+		Until !FileExist(file_Exist)
+	}
+	else
+	{
+		MsgBox, % fileName " not found dude"
+	}
 Return
 
 PauseButton:
