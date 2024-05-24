@@ -15,8 +15,8 @@
 ## Как установить и пользоваться
 |	№ п/п	|	Действие	|
 |---------|---------|
-|	1	|	Скачайте последнюю версию **Zmejka_SFX.exe** в разделе [Releases](https://github.com/firegoaway/Zmejka/releases);	|
-|	2	|	Запустите **Zmejka_SFX.exe**.	|
+|	1	|	Скачайте последнюю версию **Zmejka** в разделе [Releases](https://github.com/firegoaway/Zmejka/releases);	|
+|	2	|	Запустите **Zmejka.exe**.	|
 |	3	|	Нажмите **"Browse .fds"** и выберите файл сценария .fds	|
 |	4a	|	Нажмите **"Check FDS"** и дождитесь завершения установки актуальной версии FDS	|
 |	4b	|	Нажмите **"Browse fds.exe"** и укажите путь к fds.exe вручную	|
