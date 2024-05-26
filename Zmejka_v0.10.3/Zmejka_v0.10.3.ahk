@@ -44,7 +44,7 @@ Gui, Add, Button, x152 y69 w100 h40 gRunInsertDEVC, Run Insert_DEVC
 Gui, Add, Text, x22 y119 w120 h40 , Построить график F (dэфф) для нахождения tпор
 Gui, Add, Button, x152 y119 w100 h40 gRunPCTT, Run PCTT
 
-Gui, Show, h310 w395, Zmejka_v0.10.2
+Gui, Show, h310 w395, Zmejka_v0.10.3
 Return
 
 BrowseFileButton:
@@ -232,7 +232,7 @@ StartButton:
 		ResultsList .= A_LoopFileFullPath "`n"
 	}
 	;	Move the files to the %fileName%.fds folder
-	file_Exist := A_ScriptDir "\" fileName "." "*"
+	file_Exist := A_ScriptDir "\" fileName "*" "." "*"
 	if FileExist(file_Exist)
 	{
 		Loop,
