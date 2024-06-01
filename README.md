@@ -41,10 +41,10 @@
 - Хэш-сумма обновляется только при обновлении версии утилиты и всегда доступна в конце файла **README.md**.
 
 ### Актуальная Хэш-сумма
-> Zmejka.exe - **ee531ce53f1967727be62fcd0acd75ed**
+> Zmejka.exe - **0c7d41218f917652d21a8768cd7823ea**
 
 > PCTT.exe - **33bf58d1c704ded5088e3c25cf4180e7**
 
-> Insert_DEVC.exe - **26a14c5b86678dc79233303dac3e685d**
+> Insert_DEVC.exe - **fa278bf0b86cd14df54eb1e520560434**
 
 > PFED.exe - **965ef88a6d7d3a1e05cd4697f9d0a457**

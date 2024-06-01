@@ -43,10 +43,10 @@ Gui, Add, Text, x22 y69 w120 h40 , Подготовить FDS к расчёту 
 Gui, Add, Button, x152 y69 w100 h40 gRunInsertDEVC, Run Insert_DEVC
 Gui, Add, Text, x22 y119 w120 h40 , Построить график F (dэфф) для нахождения tпор
 Gui, Add, Button, x152 y119 w100 h40 gRunPCTT, Run PCTT
-Gui, Add, Text, x22 y169 w110 h40 , Построить график плотности людского потока
+Gui, Add, Text, x22 y169 w110 h40 , Построить график плотности людских потоков
 Gui, Add, Button, x152 y169 w100 h40 gRunPFED, Run PFED
 
-Gui, Show, h310 w395, Zmejka_v0.11.0
+Gui, Show, h310 w395, Zmejka_v0.11.1
 Return
 
 BrowseFileButton:
