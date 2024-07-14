@@ -52,4 +52,4 @@
 
 > FSF.exe - **e4c3fe8525def31d24f9f094c1a1257f**
 
-> Расчёт tmax.exe - **f4cfc6cc7fad9950d95bf7015ab4cec8**
+> Расчёт_tmax.exe - **f4cfc6cc7fad9950d95bf7015ab4cec8**
