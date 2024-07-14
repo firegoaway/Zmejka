@@ -395,7 +395,7 @@ RunPFED:
 Return
 
 RunSURF:
-	Run, "Расчёт tmax.exe"
+	Run, Расчёт_tmax.exe
 	Run, SURF_FIX.exe
 Return
 
