@@ -45,8 +45,10 @@ Gui, Add, Text, x22 y119 w120 h40 , Построить график F (dэфф) 
 Gui, Add, Button, x152 y119 w100 h40 gRunPCTT, Run PCTT
 Gui, Add, Text, x22 y169 w110 h40 , Построить график плотности людских потоков
 Gui, Add, Button, x152 y169 w100 h40 gRunPFED, Run PFED
+Gui, Add, Text, x22 y219 w120 h40 , Привести параметры моделирования пожара к требуемым
+Gui, Add, Button, x152 y219 w100 h40 gRunSURF, Run SURF_FIX
 
-Gui, Show, h310 w395, Zmejka_v0.11.1
+Gui, Show, h310 w395, Zmejka_v0.12.0
 Return
 
 BrowseFileButton:
@@ -390,6 +392,10 @@ Return
 
 RunPFED:
 	Run, PFED.exe
+Return
+
+RunSURF:
+	Run, SURF_FIX.exe
 Return
 
 RemoveToolTip:
