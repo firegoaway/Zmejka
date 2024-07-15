@@ -48,7 +48,7 @@ Gui, Add, Button, x152 y169 w100 h40 gRunPFED, Run PFED
 Gui, Add, Text, x22 y219 w120 h40 , Привести параметры моделирования пожара к требуемым
 Gui, Add, Button, x152 y219 w100 h40 gRunSURF, Run SURF_FIX
 
-Gui, Show, h310 w395, Zmejka_v0.12.0
+Gui, Show, h310 w395, Zmejka_v0.12.1
 Return
 
 BrowseFileButton:
@@ -396,6 +396,7 @@ Return
 
 RunSURF:
 	Run, Расчёт_tmax.exe
+		Sleep, 50
 	Run, SURF_FIX.exe
 Return
 
