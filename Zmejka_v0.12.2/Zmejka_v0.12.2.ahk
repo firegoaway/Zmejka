@@ -16,19 +16,37 @@
 SetTitleMatchMode, 2
 
 If FileExist(A_ScriptDir "\FDSpath.ini")
+{
 	IniRead, FDSpath, %A_ScriptDir%\FDSpath.ini, FDSpath, FDSpath
+}
 Else
+{
 	FDSpath := ""
-If FileExist(A_ScriptDir "\MPIpath.ini")
-	IniRead, MPIpath, %A_ScriptDir%\MPIpath.ini, MPIpath, MPIpath
-Else
-	MPIpath := ""
+}
 
-Gui, Add, Tab3, x2 y-1 w390 h310 +BackgroundTrans, Главный экран|Настройки
+If FileExist(A_ScriptDir "\MPIpath.ini")
+{
+	IniRead, MPIpath, %A_ScriptDir%\MPIpath.ini, MPIpath, MPIpath
+}
+Else
+{
+	MPIpath := ""
+}
+
+If FileExist(A_ScriptDir "\filePath.ini")
+{
+	IniRead, filePath, %A_ScriptDir%\filePath.ini, filePath, filePath
+}
+Else
+{
+	filePath := ""
+}
+
+Gui, Add, Tab3, x2 y-1 w390 h310 +BackgroundTrans, Главный экран|Параметры
 Gui, Tab, Главный экран
 Gui, Add, Edit, x12 y39 vFolderPath w240 h20, % "Укажите путь к папке с файлом сценария (.fds)"
 Gui, Add, Edit, x12 y69 vFileName w240 h20, % "Укажите имя файла сценария (.fds)"
-Gui, Add, Button, x262 y49 gBrowseFileButton w100 h30, Найти .fds
+Gui, Add, Button, x262 y49 gBrowseFileButton w100 h30, Выбрать .fds
 Gui, Add, Button, x12 y109 w80 h30 gStartButton, Старт
 Gui, Add, Button, x102 y109 w80 h30 gPauseButton, Пауза
 Gui, Add, Button, x192 y109 w80 h30 gStopButton, Стоп
@@ -38,7 +56,8 @@ Gui, Add, Edit, x102 y149 w260 h30 vFDSpath, %FDSpath%
 Gui, Add, Button, x12 y189 w80 h30 gBrowseMPIButton, Найти mpi.exe
 Gui, Add, Edit, x102 y189 w260 h30 vMPIpath, %MPIpath%
 Gui, Add, Button, x12 y229 w80 h30 gCheckFDS, Проверить наличие FDS
-Gui, Tab, Настройки
+Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.2_hotfix4
+Gui, Tab, Параметры
 Gui, Add, Checkbox, x22 y29 w150 h20 gChckAlwDTR vChckAlw, Добавить DT_RESTART
 Gui, Add, Edit, x192 y29 w60 h20 vChckDTR Number, 100
 Gui, Add, Text, x262 y29 w30 h20 , сек
@@ -50,8 +69,9 @@ Gui, Add, Text, x22 y169 w110 h40 , Построить график плотно
 Gui, Add, Button, x152 y169 w100 h40 gRunPFED, PFED
 Gui, Add, Text, x22 y219 w120 h40 , Привести параметры моделирования пожара к требуемым
 Gui, Add, Button, x152 y219 w100 h40 gRunSURF, SURF_FIX
+Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.2_hotfix4
 
-Gui, Show, h310 w395, Zmejka_v0.12.2
+Gui, Show, h310 w395, ZmejkaFDS
 Return
 
 BrowseFileButton:
@@ -156,7 +176,7 @@ StartButton:
 	}
 	
 	
-	If (FileExist(A_ScriptDir "\FDSpath.ini") && (FDSpath != "") && FileExist(A_ScriptDir "\MPIpath.ini") && (MPIpath != ""))
+	If (FileExist(A_ScriptDir "\FDSpath.ini") && (FDSpath != "")) && (FileExist(A_ScriptDir "\MPIpath.ini") && (MPIpath != ""))
 	{
 		MPI_PROCESS_NUM := Parse_FDS(filePath)
 		ToolTip, % "Number of MPI processes detected: " MPI_PROCESS_NUM
@@ -166,7 +186,7 @@ StartButton:
 		ToolTip
 		Run, "%MPIpath%" -n %MPI_PROCESS_NUM% "%FDSpath%" "%filePath%"
 	}
-	Else If (!FileExist(A_ScriptDir "\FDSpath.ini") || (FDSpath = "") && FileExist(A_ScriptDir "\MPIpath.ini") && (MPIpath != ""))
+	Else If (!FileExist(A_ScriptDir "\FDSpath.ini") || (FDSpath = "")) && (FileExist(A_ScriptDir "\MPIpath.ini") && (MPIpath != ""))
 	{
 		FDSpath := A_ProgramFiles "\firemodels\FDS6\bin\fds.exe"
 		MPI_PROCESS_NUM := Parse_FDS(filePath)
@@ -177,8 +197,9 @@ StartButton:
 		ToolTip
 		Run, "%MPIpath%" -n %MPI_PROCESS_NUM% "%FDSpath%" "%filePath%"
 	}
-	Else If ((FileExist(A_ScriptDir "\FDSpath.ini") && (FDSpath != "")) && (!FileExist(A_ScriptDir "\MPIpath.ini") || (MPIpath = "")))
+	Else If (FileExist(A_ScriptDir "\FDSpath.ini") && (FDSpath != "")) && (!FileExist(A_ScriptDir "\MPIpath.ini") && (MPIpath = ""))
 	{
+		IniRead, FDSpath, %A_ScriptDir%\FDSpath.ini, FDSpath, FDSpath
 		ToolTip, FDSpath.ini exists and "%FDSpath%" is not empty
 		Sleep, 1000
 		ToolTip, mpiexec.exe will be omitted upon running %fileName%.fds
