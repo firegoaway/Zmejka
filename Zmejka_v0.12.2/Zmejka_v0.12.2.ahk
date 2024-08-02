@@ -29,10 +29,10 @@ Gui, Tab, Главный экран
 Gui, Add, Edit, x12 y39 vFolderPath w240 h20, % "Укажите путь к папке с файлом сценария (.fds)"
 Gui, Add, Edit, x12 y69 vFileName w240 h20, % "Укажите имя файла сценария (.fds)"
 Gui, Add, Button, x262 y49 gBrowseFileButton w100 h30, Найти .fds
-Gui, Add, Button, x12 y109 w80 h30 gStartButton, Пуск
+Gui, Add, Button, x12 y109 w80 h30 gStartButton, Старт
 Gui, Add, Button, x102 y109 w80 h30 gPauseButton, Пауза
 Gui, Add, Button, x192 y109 w80 h30 gStopButton, Стоп
-Gui, Add, Button, x282 y109 w80 h30 gKillButton, Убить процесс
+Gui, Add, Button, x282 y109 w80 h30 gKillButton, Прервать
 Gui, Add, Button, x12 y149 w80 h30 gBrowseFDSButton, Найти fds.exe
 Gui, Add, Edit, x102 y149 w260 h30 vFDSpath, %FDSpath%
 Gui, Add, Button, x12 y189 w80 h30 gBrowseMPIButton, Найти mpi.exe
