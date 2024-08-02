@@ -106,6 +106,8 @@ StartButton:
 	{
 		FileMove, %folderPath%\%fileName%.fds, %A_ScriptDir%\%fileName%\*, 1
 		FileMove, %folderPath%\%fileName%*.*, %A_ScriptDir%\%fileName%\*, 1
+		filePath := A_ScriptDir "\" fileName ".fds"
+		OutfilePath := A_ScriptDir "\" fileName ".out"
 	}
 	Else
 	{
@@ -152,25 +154,39 @@ StartButton:
 		filePath := A_ScriptDir "\" fileName ".fds"
 		OutfilePath := A_ScriptDir "\" fileName ".out"
 	}
+	
+	
 	If (FileExist(A_ScriptDir "\FDSpath.ini") && (FDSpath != "") && FileExist(A_ScriptDir "\MPIpath.ini") && (MPIpath != ""))
 	{
 		MPI_PROCESS_NUM := Parse_FDS(filePath)
 		ToolTip, % "Number of MPI processes detected: " MPI_PROCESS_NUM
 		Sleep, 1000
-		ToolTip, "%MPIpath%" -n %MPI_PROCESS_NUM% "%FDSpath%" "%folderPath%\%fileName%.fds"
+		ToolTip, "%MPIpath%" -n %MPI_PROCESS_NUM% "%FDSpath%" "%filePath%"
 		Sleep, 1000
-		SetTimer, RemoveToolTip, -1000
-		RunWait, "%MPIpath%" -n %MPI_PROCESS_NUM% "%FDSpath%" "%filePath%"
+		ToolTip
+		Run, "%MPIpath%" -n %MPI_PROCESS_NUM% "%FDSpath%" "%filePath%"
 	}
-	Else If (FileExist(A_ScriptDir "\FDSpath.ini") && (FDSpath != ""))
+	Else If (!FileExist(A_ScriptDir "\FDSpath.ini") || (FDSpath = "") && FileExist(A_ScriptDir "\MPIpath.ini") && (MPIpath != ""))
+	{
+		FDSpath := A_ProgramFiles "\firemodels\FDS6\bin\fds.exe"
+		MPI_PROCESS_NUM := Parse_FDS(filePath)
+		ToolTip, % "Number of MPI processes detected: " MPI_PROCESS_NUM
+		Sleep, 1000
+		ToolTip, "%MPIpath%" -n %MPI_PROCESS_NUM% "%FDSpath%" "%filePath%"
+		Sleep, 1000
+		ToolTip
+		Run, "%MPIpath%" -n %MPI_PROCESS_NUM% "%FDSpath%" "%filePath%"
+	}
+	Else If ((FileExist(A_ScriptDir "\FDSpath.ini") && (FDSpath != "")) && (!FileExist(A_ScriptDir "\MPIpath.ini") || (MPIpath = "")))
 	{
 		ToolTip, FDSpath.ini exists and "%FDSpath%" is not empty
 		Sleep, 1000
 		ToolTip, mpiexec.exe will be omitted upon running %fileName%.fds
 		Sleep, 1000
-		SetTimer, RemoveToolTip, -1000
-		RunWait, "%FDSpath%" "%filePath%"
+		ToolTip
+		Run, "%FDSpath%" "%filePath%"
 	}
+	
 	Else
 	{
 		CheckFDSExe := FileExist(A_ProgramFiles "\firemodels\FDS6\bin\fds.exe")
@@ -183,51 +199,56 @@ StartButton:
 			Sleep, 1000
 			SetTimer, RemoveToolTip, -1000
 			Run, fds "%filePath%"
-			Loop
-			{
-				LastTotalTime := ExtractLastTotalTime(OutfilePath)
-				Sleep, 1000
-				If FileExist(OutfilePath)
-				{
-					Break
-				}
-				Else If !(FileExist(OutfilePath)) || (LastTotalTime < LastTotalTime + 10)
-				{
-					Continue
-				}
-				Else
-				{
-					Continue
-				}
-			}
-			Progress, M2 x500 y500 w250
-			Loop
-			{
-				If FileExist(OutfilePath)
-				{
-					TEND := SearchForTEND(filePath)
-					TotalTime := Ceil(ExtractLastTotalTime(OutfilePath))
-					ProgressPercentage := Ceil((TotalTime / TEND) * 100)
-					Progress, %ProgressPercentage%
-					Sleep, 250
-					Continue
-				}
-				Else If (TotalTime = TEND) || !FileExist(OutfilePath)
-				{
-					Break
-				}
-				Else
-				{
-					Continue
-				}
-			} Until (TotalTime >= TEND) || OutFileExists
-			Progress Off
 		}
 		Else
 		{
 			MsgBox, Please specify the path to fds.exe within which %fileName%.fds was created.
 		}
 	}
+	
+	Loop
+	{
+		LastTotalTime := ExtractLastTotalTime(OutfilePath)
+		Sleep, 1000
+		If FileExist(OutfilePath)
+		{
+			Break
+		}
+		Else If !(FileExist(OutfilePath)) || (LastTotalTime < LastTotalTime + 10)
+		{
+			Continue
+		}
+		Else
+		{
+			Continue
+		}
+	}
+	Progress, M2 x500 y500 w250
+	Loop
+	{
+		If FileExist(OutfilePath)
+		{
+			TEND := SearchForTEND(filePath)
+			TotalTime := Ceil(ExtractLastTotalTime(OutfilePath))
+			ProgressPercentage := Ceil((TotalTime / TEND) * 100)
+			Progress, %ProgressPercentage%
+			Sleep, 250
+			Continue
+		}
+		Else If (TotalTime = TEND) || !FileExist(OutfilePath)
+		{
+			Break
+		}
+		Else
+		{
+			Continue
+		}
+	}
+	Until (TotalTime >= TEND) || OutFileExists
+	{
+		Progress Off
+	}
+	
 	;	Get the list of simulation results files with %fileName% prefix
 	ResultsList := ""
 	Loop, Files, %A_ScriptDir%\%fileName%*.*
@@ -246,7 +267,8 @@ StartButton:
 	}
 	else
 	{
-		MsgBox, % fileName " not found dude"
+		ToolTip, % fileName " not found dude"
+		Sleep, 250
 	}
 	Return
 
@@ -260,7 +282,28 @@ PauseButton:
 		Sleep, 1000
 		WinWaitClose
 	}
-	FileMove, %A_ScriptDir%\%fileName%*.*, %folderPath%\, 1
+	
+	ResultsList := ""
+	Loop, Files, %A_ScriptDir%\%fileName%*.*
+	{
+		ResultsList .= A_LoopFileFullPath "`n"
+	}
+	;	Move the files to the %fileName%.fds folder
+	file_Exist := A_ScriptDir "\" fileName "*" "." "*"
+	if FileExist(file_Exist)
+	{
+		Loop,
+		{
+			FileMove, %A_ScriptDir%\%fileName%*.*, %folderPath%\, 1
+		}
+		Until !FileExist(file_Exist)
+	}
+	else
+	{
+		ToolTip, % fileName " not found dude"
+		Sleep, 250
+	}
+	
 	ToolTip, files moved to %folderPath%
 	Sleep, 1000
 	SetTimer, RemoveToolTip, -1000
@@ -297,7 +340,28 @@ StopButton:
 	}
 	ToolTip, fds.exe is closed
 	Sleep, 1000
-	FileMove, %A_ScriptDir%\%fileName%*.*, %folderPath%\, 1
+	
+	ResultsList := ""
+	Loop, Files, %A_ScriptDir%\%fileName%*.*
+	{
+		ResultsList .= A_LoopFileFullPath "`n"
+	}
+	;	Move the files to the %fileName%.fds folder
+	file_Exist := A_ScriptDir "\" fileName "*" "." "*"
+	if FileExist(file_Exist)
+	{
+		Loop,
+		{
+			FileMove, %A_ScriptDir%\%fileName%*.*, %folderPath%\, 1
+		}
+		Until !FileExist(file_Exist)
+	}
+	else
+	{
+		ToolTip, % fileName " not found dude"
+		Sleep, 250
+	}
+	
 	ToolTip, files moved to %folderPath%
 	Sleep, 1000
 	IniRead, filePath, %A_ScriptDir%\filePath.ini, filePath, filePath
@@ -329,7 +393,28 @@ KillButton:
 	{
 		MsgBox, There is no active FDS or MPI job running
 	}
-	FileMove, %A_ScriptDir%\%fileName%*.*, %folderPath%\, 1
+	
+	ResultsList := ""
+	Loop, Files, %A_ScriptDir%\%fileName%*.*
+	{
+		ResultsList .= A_LoopFileFullPath "`n"
+	}
+	;	Move the files to the %fileName%.fds folder
+	file_Exist := A_ScriptDir "\" fileName "*" "." "*"
+	if FileExist(file_Exist)
+	{
+		Loop,
+		{
+			FileMove, %A_ScriptDir%\%fileName%*.*, %folderPath%\, 1
+		}
+		Until !FileExist(file_Exist)
+	}
+	else
+	{
+		ToolTip, % fileName " not found dude"
+		Sleep, 250
+	}
+	
 	FileDelete, %folderPath%\%filename%.stop
 	IniRead, filePath, %A_ScriptDir%\filePath.ini, filePath, filePath
 	removeRTag := removeRestartFromMiscLine(filePath)
