@@ -44,7 +44,7 @@
 ### Актуальные Хэш-суммы
 > Zmejka.exe - **40ac8f049326cc4ca49126c312baacd3**
 
-> PCTT.exe - **dd8328487fb5713dc7752b1d41f3f909**
+> PCTT.exe - **bf4b5e95351931d54adbb1196f38f8ef**
 
 > Insert_DEVC.exe - **72cefe7ee02d93a963af0a4ee8701816**
 
