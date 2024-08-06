@@ -50,6 +50,6 @@
 
 > PFED.exe - **965ef88a6d7d3a1e05cd4697f9d0a457**
 
-> FSF.exe - **e4c3fe8525def31d24f9f094c1a1257f**
+> FSF.exe - **51809730c6ddf56f594df776beb58909**
 
 > Расчёт_tmax.exe - **625c8039dea9b29c86d1e07825c1748d**
