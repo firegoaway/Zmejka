@@ -56,7 +56,7 @@ Gui, Add, Edit, x102 y149 w260 h30 vFDSpath, %FDSpath%
 Gui, Add, Button, x12 y189 w80 h30 gBrowseMPIButton, Найти mpi.exe
 Gui, Add, Edit, x102 y189 w260 h30 vMPIpath, %MPIpath%
 Gui, Add, Button, x12 y229 w80 h30 gCheckFDS, Проверить наличие FDS
-Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.2_hotfix5
+Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.2_hotfix6
 Gui, Tab, Параметры
 Gui, Add, Checkbox, x22 y29 w150 h20 gChckAlwDTR vChckAlw, Добавить DT_RESTART
 Gui, Add, Edit, x192 y29 w60 h20 vChckDTR Number, 100
@@ -69,7 +69,7 @@ Gui, Add, Text, x22 y169 w110 h40 , Построить график плотно
 Gui, Add, Button, x152 y169 w100 h40 gRunPFED, PFED
 Gui, Add, Text, x22 y219 w120 h40 , Привести параметры моделирования пожара к требуемым
 Gui, Add, Button, x152 y219 w100 h40 gRunSURF, SURF_FIX
-Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.2_hotfix5
+Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.2_hotfix6
 
 Gui, Show, h310 w395, ZmejkaFDS
 Return
