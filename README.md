@@ -44,7 +44,7 @@
 - Хэш-сумма обновляется только при обновлении версии утилиты и всегда доступна в конце файла **README.md**.
 
 ### Актуальные Хэш-суммы
-> ZmejkaFDS.exe - **c4ddb57c98945bb15d064f70181e86dd**
+> ZmejkaFDS.exe - **16e08c4caeb47ffea30042d9c5ec1805**
 
 > PCTT.exe - **0c1a9b1f255889805fdfc75ab5042309**
 
@@ -52,7 +52,7 @@
 
 > PFED.exe - **965ef88a6d7d3a1e05cd4697f9d0a457**
 
-> SURF_FIX.exe - **03a63a2347f6f206f6aae1288ad59d90**
+> SURF_FIX.exe - **840f19185a31e3a248223d521c627b29**
 
 > Расчёт_tmax.exe - **625c8039dea9b29c86d1e07825c1748d**
 
