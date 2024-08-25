@@ -44,20 +44,20 @@
 - Хэш-сумма обновляется только при обновлении версии утилиты и всегда доступна в конце файла **README.md**.
 
 ### Актуальные Хэш-суммы
-> ZmejkaFDS.exe - **6d9e113c5f16d3221146a564d04fd954**
+> ZmejkaFDS.exe - **f6d29c3c6ce8b286224ebe35dbec0cf5**
 
-> PCTT.exe - **0c1a9b1f255889805fdfc75ab5042309**
+> PCTT.exe - **2f85644d0bfeb7e332b328f13933ee3e**
 
-> Insert_DEVC.exe - **72cefe7ee02d93a963af0a4ee8701816**
+> Insert_DEVC.exe - **665edaff58ac0fad34f6c1600d2536e3**
 
-> PFED.exe - **965ef88a6d7d3a1e05cd4697f9d0a457**
+> PFED.exe - **8e82ece80f12afebf3970f0287d673cf**
 
 > SURF_FIX.exe - **c97c0fe122947043e0ba81615b028f2b**
 
 > Расчёт_tmax.exe - **625c8039dea9b29c86d1e07825c1748d**
 
-> HRRP.exe - **17882f8fffc039d2c048514e0869fa94**
+> HRRP.exe - **b4ddb50bcf57929ec1b57ff9f0fbfcd6**
 
-> FMT Partitioner.exe - **70169f86c5b9dac5a29a431d41882242**
+> FMT Partitioner.exe - **8cb4b1012898f27ae7629c5a325cd804**
 
-> FMT Refiner-Coarsener.exe - **40c7f61a46c483965361443f8a434735**
+> FMT Refiner-Coarsener.exe - **900b4a30901f923208200fe9e9406f17**
