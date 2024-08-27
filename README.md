@@ -44,7 +44,7 @@
 - Хэш-сумма обновляется только при обновлении версии утилиты и всегда доступна в конце файла **README.md**.
 
 ### Актуальные Хэш-суммы
-> ZmejkaFDS.exe - **f6d29c3c6ce8b286224ebe35dbec0cf5**
+> ZmejkaFDS.exe - **99eab251bfee0eaabce15cbc09cf2e4f**
 
 > PCTT.exe - **2f85644d0bfeb7e332b328f13933ee3e**
 
@@ -61,3 +61,5 @@
 > FMT Partitioner.exe - **8cb4b1012898f27ae7629c5a325cd804**
 
 > FMT Refiner-Coarsener.exe - **900b4a30901f923208200fe9e9406f17**
+
+> MDBL.exe - **fd254388138c96cde646dd905997c464**

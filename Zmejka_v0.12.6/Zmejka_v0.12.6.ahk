@@ -56,11 +56,12 @@ Gui, Add, Edit, x102 y149 w260 h30 vFDSpath, %FDSpath%
 Gui, Add, Button, x12 y189 w80 h30 gBrowseMPIButton, Найти mpi.exe
 Gui, Add, Edit, x102 y189 w260 h30 vMPIpath, %MPIpath%
 Gui, Add, Button, x12 y229 w80 h30 gCheckFDS, Проверить наличие FDS
-Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.5
+Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.6
 Gui, Tab, Параметры
 Gui, Add, Checkbox, x22 y29 w150 h20 gChckAlwDTR vChckAlw, Добавить DT_RESTART
-Gui, Add, Edit, x192 y29 w60 h20 vChckDTR Number, 100
-Gui, Add, Text, x262 y29 w30 h20 , сек
+Gui, Add, Edit, x172 y29 w50 h20 vChckDTR Number, 100
+Gui, Add, Text, x232 y29 w30 h20 , сек
+Gui, Add, Button, x292 y29 w45 h25 gRunMDBL, MDBL
 Gui, Add, Text, x22 y69 w120 h40 , Подготовить FDS к расчёту F (dэфф) для нахождения tпор
 Gui, Add, Button, x152 y69 w100 h40 gRunInsertDEVC, Insert_DEVC
 Gui, Add, Text, x22 y119 w120 h40 , Привести параметры моделирования пожара к требуемым
@@ -69,7 +70,7 @@ Gui, Add, Text, x22 y169 w120 h40 , Разбить расчётную облас
 Gui, Add, Button, x152 y169 w100 h40 gRunPartitioner, Partition
 Gui, Add, Text, x22 y219 w120 h40 , Уменьшить/увеличить размер ячейки
 Gui, Add, Button, x152 y219 w100 h40 gRunRefiner, Refine/Coarsen
-Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.5
+Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.6
 Gui, Tab, Построение графиков
 Gui, Add, Text, x22 y69 w120 h40 , Построить график F (dэфф) для нахождения tпор
 Gui, Add, Button, x152 y69 w100 h40 gRunPCTT, PCTT
@@ -77,7 +78,7 @@ Gui, Add, Text, x22 y119 w110 h40 , Построить график плотно
 Gui, Add, Button, x152 y119 w100 h40 gRunPFED, PFED
 Gui, Add, Text, x22 y169 w120 h40 , Построить график мощности пожара (HRR)
 Gui, Add, Button, x152 y169 w100 h40 gRunHRRP, HRRP
-Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.5
+Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.6
 
 Gui, Show, h310 w395, ZmejkaFDS
 Return
@@ -519,6 +520,10 @@ RunPartitioner:
 
 RunRefiner:
 	Run, FMT Refiner-Coarsener.exe
+	Return
+	
+RunMDBL:
+	Run, MDBL.exe
 	Return
 
 RemoveToolTip:
