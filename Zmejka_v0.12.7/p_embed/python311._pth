@@ -1,0 +1,10 @@
+python311.zip
+.
+Include\
+Lib\
+libs\
+Lib\site-packages
+Scripts\
+share\
+# Uncomment to run site.main() automatically
+#import site
