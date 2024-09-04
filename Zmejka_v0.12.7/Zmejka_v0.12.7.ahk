@@ -2,49 +2,82 @@
 	ZmejkaFDS версии 0.12.7 и выше разработана экслюзивно для сообщества FIREGOAWAY
 */
 
-#Include GetSelectedFile.ahk
-#Include GetSelectedExe.ahk
-#Include CheckFDSInstallation.ahk
-#Include Parse_FDS.ahk
-#Include AddRestartToMiscLine.ahk
-#Include RemoveRestartFromMiscLine.ahk
-#Include CheckRestartFile.ahk
-#Include ExtractLastTotalTime.ahk
-#Include SearchForTEND.ahk
-#Include CheckCHID.ahk
-#Include CheckDUMP.ahk
-#Include UnCheckDUMP.ahk
-#Include Process_MISC_Line_to_FDS5.ahk
-#Include Process_REAC_Line_to_FDS5.ahk
-#Include Remove_HCL_Lines.ahk
-#Include Remove_SPEC_COMB_WIND_Lines.ahk
-#Include RunSimulationFDS5.ahk
+#Include %A_ScriptDir%\a_libs\GetSelectedFile.ahk
+#Include %A_ScriptDir%\a_libs\GetSelectedExe.ahk
+#Include %A_ScriptDir%\a_libs\CheckFDSInstallation.ahk
+#Include %A_ScriptDir%\a_libs\Parse_FDS.ahk
+#Include %A_ScriptDir%\a_libs\AddRestartToMiscLine.ahk
+#Include %A_ScriptDir%\a_libs\RemoveRestartFromMiscLine.ahk
+#Include %A_ScriptDir%\a_libs\CheckRestartFile.ahk
+#Include %A_ScriptDir%\a_libs\ExtractLastTotalTime.ahk
+#Include %A_ScriptDir%\a_libs\SearchForTEND.ahk
+#Include %A_ScriptDir%\a_libs\CheckCHID.ahk
+#Include %A_ScriptDir%\a_libs\CheckDUMP.ahk
+#Include %A_ScriptDir%\a_libs\UnCheckDUMP.ahk
+#Include %A_ScriptDir%\a_libs\Process_MISC_Line_to_FDS5.ahk
+#Include %A_ScriptDir%\a_libs\Process_REAC_Line_to_FDS5.ahk
+#Include %A_ScriptDir%\a_libs\Remove_HCL_Lines.ahk
+#Include %A_ScriptDir%\a_libs\Remove_SPEC_COMB_WIND_Lines.ahk
+#Include %A_ScriptDir%\a_libs\RunSimulationFDS5.ahk
+
 #SingleInstance Off
 #Persistent
 #NoEnv
 SetTitleMatchMode, 2
 
-If FileExist(A_ScriptDir "\FDSpath.ini")
+/*
+	Инициализация среды embed (начало)
+*/
+
+AHKU64EXE := A_ScriptDir "\a_embed\AutoHotkeyU64.exe"
+PyExe := A_ScriptDir "\p_embed\pythonw.exe"
+FDS5EXE := A_ScriptDir "\FDS5\fds5_mpi_win_64.exe"
+
+;	Динамические библиотеки (начало)
+
+; 	Модули (начало)
+
+Insert_DEVC := A_ScriptDir "\a_libs\Insert_DEVC_v0.4.1.ahk"
+PCTT := A_ScriptDir "\p_libs\Plot_CSV_Time_Threshhold_v0.5.1.cpython-311.pyc"
+Refine := A_ScriptDir "\p_libs\Refine_v0.1.1.cpython-311.pyc"
+Partition := A_ScriptDir "\p_libs\Partition_v0.1.1.cpython-311.pyc"
+HRRP := A_ScriptDir "\p_libs\HRRP_v0.2.1.cpython-311.pyc"
+MBDL := A_ScriptDir "\p_libs\MDBL_v0.1.0.cpython-311.pyc"
+PFED := A_ScriptDir "\p_libs\plot_density_v0.6.0.cpython-311.pyc"
+FSF := A_ScriptDir "\p_libs\FSF_v0.1.7.cpython-311.pyc"
+
+;	Модули (конец)
+
+Proceed_FDS5_DEVC_CSV := A_ScriptDir "\p_libs\Proceed_FDS5_DEVC_CSV.cpython-311.pyc"
+Proceed_FDS5_HRR_CSV := A_ScriptDir "\p_libs\Proceed_FDS5_HRR_CSV.cpython-311.pyc"
+
+;	Динамические библиотеки (конец)
+
+/*
+	Инициализация среды embed (конец)
+*/
+
+If FileExist(A_ScriptDir "\inis\FDSpath.ini")
 {
-	IniRead, FDSpath, %A_ScriptDir%\FDSpath.ini, FDSpath, FDSpath
+	IniRead, FDSpath, %A_ScriptDir%\inis\FDSpath.ini, FDSpath, FDSpath
 }
 Else
 {
 	FDSpath := ""
 }
 
-If FileExist(A_ScriptDir "\MPIpath.ini")
+If FileExist(A_ScriptDir "\inis\MPIpath.ini")
 {
-	IniRead, MPIpath, %A_ScriptDir%\MPIpath.ini, MPIpath, MPIpath
+	IniRead, MPIpath, %A_ScriptDir%\inis\MPIpath.ini, MPIpath, MPIpath
 }
 Else
 {
 	MPIpath := ""
 }
 
-If FileExist(A_ScriptDir "\filePath.ini")
+If FileExist(A_ScriptDir "\inis\filePath.ini")
 {
-	IniRead, filePath, %A_ScriptDir%\filePath.ini, filePath, filePath
+	IniRead, filePath, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
 }
 Else
 {
@@ -97,13 +130,10 @@ Return
 BrowseFileButton:
 	Gui, Submit, NoHide
 	GetSelectedFile(folderPath, fileName, filePath)
-	IniWrite, %filePath%, %A_ScriptDir%\filePath.ini, filePath, filePath
+	IniWrite, %filePath%, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
 	GuiControl,, folderPath, % folderPath
 	GuiControl,, fileName, % fileName
-	IniRead, filePath, %A_ScriptDir%\filePath.ini, filePath, filePath
-	sleep, 50
-	CheckCHID(filePath)
-	sleep, 50
+	IniRead, filePath, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
 	Return
 	
 ChckAlwDTR:
@@ -119,99 +149,100 @@ ChckAlwDTR:
 	Return
 
 StartButton:
-	IniRead, filePath, %A_ScriptDir%\filePath.ini, filePath, filePath
-	GuiControlGet, folderPath, , folderPath
-	GuiControlGet, fileName, , fileName
-	If (FDSpath != "")
+	If (FDS6 = 1)
 	{
-		GuiControlGet, FDSpath, , FDSpath
-	}
-	Else
-	{
-		ToolTip, No fds.exe specified
-			Sleep, 1000
-		SetTimer, RemoveToolTip, -1000
-	}
-	If (MPIpath != "")
-	{
-		GuiControlGet, MPIpath, , MPIpath
-	}
-	Else
-	{
-		ToolTip, No mpiexec.exe specified
-			Sleep, 1000
-		SetTimer, RemoveToolTip, -1000
-	}
-	If FileExist(filePath)
-	{
-		FileMove, %folderPath%\%fileName%.fds, %A_ScriptDir%\%fileName%\*, 1
-		FileMove, %folderPath%\%fileName%*.*, %A_ScriptDir%\%fileName%\*, 1
-		filePath := A_ScriptDir "\" fileName ".fds"
-		OutfilePath := A_ScriptDir "\" fileName ".out"
-	}
-	Else
-	{
-		MsgBox, No %filePath% file in %A_ScriptDir% folder
-	}
-	FileExistsRestart := FileExist(folderPath "\" fileName "*.restart")
-	If (FileExistsRestart) {
-		checkRTag := CheckRestartTag(filePath)
-		ToolTip, Restart file(s) found. Trying to resume FDS instance.
-			Sleep, 1000
-		SetTimer, RemoveToolTip, -1000
-	}
-	Else
-	{
-		ToolTip, Restart file not found!
-		Sleep, 1000
-		SetTimer, RemoveToolTip, -1000
-		removeRTag := removeRestartFromMiscLine(filePath)
-		If (removeRTag)
+		CheckCHID(filePath)
+		sleep, 50
+		CheckDUMP(filePath, ChckDTR)
+		sleep, 50
+		
+		IniRead, filePath, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
+		GuiControlGet, folderPath, , folderPath
+		GuiControlGet, fileName, , fileName
+		If (FDSpath != "")
 		{
-			ToolTip, "RESTART=T" successfully removed from the "&MISC" line.
+			GuiControlGet, FDSpath, , FDSpath
+		}
+		Else
+		{
+			ToolTip, No fds.exe specified
+				Sleep, 1000
+			SetTimer, RemoveToolTip, -1000
+		}
+		If (MPIpath != "")
+		{
+			GuiControlGet, MPIpath, , MPIpath
+		}
+		Else
+		{
+			ToolTip, No mpiexec.exe specified
+				Sleep, 1000
+			SetTimer, RemoveToolTip, -1000
+		}
+		If FileExist(filePath)
+		{
+			FileMove, %folderPath%\%fileName%.fds, %A_ScriptDir%\%fileName%\*, 1
+			FileMove, %folderPath%\%fileName%*.*, %A_ScriptDir%\%fileName%\*, 1
+			If InStr(fileName, "_nfs")
+			{
+				filePath := A_ScriptDir "\" fileName "_nfs.fds"
+				OutfilePath := A_ScriptDir "\" fileName ".out"
+			}
+			Else
+			{
+				filePath := A_ScriptDir "\" fileName ".fds"
+				OutfilePath := A_ScriptDir "\" fileName ".out"
+			}
+		}
+		Else
+		{
+			MsgBox, No %filePath% file in %A_ScriptDir% folder
+		}
+		
+		FileExistsRestart := FileExist(folderPath "\" fileName "*.restart")
+		
+		If (FileExistsRestart) {
+			checkRTag := CheckRestartTag(filePath)
+			ToolTip, Restart file(s) found. Trying to resume FDS instance.
 			Sleep, 1000
 			SetTimer, RemoveToolTip, -1000
 		}
 		Else
 		{
-			ToolTip, Failed to remove "RESTART=T" from the "&MISC" line.
+			ToolTip, Restart file not found!
 			Sleep, 1000
 			SetTimer, RemoveToolTip, -1000
+			removeRTag := removeRestartFromMiscLine(filePath)
+			If (removeRTag)
+			{
+				ToolTip, "RESTART=T" successfully removed from the "&MISC" line.
+				Sleep, 1000
+				SetTimer, RemoveToolTip, -1000
+			}
+			Else
+			{
+				ToolTip, Failed to remove "RESTART=T" from the "&MISC" line.
+				Sleep, 1000
+				SetTimer, RemoveToolTip, -1000
+			}
 		}
-	}
-	FileDelete, %folderPath%\%fileName%*.stop
-	if InStr(fileName, "_tout")
-	{
-		FileMove, %folderPath%\%fileName%*.*, %A_ScriptDir%\, 1
-		FileMove, %folderPath%\%fileName%.fds, %A_ScriptDir%\, 1
-		filePath := A_ScriptDir "\" fileName ".fds"
-		OutfilePath := A_ScriptDir "\" fileName ".out"
-	}
-	else
-	{
-		FileMove, %folderPath%\%fileName%*.*, %A_ScriptDir%\, 1
-		FileMove, %folderPath%\%fileName%.fds, %A_ScriptDir%\, 1
-		filePath := A_ScriptDir "\" fileName ".fds"
-		OutfilePath := A_ScriptDir "\" fileName ".out"
-	}
-	
-	If (FDS5 == Checked)
-	{
-		If (FileExist(A_ScriptDir "\FDSpath.ini") && (FDSpath != "")) && (FileExist(A_ScriptDir "\MPIpath.ini") && (MPIpath != ""))
+		FileDelete, %folderPath%\%fileName%*.stop
+		if InStr(fileName, "_tout")
 		{
-			MPI_PROCESS_NUM := Parse_FDS(filePath)
-			ToolTip, % "Найдено потенциальных параллелей: " MPI_PROCESS_NUM
-			Sleep, 1000
-			ToolTip, Ускорение моделирования пожара путём перемещения среды выполнения FDS6 в среду FDS5
-			Sleep, 1000
-			ToolTip
-			RunSimulationFDS5(filePath)
+			FileMove, %folderPath%\%fileName%_tout*.*, %A_ScriptDir%\, 1
+			FileMove, %folderPath%\%fileName%_tout.fds, %A_ScriptDir%\, 1
+			filePath := A_ScriptDir "\" fileName "_tout.fds"
+			OutfilePath := A_ScriptDir "\" fileName "_tout.out"
 		}
-	}
-	
-	Else If (FDS6 == Checked)
-	{
-		If (FileExist(A_ScriptDir "\FDSpath.ini") && (FDSpath != "")) && (FileExist(A_ScriptDir "\MPIpath.ini") && (MPIpath != ""))
+		else
+		{
+			FileMove, %folderPath%\%fileName%*.*, %A_ScriptDir%\, 1
+			FileMove, %folderPath%\%fileName%.fds, %A_ScriptDir%\, 1
+			filePath := A_ScriptDir "\" fileName ".fds"
+			OutfilePath := A_ScriptDir "\" fileName ".out"
+		}
+		
+		If (FileExist(A_ScriptDir "\inis\FDSpath.ini") && (FDSpath != "")) && (FileExist(A_ScriptDir "\inis\MPIpath.ini") && (MPIpath != ""))
 		{
 			MPI_PROCESS_NUM := Parse_FDS(filePath)
 			ToolTip, % "Найдено потенциальных параллелей: " MPI_PROCESS_NUM
@@ -222,7 +253,7 @@ StartButton:
 			Run, "%MPIpath%" -n %MPI_PROCESS_NUM% "%FDSpath%" "%filePath%"
 		}
 		
-		Else If (!FileExist(A_ScriptDir "\FDSpath.ini") || (FDSpath = "")) && (FileExist(A_ScriptDir "\MPIpath.ini") && (MPIpath != ""))
+		Else If (!FileExist(A_ScriptDir "\inis\FDSpath.ini") || (FDSpath = "")) && (FileExist(A_ScriptDir "\inis\MPIpath.ini") && (MPIpath != ""))
 		{
 			FDSpath := A_ProgramFiles "\firemodels\FDS6\bin\fds.exe"
 			MPI_PROCESS_NUM := Parse_FDS(filePath)
@@ -234,9 +265,9 @@ StartButton:
 			Run, "%MPIpath%" -n %MPI_PROCESS_NUM% "%FDSpath%" "%filePath%"
 		}
 		
-		Else If (FileExist(A_ScriptDir "\FDSpath.ini") && (FDSpath != "")) && (!FileExist(A_ScriptDir "\MPIpath.ini") && (MPIpath = ""))
+		Else If (FileExist(A_ScriptDir "\inis\FDSpath.ini") && (FDSpath != "")) && (!FileExist(A_ScriptDir "\inis\MPIpath.ini") && (MPIpath = ""))
 		{
-			IniRead, FDSpath, %A_ScriptDir%\FDSpath.ini, FDSpath, FDSpath
+			IniRead, FDSpath, %A_ScriptDir%\inis\FDSpath.ini, FDSpath, FDSpath
 			ToolTip, FDSpath.ini exists and "%FDSpath%" is not empty
 			Sleep, 1000
 			ToolTip, mpiexec.exe will be omitted upon running %fileName%.fds
@@ -263,235 +294,580 @@ StartButton:
 				MsgBox, Пожалуйста, укажите путь fds.exe, для которого был создан файл %fileName%.fds
 			}
 		}
-	}
-	
-	Loop
-	{
-		LastTotalTime := ExtractLastTotalTime(OutfilePath)
-		Sleep, 1000
-		If FileExist(OutfilePath)
+		
+		Loop
 		{
-			Break
+			Sleep, 1000
+			LastTotalTime := ExtractLastTotalTime(OutfilePath)
+			Sleep, 1000
+			If FileExist(OutfilePath)
+			{
+				Break
+			}
+			Else If !(FileExist(OutfilePath)) || (LastTotalTime < LastTotalTime + 10)
+			{
+				Continue
+			}
+			Else
+			{
+				Continue
+			}
 		}
-		Else If !(FileExist(OutfilePath)) || (LastTotalTime < LastTotalTime + 10)
+		Progress, M2 x500 y500 w250
+		Loop
 		{
-			Continue
+			If FileExist(OutfilePath)
+			{
+				TEND := SearchForTEND(filePath)
+				TotalTime := Ceil(ExtractLastTotalTime(OutfilePath))
+				ProgressPercentage := Ceil((TotalTime / TEND) * 100)
+				Progress, %ProgressPercentage%
+				Sleep, 250
+				Continue
+			}
+			Else If (TotalTime = TEND) || !FileExist(OutfilePath)
+			{
+				Break
+			}
+			Else
+			{
+				Continue
+			}
 		}
-		Else
+		Until (TotalTime >= TEND) || OutFileExists
 		{
-			Continue
+			Progress Off
 		}
-	}
-	Progress, M2 x500 y500 w250
-	Loop
-	{
-		If FileExist(OutfilePath)
+		
+		;	Получаем список с результатами моделирования с префиксом %fileName%
+		ResultsList := ""
+		
+		Loop, Files, %A_ScriptDir%\%fileName%*.*
 		{
-			TEND := SearchForTEND(filePath)
-			TotalTime := Ceil(ExtractLastTotalTime(OutfilePath))
-			ProgressPercentage := Ceil((TotalTime / TEND) * 100)
-			Progress, %ProgressPercentage%
+			ResultsList .= A_LoopFileFullPath "`n"
+		}
+		
+		;	Перемещаем все файлы в родную папку %fileName%.fds
+		file_Exist := A_ScriptDir "\" fileName "*" "." "*"
+		
+		if FileExist(file_Exist)
+		{
+			Loop,
+			{
+				FileMove, %A_ScriptDir%\%fileName%*.*, %folderPath%\, 1
+			}
+			Until !FileExist(file_Exist)
+		}
+		
+		else
+		{
+			ToolTip, % fileName " не найден"
 			Sleep, 250
-			Continue
 		}
-		Else If (TotalTime = TEND) || !FileExist(OutfilePath)
+	}
+	
+	If (FDS5 = 1)
+	{
+		ToolTip, % "FDS5 is " FDS5
+		Sleep, 300
+		
+		CheckDUMP(filePath, ChckDTR)
+		sleep, 50
+		
+		IniRead, filePath, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
+		
+		folderPath := RegExReplace(filePath, "(.*\\).*", "$1")
+		folderPath := SubStr(folderPath, 1, StrLen(folderPath) - 1)
+        fileName := RegExReplace(filePath, ".+\\(.+)$", "$1")
+		fileName := SubStr(fileName, 1, StrLen(fileName) - 4)
+		
+		if InStr(fileName, "_tout")
 		{
-			Break
+			StringSplit, part, fileName, _
+			if (part0 > 0)
+			{
+				part1 = %part1%
+			}
+			if (part0 > 1)
+			{
+				part2 = %part2%
+			}
+			if (part0 > 2)
+			{
+				part3 = %part3%
+			}
+			ToolTip, Part 1: %part1%`nPart 2: %part2%`nPart 3: %part3%
+			Sleep, 500
+			ToolTip
+			OutfilePath := folderPath "\" part1 "_" part3 ".out"
+			ToolTip, % OutfilePath
+			Sleep, 500
+			ToolTip
+			IniWrite, %OutfilePath%, %A_ScriptDir%\inis\OutfilePath.ini, OutfilePath, OutfilePath
+		}
+		else
+		{
+			StringSplit, part, fileName, _
+			if (part0 > 0)
+			{
+				part1 = %part1%
+			}
+			if (part0 > 1)
+			{
+				part2 = %part2%
+			}
+			if (part0 > 2)
+			{
+				part3 = %part3%
+			}
+			ToolTip, Part 1: %part1%`nPart 2: %part2%`nPart 3: %part3%
+			Sleep, 500
+			ToolTip
+			
+			OutfilePath := folderPath "\" part1 ".out"
+			FileExistsRestart := FileExist(folderPath "\" part1 "*.restart")
+			RestartToCheck := folderPath "\" part1 "_" part2 ".fds"
+			
+			ToolTip, % OutfilePath
+			Sleep, 500
+			ToolTip
+			
+			IniWrite, %OutfilePath%, %A_ScriptDir%\inis\OutfilePath.ini, OutfilePath, OutfilePath
+		}
+		
+		If (FileExistsRestart)
+		{
+			checkRTagFDS5 := CheckRestartTagFDS5(filePath)
+			ToolTip, Restart file(s) found. Trying to resume FDS instance.
+			Sleep, 1000
+			SetTimer, RemoveToolTip, -1000
 		}
 		Else
 		{
-			Continue
+			ToolTip, Restart file not found!
+			Sleep, 1000
+			SetTimer, RemoveToolTip, -1000
+			removeRTagFDS5 := removeRestartFromMiscLineFDS5(filePath)
+			If (removeRTagFDS5)
+			{
+				ToolTip, "RESTART=T" successfully removed from the "&MISC" line.
+				Sleep, 1000
+				SetTimer, RemoveToolTip, -1000
+			}
+			Else
+			{
+				ToolTip, Failed to remove "RESTART=T" from the "&MISC" line.
+				Sleep, 1000
+				SetTimer, RemoveToolTip, -1000
+			}
 		}
-	}
-	Until (TotalTime >= TEND) || OutFileExists
-	{
-		Progress Off
-	}
-	
-	;	Получаем список с результатами моделирования с префиксом %fileName%
-	ResultsList := ""
-	
-	Loop, Files, %A_ScriptDir%\%fileName%*.*
-	{
-		ResultsList .= A_LoopFileFullPath "`n"
-	}
-	
-	;	Перемещаем все файлы в родную папку %fileName%.fds
-	file_Exist := A_ScriptDir "\" fileName "*" "." "*"
-	
-	if FileExist(file_Exist)
-	{
-		Loop,
+		
+		FileDelete, %folderPath%\%part1%*.stop
+		
+		If FileExist(A_ScriptDir "\FDS5\fds5.exe") && FileExist(A_ScriptDir "\FDS5\fds5_mpi_win_64.exe")
 		{
-			FileMove, %A_ScriptDir%\%fileName%*.*, %folderPath%\, 1
+			MPI_PROCESS_NUM := Parse_FDS(filePath)
+			ToolTip, % "Найдено потенциальных параллелей: " MPI_PROCESS_NUM
+			Sleep, 1000
+			ToolTip, Ускорение моделирования пожара путём перемещения среды выполнения FDS6 в среду FDS5
+			Sleep, 1000
+			ToolTip
+			
+			SetWorkingDir, %folderPath%
+    
+			Run, "%FDS5EXE%" "%filePath%", "%folderPath%", , PID
 		}
-		Until !FileExist(file_Exist)
-	}
-	
-	else
-	{
-		ToolTip, % fileName " не найден"
-		Sleep, 250
+		
+		Loop
+		{
+			Sleep, 1000
+			LastTotalTime := ExtractLastTotalTime(OutfilePath)
+			Sleep, 1000
+			If FileExist(OutfilePath)
+			{
+				Break
+			}
+			Else If !(FileExist(OutfilePath)) || (LastTotalTime < LastTotalTime + 10)
+			{
+				Continue
+			}
+			Else
+			{
+				Continue
+			}
+		}
+		Progress, M2 x500 y500 w250
+		Loop
+		{
+			If FileExist(OutfilePath)
+			{
+				TEND := SearchForTEND(filePath)
+				TotalTime := Ceil(ExtractLastTotalTime(OutfilePath))
+				ProgressPercentage := Ceil((TotalTime / TEND) * 100)
+				Progress, %ProgressPercentage%
+				Sleep, 250
+				Continue
+			}
+			Else If (TotalTime = TEND) || !FileExist(OutfilePath)
+			{
+				Break
+			}
+			Else
+			{
+				Continue
+			}
+		}
+		Until (TotalTime >= TEND) || OutFileExists || FileExist(StopFile)
+		{
+			Progress Off
+		}
+		
+		Sleep, 1000
+		Run, "%PyExe%" "%Proceed_FDS5_DEVC_CSV%"
+		Sleep, 1000
+		Run, "%PyExe%" "%Proceed_FDS5_HRR_CSV%"
 	}
 	Return
 
 PauseButton:
-	GuiControlGet, folderPath, , folderPath
-	GuiControlGet, fileName, , fileName
-	IfWinExist, fds
+	If (FDS6 = 1)
 	{
-		FileAppend, , %A_ScriptDir%\%filename%.stop
-		ToolTip, stopping FDS
-		Sleep, 1000
-		WinWaitClose
-	}
-	
-	ResultsList := ""
-	Loop, Files, %A_ScriptDir%\%fileName%*.*
-	{
-		ResultsList .= A_LoopFileFullPath "`n"
-	}
-	;	Move the files to the %fileName%.fds folder
-	file_Exist := A_ScriptDir "\" fileName "*" "." "*"
-	if FileExist(file_Exist)
-	{
-		Loop,
+		GuiControlGet, folderPath, , folderPath
+		GuiControlGet, fileName, , fileName
+		IfWinExist, fds
 		{
-			FileMove, %A_ScriptDir%\%fileName%*.*, %folderPath%\, 1
+			FileAppend, , %A_ScriptDir%\%filename%.stop
+			ToolTip, stopping FDS
+			Sleep, 1000
+			WinWaitClose
 		}
-		Until !FileExist(file_Exist)
-	}
-	else
-	{
-		ToolTip, % fileName " не найден"
-		Sleep, 250
+		
+		ResultsList := ""
+		Loop, Files, %A_ScriptDir%\%fileName%*.*
+		{
+			ResultsList .= A_LoopFileFullPath "`n"
+		}
+		;	Move the files to the %fileName%.fds folder
+		file_Exist := A_ScriptDir "\" fileName "*" "." "*"
+		if FileExist(file_Exist)
+		{
+			Loop,
+			{
+				FileMove, %A_ScriptDir%\%fileName%*.*, %folderPath%\, 1
+			}
+			Until !FileExist(file_Exist)
+		}
+		else
+		{
+			ToolTip, % fileName " не найден"
+			Sleep, 250
+		}
+		
+		ToolTip, files moved to %folderPath%
+		Sleep, 1000
+		SetTimer, RemoveToolTip, -1000
+		IniRead, filePath, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
+		checkRTag := CheckRestartTag(filePath)
+		If (checkRTag = 0)
+		{
+			ToolTip, Restart tag was not found in the &MISC line.
+			Sleep, 1000
+			AddRestartToMiscLine(filePath)
+			ToolTip, Restart tag is now added to the &MISC line.
+			Sleep, 1000
+			SetTimer, RemoveToolTip, -1000
+		}
+		Else
+		{
+			ToolTip, Restart tag is in the &MISC line.
+			Sleep, 1000
+			SetTimer, RemoveToolTip, -1000
+		}
+		; MsgBox, 4096, DEBUG, checkRTag is %checkRTag%
 	}
 	
-	ToolTip, files moved to %folderPath%
-	Sleep, 1000
-	SetTimer, RemoveToolTip, -1000
-	IniRead, filePath, %A_ScriptDir%\filePath.ini, filePath, filePath
-	; Check if RESTART tag already exists
-	checkRTag := CheckRestartTag(filePath)
-	If (checkRTag = 0)
+	If (FDS5 = 1)
 	{
-		ToolTip, Restart tag was not found in the &MISC line.
-		Sleep, 1000
-		AddRestartToMiscLine(filePath)
-		ToolTip, Restart tag is now added to the &MISC line.
-		Sleep, 1000
-		SetTimer, RemoveToolTip, -1000
+		ToolTip, % "FDS5 is " FDS5
+		Sleep, 300
+		
+		IniRead, filePath, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
+		
+		folderPath := RegExReplace(filePath, "(.*\\).*", "$1")
+		folderPath := SubStr(folderPath, 1, StrLen(folderPath) - 1)
+        fileName := RegExReplace(filePath, ".+\\(.+)$", "$1")
+		fileName := SubStr(fileName, 1, StrLen(fileName) - 4)
+		
+		if InStr(fileName, "_nfs")
+		{
+			StringSplit, part, fileName, _
+			
+			if (part0 > 0)
+			{
+				part1 = %part1%
+			}
+			if (part0 > 1)
+			{
+				part2 = %part2%
+			}
+			if (part0 > 2)
+			{
+				part3 = %part3%
+			}
+			
+			ToolTip, Part 1: %part1%`nPart 2: %part2%`nPart 3: %part3%
+			Sleep, 500
+			ToolTip
+			
+			fileName := part1
+			
+			ToolTip, % fileName
+			Sleep, 500
+			ToolTip
+		}
+		
+		IfWinExist, ahk_pid %PID%
+		{
+			FileAppend, , %folderPath%\%filename%.stop
+			StopFile := folderPath "\" filename ".stop"
+			ToolTip, stopping FDS...
+			Sleep, 1000
+			WinWaitClose
+		}
+		
+		checkRTagFDS5 := CheckRestartTagFDS5(filePath)
+		If (checkRTagFDS5 = 0)
+		{
+			ToolTip, Restart tag was not found in the &MISC line.
+			Sleep, 1000
+			AddRestartToMiscLineFDS5(filePath)
+			ToolTip, Restart tag is now added to the &MISC line.
+			Sleep, 1000
+			SetTimer, RemoveToolTip, -1000
+		}
+		Else
+		{
+			ToolTip, Restart tag is in the &MISC line.
+			Sleep, 1000
+			SetTimer, RemoveToolTip, -1000
+		}
+		; MsgBox, 4096, DEBUG, checkRTag is %checkRTag%
 	}
-	Else
-	{
-		ToolTip, Restart tag is in the &MISC line.
-		Sleep, 1000
-		SetTimer, RemoveToolTip, -1000
-	}
-	; MsgBox, 4096, DEBUG, checkRTag is %checkRTag%
 	Return
 
 StopButton:
-	GuiControlGet, folderPath, , folderPath
-	GuiControlGet, fileName, , fileName
-	IfWinExist, fds
+	if (FDS6 = 1)
 	{
-		FileAppend, , %A_ScriptDir%\%filename%.stop
-		ToolTip, stopping FDS
-			Sleep, 1000
-		WinWaitClose
-	}
-	ToolTip, fds.exe is closed
-	Sleep, 1000
-	
-	ResultsList := ""
-	Loop, Files, %A_ScriptDir%\%fileName%*.*
-	{
-		ResultsList .= A_LoopFileFullPath "`n"
-	}
-	;	Move the files to the %fileName%.fds folder
-	file_Exist := A_ScriptDir "\" fileName "*" "." "*"
-	if FileExist(file_Exist)
-	{
-		Loop,
+		GuiControlGet, folderPath, , folderPath
+		GuiControlGet, fileName, , fileName
+		IfWinExist, fds
 		{
-			FileMove, %A_ScriptDir%\%fileName%*.*, %folderPath%\, 1
+			FileAppend, , %A_ScriptDir%\%filename%.stop
+			ToolTip, stopping FDS
+				Sleep, 1000
+			WinWaitClose
 		}
-		Until !FileExist(file_Exist)
-	}
-	else
-	{
-		ToolTip, % fileName " not found dude"
-		Sleep, 250
+		ToolTip, fds.exe is closed
+		Sleep, 1000
+		
+		ResultsList := ""
+		Loop, Files, %A_ScriptDir%\%fileName%*.*
+		{
+			ResultsList .= A_LoopFileFullPath "`n"
+		}
+		;	Move the files to the %fileName%.fds folder
+		file_Exist := A_ScriptDir "\" fileName "*" "." "*"
+		if FileExist(file_Exist)
+		{
+			Loop,
+			{
+				FileMove, %A_ScriptDir%\%fileName%*.*, %folderPath%\, 1
+			}
+			Until !FileExist(file_Exist)
+		}
+		else
+		{
+			ToolTip, % fileName " not found dude"
+			Sleep, 250
+		}
+		
+		ToolTip, files moved to %folderPath%
+		Sleep, 1000
+		IniRead, filePath, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
+		checkRTag := CheckRestartTag(filePath)
+		If (checkRTag = 1)
+		{
+			removeRTag := removeRestartFromMiscLine(filePath)
+			ToolTip, Restart tag is removed from the &MISC line.
+			Sleep, 1000
+			SetTimer, RemoveToolTip, -1000
+		}
+		Else
+		{
+			ToolTip, Restart tag is not in the &MISC line.
+			Sleep, 1000
+			SetTimer, RemoveToolTip, -1000
+		}
 	}
 	
-	ToolTip, files moved to %folderPath%
-	Sleep, 1000
-	IniRead, filePath, %A_ScriptDir%\filePath.ini, filePath, filePath
-	checkRTag := CheckRestartTag(filePath)
-	If (checkRTag = 1)
+	If (FDS5 = 1)
 	{
-		removeRTag := removeRestartFromMiscLine(filePath)
-		ToolTip, Restart tag is removed from the &MISC line.
-		Sleep, 1000
-		SetTimer, RemoveToolTip, -1000
-	}
-	Else
-	{
-		ToolTip, Restart tag is not in the &MISC line.
-		Sleep, 1000
-		SetTimer, RemoveToolTip, -1000
+		ToolTip, % "FDS5 is " FDS5
+		Sleep, 300
+		
+		IniRead, filePath, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
+		
+		folderPath := RegExReplace(filePath, "(.*\\).*", "$1")
+		folderPath := SubStr(folderPath, 1, StrLen(folderPath) - 1)
+        fileName := RegExReplace(filePath, ".+\\(.+)$", "$1")
+		fileName := SubStr(fileName, 1, StrLen(fileName) - 4)
+		
+		if InStr(fileName, "_nfs")
+		{
+			StringSplit, part, fileName, _
+			
+			if (part0 > 0)
+			{
+				part1 = %part1%
+			}
+			if (part0 > 1)
+			{
+				part2 = %part2%
+			}
+			if (part0 > 2)
+			{
+				part3 = %part3%
+			}
+			
+			ToolTip, Part 1: %part1%`nPart 2: %part2%`nPart 3: %part3%
+			Sleep, 500
+			ToolTip
+			
+			fileName := part1
+			
+			ToolTip, % fileName
+			Sleep, 500
+			ToolTip
+		}
+		
+		IfWinExist, ahk_pid %PID%
+		{
+			FileAppend, , %folderPath%\%filename%.stop
+			StopFile := folderPath "\" filename ".stop"
+			ToolTip, stopping FDS...
+			Sleep, 1000
+			WinWaitClose
+		}
+		
+		checkRTagFDS5 := CheckRestartTagFDS5(filePath)
+		If (checkRTagFDS5 = 0)
+		{
+			ToolTip, Restart tag was not found in the &MISC line.
+			Sleep, 1000
+			AddRestartToMiscLineFDS5(filePath)
+			ToolTip, Restart tag is now added to the &MISC line.
+			Sleep, 1000
+			SetTimer, RemoveToolTip, -1000
+		}
+		Else
+		{
+			ToolTip, Restart tag is in the &MISC line.
+			Sleep, 1000
+			SetTimer, RemoveToolTip, -1000
+		}
+		; MsgBox, 4096, DEBUG, checkRTag is %checkRTag%
 	}
 	Return
 
 KillButton:
-	GuiControlGet, folderPath, , folderPath
-	GuiControlGet, fileName, , fileName
-	; Close CMD with FDS ro MPI job instance
-	If (WinExist(AHK_exe fds.exe) || WinExist(AHK_exe mpiexec.exe))
+	if (FDS6 = 1)
 	{
-		WinKill, ahk_class ConsoleWindowClass
-	}
-	Else
-	{
-		MsgBox, There is no active FDS or MPI job running
-	}
-	
-	ResultsList := ""
-	Loop, Files, %A_ScriptDir%\%fileName%*.*
-	{
-		ResultsList .= A_LoopFileFullPath "`n"
-	}
-	;	Move the files to the %fileName%.fds folder
-	file_Exist := A_ScriptDir "\" fileName "*" "." "*"
-	if FileExist(file_Exist)
-	{
-		Loop,
+		GuiControlGet, folderPath, , folderPath
+		GuiControlGet, fileName, , fileName
+		; Close CMD with FDS ro MPI job instance
+		If (WinExist(AHK_exe fds.exe) || WinExist(AHK_exe mpiexec.exe))
 		{
-			FileMove, %A_ScriptDir%\%fileName%*.*, %folderPath%\, 1
+			WinKill, ahk_class ConsoleWindowClass
 		}
-		Until !FileExist(file_Exist)
-	}
-	else
-	{
-		ToolTip, % fileName " not found dude"
-		Sleep, 250
+		Else
+		{
+			MsgBox, There is no active FDS or MPI job running
+		}
+		
+		ResultsList := ""
+		Loop, Files, %A_ScriptDir%\%fileName%*.*
+		{
+			ResultsList .= A_LoopFileFullPath "`n"
+		}
+		;	Move the files to the %fileName%.fds folder
+		file_Exist := A_ScriptDir "\" fileName "*" "." "*"
+		if FileExist(file_Exist)
+		{
+			Loop,
+			{
+				FileMove, %A_ScriptDir%\%fileName%*.*, %folderPath%\, 1
+			}
+			Until !FileExist(file_Exist)
+		}
+		else
+		{
+			ToolTip, % fileName " not found dude"
+			Sleep, 250
+		}
+		
+		FileDelete, %folderPath%\%filename%.stop
+		IniRead, filePath, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
+		removeRTag := removeRestartFromMiscLine(filePath)
+		If (removeRTag)
+		{
+			ToolTip, "RESTART=T" successfully removed from the "&MISC" line.
+			Sleep, 1000
+			SetTimer, RemoveToolTip, -1000
+		}
+		Else
+		{
+			ToolTip, Failed to remove "RESTART=T" from the "&MISC" line.
+			Sleep, 1000
+			SetTimer, RemoveToolTip, -1000
+		}
 	}
 	
-	FileDelete, %folderPath%\%filename%.stop
-	IniRead, filePath, %A_ScriptDir%\filePath.ini, filePath, filePath
-	removeRTag := removeRestartFromMiscLine(filePath)
-	If (removeRTag)
+	if (FDS5 = 1)
 	{
-		ToolTip, "RESTART=T" successfully removed from the "&MISC" line.
-		Sleep, 1000
-		SetTimer, RemoveToolTip, -1000
-	}
-	Else
-	{
-		ToolTip, Failed to remove "RESTART=T" from the "&MISC" line.
-		Sleep, 1000
-		SetTimer, RemoveToolTip, -1000
+		ToolTip, % "FDS5 is " FDS5
+		Sleep, 300
+		
+		IniRead, filePath, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
+		
+		folderPath := RegExReplace(filePath, "(.*\\).*", "$1")
+		folderPath := SubStr(folderPath, 1, StrLen(folderPath) - 1)
+        fileName := RegExReplace(filePath, ".+\\(.+)$", "$1")
+		fileName := SubStr(fileName, 1, StrLen(fileName) - 4)
+
+		If WinExist(ahk_pid %PID%)
+		{
+			WinKill, ahk_pid %PID%
+		}
+		Else
+		{
+			MsgBox, There is no active FDS or MPI job running
+		}
+		
+		FileDelete, %folderPath%\%filename%.stop
+		IniRead, filePath, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
+		removeRTagFDS5 := removeRestartFromMiscLineFDS5(filePath)
+		If (removeRTagFDS5)
+		{
+			ToolTip, "RESTART=T" successfully removed from the "&MISC" line.
+			Sleep, 1000
+			SetTimer, RemoveToolTip, -1000
+		}
+		Else
+		{
+			ToolTip, Failed to remove "RESTART=T" from the "&MISC" line.
+			Sleep, 1000
+			SetTimer, RemoveToolTip, -1000
+		}
 	}
 	Return
 
@@ -502,61 +878,61 @@ CheckFDS:
 
 BrowseFDSButton:
 	GetSelectedExe(FDSpath)
-	IniWrite, %FDSpath%, %A_ScriptDir%\FDSpath.ini, FDSpath, FDSpath
+	IniWrite, %FDSpath%, %A_ScriptDir%\inis\FDSpath.ini, FDSpath, FDSpath
 	GuiControl, , FDSpath, % FDSpath
-	If !(FileExist(A_ScriptDir "\FDSpath.ini"))
+	If !(FileExist(A_ScriptDir "\inis\FDSpath.ini"))
 	{
-		IniWrite, %FDSpath%, %A_ScriptDir%\FDSpath.ini, FDSpath, FDSpath
+		IniWrite, %FDSpath%, %A_ScriptDir%\inis\FDSpath.ini, FDSpath, FDSpath
 	}
 	Else
 	{
-		IniRead, FDSpath, %A_ScriptDir%\FDSpath.ini, FDSpath, FDSpath
+		IniRead, FDSpath, %A_ScriptDir%\inis\FDSpath.ini, FDSpath, FDSpath
 	}
 	Return
 
 BrowseMPIButton:
 	GetSelectedExe(MPIpath)
 	GuiControl, , MPIpath, % MPIpath
-	If !(FileExist(A_ScriptDir "\MPIpath.ini"))
+	If !(FileExist(A_ScriptDir "\inis\MPIpath.ini"))
 	{
-		IniWrite, %MPIpath%, %A_ScriptDir%\MPIpath.ini, MPIpath, MPIpath
+		IniWrite, %MPIpath%, %A_ScriptDir%\inis\MPIpath.ini, MPIpath, MPIpath
 	}
 	Else
 	{
-		IniRead, MPIpath, %A_ScriptDir%\MPIpath.ini, MPIpath, MPIpath
+		IniRead, MPIpath, %A_ScriptDir%\inis\MPIpath.ini, MPIpath, MPIpath
 	}
 	Return
 
 RunInsertDEVC:
-	Run, Insert_DEVC.exe
+	Run, "%AHKU64EXE%" "%Insert_DEVC%"
 	Return
 
 RunPCTT:
-	Run, PCTT.exe
+	Run, "%PyExe%" "%PCTT%"
 	Return
 
 RunPFED:
-	Run, PFED.exe
+	Run, "%PyExe%" "%PFED%"
 	Return
 
 RunSURF:
-	Run, SURF_FIX.exe
+	Run, "%PyExe%" "%FSF%"
 	Return
 
 RunHRRP:
-	Run, HRRP.exe
+	Run, "%PyExe%" "%HRRP%"
 	Return
 	
 RunPartitioner:
-	Run, FMT Partitioner.exe
+	Run, "%PyExe%" "%Partition%"
 	Return
 
 RunRefiner:
-	Run, FMT Refiner-Coarsener.exe
+	Run, "%PyExe%" "%Refine%"
 	Return
 	
 RunMDBL:
-	Run, MDBL.exe
+	Run, "%PyExe%" "%MBDL%"
 	Return
 	
 /*
@@ -566,52 +942,71 @@ RunMDBL:
 */
 
 FDS5:
-	If (FileExist(A_ScriptDir "\filePath.ini")) && (filePath != "")
+	FDS6 := 0
+	FDS5 := 1
+	
+	If (FileExist(A_ScriptDir "\inis\filePath.ini")) && (filePath != "")
 	{
-		IniRead, filePath, %A_ScriptDir%\filePath.ini, filePath, filePath
-		SplitPath, filePath, fileName, dir
-		StringReplace, fileName, fileName, _nfs.fds, , All
-		PyExePath := A_ScriptDir "\p_embed\python.exe"
-		If (FDS5 == Checked)
+		IniRead, filePath, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
+		
+		folderPath := RegExReplace(filePath, "(.*\\).*", "$1")
+		folderPath := SubStr(folderPath, 1, StrLen(folderPath) - 1)
+        fileName := RegExReplace(filePath, ".+\\(.+)$", "$1")
+		fileName := SubStr(fileName, 1, StrLen(fileName) - 4)
+		
+		;MsgBox, % fileName
+		
+		If (FDS5 = 1)
 		{
+			;MsgBox, % FDS5 " is checked"
 			If !InStr(fileName, "_nfs")
 			{
-				FileCopy, %filePath%, %dir% "\" %fileName% "_nfs.fds"
-				ToolTip, % "Создан " %fileName%
-				Sleep, 350
+				;MsgBox, % fileName " does contain _nfs.fds"
+				nfsfile := folderPath . "\" . fileName . "_nfs.fds"
+				
+				FileCopy, %filePath%, %nfsfile%
+				
+				;fileName := fileName "_nfs"
+				filePath := nfsfile
+				
+				ToolTip, % "Создан " filePath
+				Sleep, 400
 				ToolTip
 				
-				Process_MISC_Line_to_FDS5(dir "\" fileName)
-				ToolTip, Подготовка строки &MISC
-				Sleep, 350
-				ToolTip
-				
-				Remove_HCL_Lines(dir "\" fileName)
-				ToolTip, Подготовка слайсов &SLCF и измерителей &DEVC
-				Sleep, 350
-				ToolTip
-				
-				Remove_SPEC_COMB_WIND_Lines(dir "\" fileName)
-				ToolTip, Очистка входного сценария от лишних &SPEC, &COMB, &WIND
-				Sleep, 350
-				ToolTip
-				
-				Process_REAC_Line_to_FDS5(dir "\" fileName)
+				Process_REAC_Line_to_FDS5(filePath)
 				ToolTip, Подготовка реакции &REAC
-				Sleep, 350
+				Sleep, 400
 				ToolTip
 				
-				ToolTip, % "Сценарий " fileName " готов к запуску"
-				Sleep, 700
+				Process_MISC_Line_to_FDS5(filePath)
+				ToolTip, Подготовка строки &MISC
+				Sleep, 400
+				ToolTip
+				
+				Remove_HCL_Lines(filePath)
+				ToolTip, Подготовка слайсов &SLCF и измерителей &DEVC
+				Sleep, 400
+				ToolTip
+				
+				Remove_SPEC_COMB_WIND_Lines(filePath)
+				ToolTip, Очистка входного сценария от лишних &SPEC, &COMB, &WIND
+				Sleep, 400
+				ToolTip
+				
+				ToolTip, % "Сценарий " fileName ".fds готов к запуску"
+				Sleep, 800
 				ToolTip
 			}
-			
 			Else
 			{
-				ToolTip, % "Уже есть " %fileName% ".fds"
-				Sleep, 700
+				ToolTip, % "Уже есть " fileName ".fds"
+				Sleep, 800
 				ToolTip
 			}
+		}
+		Else
+		{
+			MsgBox, % FDS5 " is not checked"
 		}
 	}
 	Else
@@ -621,7 +1016,10 @@ FDS5:
 	Return
 	
 FDS6:
-	If (FDS6 == Checked)
+	FDS6 := 1
+	FDS5 := 0
+	
+	If (FDS6 = 1)
 	{
 		ToolTip, Ускоритель отключен
 		Sleep, 350

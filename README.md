@@ -44,23 +44,5 @@
 - Файл с расширением .exe, полученный из данного репозитория, имеет уникальную Хэш-сумму, позволяющую отличить оригинальную утилиту от подделки.
 - Хэш-сумма обновляется только при обновлении версии утилиты и всегда доступна в конце файла **README.md**.
 
-### Актуальные Хэш-суммы
+### Актуальная Хэш-сумма
 > ZmejkaFDS.exe - **99eab251bfee0eaabce15cbc09cf2e4f**
-
-> PCTT.exe - **2f85644d0bfeb7e332b328f13933ee3e**
-
-> Insert_DEVC.exe - **665edaff58ac0fad34f6c1600d2536e3**
-
-> PFED.exe - **8e82ece80f12afebf3970f0287d673cf**
-
-> SURF_FIX.exe - **c97c0fe122947043e0ba81615b028f2b**
-
-> Расчёт_tmax.exe - **625c8039dea9b29c86d1e07825c1748d**
-
-> HRRP.exe - **b4ddb50bcf57929ec1b57ff9f0fbfcd6**
-
-> FMT Partitioner.exe - **8cb4b1012898f27ae7629c5a325cd804**
-
-> FMT Refiner-Coarsener.exe - **900b4a30901f923208200fe9e9406f17**
-
-> MDBL.exe - **fd254388138c96cde646dd905997c464**

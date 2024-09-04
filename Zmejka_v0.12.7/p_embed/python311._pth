@@ -6,5 +6,8 @@ libs\
 Lib\site-packages
 Scripts\
 share\
+tcl\
+DLLs\
+
 # Uncomment to run site.main() automatically
 #import site
