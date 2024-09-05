@@ -23,7 +23,7 @@
             return
         }
 
-        if RegExMatch(fileContent, "(?s)&SPEC.*?MW=([0-9]+\.[0-9]+)\s*\/", specMatch)
+        if RegExMatch(fileContent, "(?s)&SPEC.*?MW=([0-9]+\.[0-9]+|[0-9]+)\s*\/", specMatch)
 		{
             mwValue := specMatch1
             ToolTip, Найдено MW: %mwValue%
@@ -824,6 +824,19 @@
 		else if (heatValue = "31700" && mwValue = "104.323")
 		{
             newReacLine := "&REAC FUEL='Stoyanka legkovyx avtomobilej' HEAT_OF_COMBUSTION=31700 C=3.92459518673909 H=25.2553799741117 O=1.9114720577325 OTHER=0.0314734891640205 MW_OTHER=36.46094 CO_YIELD=0.097 SOOT_YIELD=0.0559770114942529 VISIBILITY_FACTOR=2.38 /"
+
+            modifiedContent := StrReplace(fileContent, reLine, newReacLine)
+
+            FileDelete, %filePath%
+            FileAppend, %modifiedContent%, %filePath%
+            ToolTip, &REAC line replaced successfully.
+			Sleep, 500
+			ToolTip
+        }
+		
+		else if (heatValue = "31700" && mwValue = "104.3233")
+		{
+            newReacLine := "&REAC FUEL='Avtomobil' HEAT_OF_COMBUSTION=31700 C=3.92459518673909 H=25.2553799741117 O=1.9114720577325 OTHER=0.0314734891640205 MW_OTHER=36.46094 CO_YIELD=0.097 SOOT_YIELD=0.0559770114942529 VISIBILITY_FACTOR=2.38 /"
 
             modifiedContent := StrReplace(fileContent, reLine, newReacLine)
 
