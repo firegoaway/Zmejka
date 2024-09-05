@@ -34,6 +34,7 @@ PyExe := A_ScriptDir "\p_embed\pythonw.exe"
 PyExeConsole := A_ScriptDir "\p_embed\python.exe"
 FDS5EXE := A_ScriptDir "\FDS5\fds5_mpi_win_64.exe"
 FDS5EXEnoMPI := A_ScriptDir "\FDS5\fds5.exe"
+FDS5MPIEXE := A_ScriptDir "\FDS5\mpiexec.exe"
 
 ;	Динамические библиотеки (начало)
 
@@ -103,7 +104,7 @@ Gui, Add, Button, x12 y189 w80 h30 gBrowseMPIButton, Найти mpi.exe
 Gui, Add, Edit, x102 y189 w260 h30 vMPIpath, %MPIpath%
 Gui, Add, Button, x12 y229 w80 h30 gCheckFDS, Проверить наличие FDS
 Gui, Add, Button, x102 y229 w80 h30 gHashLib, Обновить ZmejkaFDS
-Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix2
+Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix3
 Gui, Tab, Параметры
 Gui, Add, Checkbox, x22 y29 w150 h20 gChckAlwDTR vChckAlw, Добавить DT_RESTART
 Gui, Add, Edit, x172 y29 w50 h20 vChckDTR Number, 100
@@ -119,7 +120,7 @@ Gui, Add, Text, x22 y169 w120 h40 , Разбить расчётную облас
 Gui, Add, Button, x152 y169 w100 h40 gRunPartitioner, Partition
 Gui, Add, Text, x22 y219 w120 h40 , Уменьшить/увеличить размер ячейки
 Gui, Add, Button, x152 y219 w100 h40 gRunRefiner, Refine/Coarsen
-Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix2
+Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix3
 Gui, Tab, Построение графиков
 Gui, Add, Text, x22 y69 w120 h40 , Построить график F (dэфф) для нахождения tпор
 Gui, Add, Button, x152 y69 w100 h40 gRunPCTT, PCTT
@@ -127,7 +128,7 @@ Gui, Add, Text, x22 y119 w110 h40 , Построить график плотно
 Gui, Add, Button, x152 y119 w100 h40 gRunPFED, PFED
 Gui, Add, Text, x22 y169 w120 h40 , Построить график мощности пожара (HRR)
 Gui, Add, Button, x152 y169 w100 h40 gRunHRRP, HRRP
-Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix2
+Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix3
 
 Gui, Show, h310 w395, ZmejkaFDS
 Return
@@ -457,13 +458,13 @@ StartButton:
 			removeRTagFDS5 := removeRestartFromMiscLineFDS5(filePath)
 			If (removeRTagFDS5)
 			{
-				ToolTip, "RESTART=T" successfully removed from the "&MISC" line.
+				ToolTip, "RESTART=.TRUE." successfully removed from the "&MISC" line.
 				Sleep, 1000
 				SetTimer, RemoveToolTip, -1000
 			}
 			Else
 			{
-				ToolTip, Failed to remove "RESTART=T" from the "&MISC" line.
+				ToolTip, Failed to remove "RESTART=.TRUE." from the "&MISC" line.
 				Sleep, 1000
 				SetTimer, RemoveToolTip, -1000
 			}
@@ -490,7 +491,7 @@ StartButton:
 			if MPI_PROCESS_NUM >= 2
 			{
 				SetWorkingDir, %folderPath%
-				Run, "%FDS5EXE%" "%filePath%", "%folderPath%", , PID
+				Run, "%FDS5MPIEXE%" -n %MPI_PROCESS_NUM% -localonly "%FDS5EXE%" "%filePath%", "%folderPath%", , PID
 			}
 		}
 		
