@@ -32,6 +32,7 @@ SetTitleMatchMode, 2
 AHKU64EXE := A_ScriptDir "\a_embed\AutoHotkeyU64.exe"
 PyExe := A_ScriptDir "\p_embed\pythonw.exe"
 FDS5EXE := A_ScriptDir "\FDS5\fds5_mpi_win_64.exe"
+FDS5EXEnoMPI := A_ScriptDir "\FDS5\fds5.exe"
 
 ;	Динамические библиотеки (начало)
 
@@ -45,6 +46,7 @@ HRRP := A_ScriptDir "\p_libs\HRRP_v0.2.1.cpython-311.pyc"
 MBDL := A_ScriptDir "\p_libs\MDBL_v0.1.0.cpython-311.pyc"
 PFED := A_ScriptDir "\p_libs\plot_density_v0.6.0.cpython-311.pyc"
 FSF := A_ScriptDir "\p_libs\FSF_v0.1.7.cpython-311.pyc"
+FSF_FDS5 := A_ScriptDir "\p_libs\FSF_v0.1.7_FDS5.cpython-311.pyc"
 
 ;	Модули (конец)
 
@@ -400,6 +402,8 @@ StartButton:
 			Sleep, 500
 			ToolTip
 			OutfilePath := folderPath "\" part1 "_" part3 ".out"
+			FileExistsRestart := FileExist(folderPath "\" part1 "_" part3 "*.restart")
+			RestartToCheck := folderPath "\" part1 "_" part2 "_" part3 ".fds"
 			ToolTip, % OutfilePath
 			Sleep, 500
 			ToolTip
@@ -464,18 +468,27 @@ StartButton:
 		
 		FileDelete, %folderPath%\%part1%*.stop
 		
-		If FileExist(A_ScriptDir "\FDS5\fds5.exe") && FileExist(A_ScriptDir "\FDS5\fds5_mpi_win_64.exe")
+		If FileExist(A_ScriptDir "\FDS5\fds5.exe") && FileExist(A_ScriptDir "\FDS5\fds5_mpi_win_64.exe") && FileExist(A_ScriptDir "\FDS5\fds5_win_64.exe")
 		{
 			MPI_PROCESS_NUM := Parse_FDS(filePath)
+			
 			ToolTip, % "Найдено потенциальных параллелей: " MPI_PROCESS_NUM
 			Sleep, 1000
 			ToolTip, Ускорение моделирования пожара путём перемещения среды выполнения FDS6 в среду FDS5
 			Sleep, 1000
 			ToolTip
 			
-			SetWorkingDir, %folderPath%
-    
-			Run, "%FDS5EXE%" "%filePath%", "%folderPath%", , PID
+			if MPI_PROCESS_NUM < 2
+			{
+				SetWorkingDir, %folderPath%
+				Run, "%FDS5EXEnoMPI%" "%filePath%", "%folderPath%", , PID
+			}
+			
+			if MPI_PROCESS_NUM >= 2
+			{
+				SetWorkingDir, %folderPath%
+				Run, "%FDS5EXE%" "%filePath%", "%folderPath%", , PID
+			}
 		}
 		
 		Loop
@@ -916,7 +929,10 @@ RunPFED:
 	Return
 
 RunSURF:
-	Run, "%PyExe%" "%FSF%"
+	if (FDS5 = 1)
+		Run, "%PyExe%" "%FSF_FDS5%"
+	if (FDS6 = 1)
+		Run, "%PyExe%" "%FSF%"
 	Return
 
 RunHRRP:
@@ -944,6 +960,11 @@ RunMDBL:
 FDS5:
 	FDS6 := 0
 	FDS5 := 1
+	
+	FDSpath := ""
+	GuiControl, , FDSpath
+	MPIpath := ""
+	GuiControl, , MPIpath
 	
 	If (FileExist(A_ScriptDir "\inis\filePath.ini")) && (filePath != "")
 	{
