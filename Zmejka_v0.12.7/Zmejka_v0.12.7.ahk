@@ -1048,7 +1048,11 @@ CheckFDS:
 	Return
 	
 HashLib:
-	Run, "%PyExeConsole%" "%HashLib%"
+	Run, "%PyExeConsole%" "%HashLib%", , , HashPID
+	WinWait, ahk_pid %HashPID%
+	Sleep, 3000
+	If FileExist("latest_release.zip\" A_ScriptDir)
+		ExitApp
 	Return
 
 BrowseFDSButton:
