@@ -1055,6 +1055,11 @@ HashLib:
 	WinWait, ahk_pid %HashPID%
 	Sleep, 6000
 	
+	If FileExist(A_ScriptDir "\HashLib.cpython-311.pyc")
+	{
+		FileDelete, A_ScriptDir "\HashLib.cpython-311.pyc"
+	}
+	
 	If FileExist(A_ScriptDir "\latest_release.zip")
 	{
 		ExitApp
