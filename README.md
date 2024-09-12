@@ -60,7 +60,7 @@
 - Хэш-сумма обновляется только при обновлении версии утилиты и всегда доступна в конце файла **README.md**.
 
 ### Актуальная Хэш-сумма
-> ZmejkaFDS.exe - **5d0a235cda9027ea04648d86166c1f45**
+> ZmejkaFDS.exe - **7a5876dbdfd0b3765b46c245b1343639**
 
 ### Актуальный релиз
-> [***Скачать***](https://github.com/firegoaway/Zmejka/releases/download/zmejkav0127hf5/Zmejka_v0.12.7_hotfix5.zip)
+> [***Скачать***](https://github.com/firegoaway/Zmejka/releases/download/zmejkav0127hf6/Zmejka_v0.12.7_hotfix6.zip)
