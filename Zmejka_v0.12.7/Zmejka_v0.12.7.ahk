@@ -1523,11 +1523,6 @@ AutoUpdateZ:
 	WinWait, ahk_pid %HashZmejkaPID%
 	Sleep, 1500
 	
-	If FileExist(A_ScriptDir "\ZmejkaFDS.zip")
-	{
-		ExitApp
-	}
-	
 	Return
 
 GuiClose:
