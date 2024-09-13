@@ -63,4 +63,5 @@
 > ZmejkaFDS.exe - **7a5876dbdfd0b3765b46c245b1343639**
 
 ### Актуальный релиз
-> [***Скачать***](https://github.com/firegoaway/Zmejka/releases/download/zmejkav0127hf6/Zmejka_v0.12.7_hotfix6.zip)
+> [***Скачать ZmejkaFDS***](https://github.com/firegoaway/Zmejka/releases/download/zmejkav0127hf6/Zmejka_v0.12.7_hotfix6.zip)
+> [***Скачать Libs***](https://github.com/firegoaway/Zmejka/releases/download/zmejkav0127hf6/Libs.zip)

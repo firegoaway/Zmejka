@@ -35,6 +35,8 @@ PyExeConsole := A_ScriptDir "\p_embed\python.exe"
 FDS5EXE := A_ScriptDir "\FDS5\fds5_mpi_win_64.exe"
 FDS5EXEnoMPI := A_ScriptDir "\FDS5\fds5.exe"
 FDS5MPIEXE := A_ScriptDir "\FDS5\mpiexec.exe"
+SMPDEXE := A_ScriptDir "\FDS5\smpd.exe"
+HYDRAEXE := A_ScriptDir "\FDS5\hydra_service.exe"
 
 ;	Динамические библиотеки (начало)
 
@@ -54,7 +56,8 @@ FSF_FDS5 := A_ScriptDir "\p_libs\FSF_v0.1.7_FDS5.cpython-311.pyc"
 
 Proceed_FDS5_DEVC_CSV := A_ScriptDir "\p_libs\Proceed_FDS5_DEVC_CSV.cpython-311.pyc"
 Proceed_FDS5_HRR_CSV := A_ScriptDir "\p_libs\Proceed_FDS5_HRR_CSV.cpython-311.pyc"
-HashLib := A_ScriptDir "\p_libs\HashLib.cpython-311.pyc"
+HashLib_AutoUpdate_ZmejkaFDS := A_ScriptDir "\p_libs\HashLib_AutoUpdate_ZmejkaFDS.cpython-311.pyc"
+HashLib_AutoUpdate_Libs := A_ScriptDir "\p_libs\HashLib_AutoUpdate_Libs.cpython-311.pyc"
 
 ;	Динамические библиотеки (конец)
 
@@ -103,7 +106,7 @@ Gui, Add, Edit, x102 y149 w260 h30 vFDSpath, %FDSpath%
 Gui, Add, Button, x12 y189 w80 h30 gBrowseMPIButton, Найти mpi.exe
 Gui, Add, Edit, x102 y189 w260 h30 vMPIpath, %MPIpath%
 Gui, Add, Button, x12 y229 w80 h30 gCheckFDS, Проверить наличие FDS
-Gui, Add, Button, x102 y229 w80 h30 gHashLib, Обновить ZmejkaFDS
+Gui, Add, Button, x102 y229 w80 h30 gAutoUpdateZ, Обновить ZmejkaFDS
 Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix6
 Gui, Tab, Параметры
 Gui, Add, Checkbox, x22 y29 w150 h20 gChckAlwDTR vChckAlw, Добавить DT_RESTART
@@ -155,6 +158,27 @@ ChckAlwDTR:
 	Return
 
 StartButton:
+	If FileExist(SMPDEXE) && FileExist(HYDRAEXE)
+	{
+		ToolTip, Стравливаем SMPD
+		sleep, 1000
+		
+		Run, "%SMPDEXE%" " -install"
+		sleep, 1000
+		
+		ToolTip, Стравливаем Hydra_service
+		sleep, 1000
+		
+		Run, "%HYDRAEXE%" " -install"
+		sleep, 1000
+		
+		ToolTip
+	}
+	Else
+	{
+		MsgBox, 4160, SMPD и Hydra_service не обнаружены, Скачайте полный дистрибутив ZmejkaFDS
+	}
+
 	If (FDS6 = 1)
 	{
 		CheckCHID(filePath)
@@ -886,17 +910,129 @@ PauseButton:
 StopButton:
 	if (FDS6 = 1)
 	{
-		GuiControlGet, folderPath, , folderPath
-		GuiControlGet, fileName, , fileName
+		IniRead, filePath, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
 		
-		If WinExist(ahk_exe fds) || WinExist(ahk_pid PID)
+		folderPath := RegExReplace(filePath, "(.*\\).*", "$1")
+		folderPath := SubStr(folderPath, 1, StrLen(folderPath) - 1)
+        fileName := RegExReplace(filePath, ".+\\(.+)$", "$1")
+		fileName := SubStr(fileName, 1, StrLen(fileName) - 4)
+		
+		if InStr(fileName, "_nfs") && !InStr(fileName, "_tout")
 		{
-			FileAppend, , %folderPath%\%filename%.stop
+			StringSplit, part, fileName, _
 			
-			ToolTip, stopping FDS
-			Sleep, 1000
+			if (part0 > 0)
+			{
+				part1 = %part1%
+			}
+			if (part0 > 1)
+			{
+				part2 = %part2%
+			}
+			if (part0 > 2)
+			{
+				part3 = %part3%
+			}
 			
-			WinWaitClose
+			ToolTip, Part 1: %part1%`nPart 2: %part2%`nPart 3: %part3%
+			Sleep, 500
+			ToolTip
+			
+			fileName := part1
+			
+			ToolTip, % fileName
+			Sleep, 500
+			ToolTip
+			
+			IfWinExist, ahk_pid %PID%
+			{
+				StopFile := folderPath "\" part1 ".stop"
+				FileAppend, , %StopFile%
+				
+				ToolTip, stopping FDS...
+				Sleep, 1000
+				ToolTip
+				
+				WinWaitClose
+			}
+		}
+		
+		else if InStr(fileName, "_nfs") && InStr(fileName, "_tout")
+		{
+			StringSplit, part, fileName, _
+			
+			if (part0 > 0)
+			{
+				part1 = %part1%
+			}
+			if (part0 > 1)
+			{
+				part2 = %part2%
+			}
+			if (part0 > 2)
+			{
+				part3 = %part3%
+			}
+			
+			ToolTip, Part 1: %part1%`nPart 2: %part2%`nPart 3: %part3%
+			Sleep, 500
+			ToolTip
+			
+			fileName := part1
+			
+			ToolTip, % fileName
+			Sleep, 500
+			ToolTip
+			
+			IfWinExist, ahk_pid %PID%
+			{
+				StopFile := folderPath "\" part1 "_" part3 ".stop"
+				FileAppend, , %StopFile%
+				
+				ToolTip, stopping FDS...
+				Sleep, 1000
+				ToolTip
+				
+				WinWaitClose
+			}
+		}
+		
+		else
+		{
+			StringSplit, part, fileName, _
+			
+			if (part0 > 0)
+			{
+				part1 = %part1%
+			}
+			if (part0 > 1)
+			{
+				part2 = %part2%
+			}
+			if (part0 > 2)
+			{
+				part3 = %part3%
+			}
+			
+			ToolTip, Part 1: %part1%`nPart 2: %part2%`nPart 3: %part3%
+			Sleep, 500
+			ToolTip
+			
+			fileName := part1
+			
+			ToolTip, % fileName
+			Sleep, 500
+			ToolTip
+			
+			IfWinExist, ahk_pid %PID%
+			{
+				StopFile := folderPath "\" part1 ".stop"
+				FileAppend, , %StopFile%
+				
+				ToolTip, stopping FDS...
+				Sleep, 1000
+				WinWaitClose
+			}
 		}
 		
 		ToolTip, fds.exe is closed
@@ -933,6 +1069,7 @@ StopButton:
 		*/
 		
 		IniRead, filePath, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
+		
 		checkRTag := CheckRestartTag(filePath)
 		
 		If (checkRTag = 1)
@@ -940,13 +1077,13 @@ StopButton:
 			removeRTag := removeRestartFromMiscLine(filePath)
 			ToolTip, Restart tag is removed from the &MISC line.
 			Sleep, 1000
-			SetTimer, RemoveToolTip, -1000
+			ToolTip
 		}
 		Else
 		{
 			ToolTip, Restart tag is not in the &MISC line.
 			Sleep, 1000
-			SetTimer, RemoveToolTip, -1000
+			ToolTip
 		}
 	}
 	
@@ -1089,13 +1226,13 @@ StopButton:
 			AddRestartToMiscLineFDS5(filePath)
 			ToolTip, Restart tag is now added to the &MISC line.
 			Sleep, 1000
-			SetTimer, RemoveToolTip, -1000
+			ToolTip
 		}
 		Else
 		{
 			ToolTip, Restart tag is in the &MISC line.
 			Sleep, 1000
-			SetTimer, RemoveToolTip, -1000
+			ToolTip
 		}
 		; MsgBox, 4096, DEBUG, checkRTag is %checkRTag%
 	}
@@ -1210,27 +1347,6 @@ CheckFDS:
 	CheckFDSInstallation()
 	Return
 	
-HashLib:
-	FileCopy, %HashLib%, %A_ScriptDir%
-	Sleep, 1500
-	
-	Run, "%PyExeConsole%" "%A_ScriptDir%\HashLib.cpython-311.pyc", , , HashPID
-	WinWait, ahk_pid %HashPID%
-	Sleep, 6000
-	
-	If FileExist(A_ScriptDir "\latest_release.zip")
-	{
-		ExitApp
-	}
-	
-	If FileExist(A_ScriptDir "\HashLib.cpython-311.pyc")
-	{
-		WinWaitClose, ahk_pid %HashPID%
-		FileDelete % A_ScriptDir "\HashLib.cpython-311.pyc"
-	}
-	
-	Return
-
 BrowseFDSButton:
 	GetSelectedExe(FDSpath)
 	IniWrite, %FDSpath%, %A_ScriptDir%\inis\FDSpath.ini, FDSpath, FDSpath
@@ -1293,12 +1409,7 @@ RunMDBL:
 	Run, "%PyExe%" "%MBDL%"
 	Return
 	
-/*
-
-Поддержка ускорения расчета с помощью FDS5
-
-*/
-
+;Поддержка ускорения расчета с помощью FDS5
 FDS5:
 	FDS6 := 0
 	FDS5 := 1
@@ -1377,7 +1488,7 @@ FDS5:
 	Else
 	{
 		MsgBox, 4160, Ошибка, Укажите путь к файлу сценария .fds
-	}	
+	}
 	Return
 	
 FDS6:
@@ -1392,14 +1503,41 @@ FDS6:
 	}
 	Return
 
-/*
-
-Поддержка ускорения расчета с помощью FDS5
-
-*/
-
-RemoveToolTip:
-	ToolTip
+AutoUpdateZ:
+	If !FileExist(A_ScriptDir "\FDS5") || !FileExist(A_ScriptDir "\a_embed") || !FileExist(A_ScriptDir "\p_embed"))
+	{
+		;Обновляем FDS5, a_embed и p_embed
+		
+		FileCopy, %HashLib_AutoUpdate_Libs%, %A_ScriptDir%
+		Sleep, 1500
+		
+		Run, "%PyExeConsole%" "%A_ScriptDir%\HashLib_AutoUpdate_Libs.cpython-311.pyc", , , HashLibsPID
+		WinWait, ahk_pid %HashLibsPID%
+		Sleep, 1500
+		
+		If FileExist(A_ScriptDir "\HashLib_AutoUpdate_Libs.cpython-311.pyc")
+		{
+			WinWaitClose, ahk_pid %HashLibsPID%
+			FileDelete % A_ScriptDir "\HashLib_AutoUpdate_Libs.cpython-311.pyc"
+		}
+	}
+	Else If FileExist(A_ScriptDir "\ZmejkaFDS.zip") && (FileExist(A_ScriptDir "\FDS5") && FileExist(A_ScriptDir "\a_embed") && FileExist(A_ScriptDir "\p_embed"))
+	{
+		ExitApp
+	}
+	
+	FileCopy, %HashLib_AutoUpdate_ZmejkaFDS%, %A_ScriptDir%
+	sleep, 1500
+	
+	Run, "%PyExeConsole%" "%A_ScriptDir%\HashLib_AutoUpdate_ZmejkaFDS.cpython-311.pyc", , , HashZmejkaPID
+	WinWait, ahk_pid %HashZmejkaPID%
+	Sleep, 1500
+	
+	If FileExist(A_ScriptDir "\HashLib_AutoUpdate_ZmejkaFDS.cpython-311.pyc")
+	{
+		WinWaitClose, ahk_pid %HashZmejkaPID%
+		FileDelete % A_ScriptDir "\HashLib_AutoUpdate_ZmejkaFDS.cpython-311.pyc"
+	}
 	Return
 
 GuiClose:
