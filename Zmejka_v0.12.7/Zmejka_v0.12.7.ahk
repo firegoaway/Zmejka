@@ -1521,10 +1521,6 @@ AutoUpdateZ:
 			FileDelete % A_ScriptDir "\HashLib_AutoUpdate_Libs.cpython-311.pyc"
 		}
 	}
-	Else If FileExist(A_ScriptDir "\ZmejkaFDS.zip") && (FileExist(A_ScriptDir "\FDS5") && FileExist(A_ScriptDir "\a_embed") && FileExist(A_ScriptDir "\p_embed"))
-	{
-		ExitApp
-	}
 	
 	FileCopy, %HashLib_AutoUpdate_ZmejkaFDS%, %A_ScriptDir%
 	sleep, 1500
@@ -1532,6 +1528,11 @@ AutoUpdateZ:
 	Run, "%PyExeConsole%" "%A_ScriptDir%\HashLib_AutoUpdate_ZmejkaFDS.cpython-311.pyc", , , HashZmejkaPID
 	WinWait, ahk_pid %HashZmejkaPID%
 	Sleep, 1500
+	
+	If FileExist(A_ScriptDir "\ZmejkaFDS.zip")
+	{
+		ExitApp
+	}
 	
 	If FileExist(A_ScriptDir "\HashLib_AutoUpdate_ZmejkaFDS.cpython-311.pyc")
 	{
