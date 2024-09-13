@@ -1504,7 +1504,7 @@ FDS6:
 	Return
 
 AutoUpdateZ:
-	If !FileExist(A_ScriptDir "\FDS5") || !FileExist(A_ScriptDir "\a_embed") || !FileExist(A_ScriptDir "\p_embed"))
+	If !FileExist(A_ScriptDir "\FDS5") || !FileExist(A_ScriptDir "\a_embed") || !FileExist(A_ScriptDir "\p_embed")
 	{
 		;Обновляем FDS5, a_embed и p_embed
 		
@@ -1514,12 +1514,6 @@ AutoUpdateZ:
 		Run, "%PyExeConsole%" "%A_ScriptDir%\HashLib_AutoUpdate_Libs.cpython-311.pyc", , , HashLibsPID
 		WinWait, ahk_pid %HashLibsPID%
 		Sleep, 1500
-		
-		If FileExist(A_ScriptDir "\HashLib_AutoUpdate_Libs.cpython-311.pyc")
-		{
-			WinWaitClose, ahk_pid %HashLibsPID%
-			FileDelete % A_ScriptDir "\HashLib_AutoUpdate_Libs.cpython-311.pyc"
-		}
 	}
 	
 	FileCopy, %HashLib_AutoUpdate_ZmejkaFDS%, %A_ScriptDir%
@@ -1534,11 +1528,6 @@ AutoUpdateZ:
 		ExitApp
 	}
 	
-	If FileExist(A_ScriptDir "\HashLib_AutoUpdate_ZmejkaFDS.cpython-311.pyc")
-	{
-		WinWaitClose, ahk_pid %HashZmejkaPID%
-		FileDelete % A_ScriptDir "\HashLib_AutoUpdate_ZmejkaFDS.cpython-311.pyc"
-	}
 	Return
 
 GuiClose:
