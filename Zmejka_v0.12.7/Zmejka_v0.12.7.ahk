@@ -139,10 +139,10 @@ Return
 BrowseFileButton:
 	Gui, Submit, NoHide
 	GetSelectedFile(folderPath, fileName, filePath) ; IniWrite теперь внутри функции
+	IniWrite, %filePath%, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
 	GuiControl,, folderPath, %folderPath%
 	GuiControl,, fileName, %fileName%
-	Sleep, 200
-	IniRead, filePath, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
+	;IniRead, filePath, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
 	Return
 	
 ChckAlwDTR:
@@ -457,10 +457,21 @@ StartButton:
 			Sleep, 500
 			ToolTip
 			
-			OutfilePath := folderPath "\" part1 "_" part2 ".out"
-			FileExistsRestart := FileExist(folderPath "\" part1 "_" part2 "*.restart")
-			StopFile := folderPath "\" part1 "_" part2 "_" ".stop"
-			;MsgBox, % OutfilePath "`n" FileExistsRestart "`n" StopFile "`n"
+			if part2 = "_tout"
+			{
+				OutfilePath := folderPath "\" part1 "_" part2 ".out"
+				FileExistsRestart := FileExist(folderPath "\" part1 "_" part2 "*.restart")
+				StopFile := folderPath "\" part1 "_" part2 "_" ".stop"
+				;MsgBox, % OutfilePath "`n" FileExistsRestart "`n" StopFile "`n"
+			}
+			
+			if part2 = "_nfs"
+			{
+				OutfilePath := folderPath "\" part1 "_" part3 ".out"
+				FileExistsRestart := FileExist(folderPath "\" part1 "_" part3 "*.restart")
+				StopFile := folderPath "\" part1 "_" part3 "_" ".stop"
+				;MsgBox, % OutfilePath "`n" FileExistsRestart "`n" StopFile "`n"
+			}
 			
 			ToolTip, % OutfilePath
 			Sleep, 500
