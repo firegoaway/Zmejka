@@ -20,7 +20,7 @@ Gui, Add, Checkbox, x12 y309 w200 h60 gChckOnlyOne vOnlyOne, Помещение 
 Gui, Add, Edit, x12 y369 w80 h20 vFpom
 Gui, Add, Text, x102 y370 , м2
 
-Gui, Show, x130 y134 h468 w184, Insert_DEVC_v0.4.1
+Gui, Show, x130 y134 h468 w184, Insert_DEVC_v0.4.2
 Return
 
 ChckOnlyOne:
@@ -124,7 +124,7 @@ OkButton:
             meshIndex++
             inMeshSection := true
             
-            if RegExMatch(line, "IJK=(\d+),(\d+),(\d+).*?XB=([\d\.-]+),([\d\.-]+),([\d\.-]+),([\d\.-]+),([\d\.-]+),([\d\.-]+)", match)
+            if RegExMatch(line, "IJK=(\d+),(\d+),(\d+).*?XB=([-\d\.]+),([-\d\.]+),([-\d\.]+),([-\d\.]+),([-\d\.]+),([-\d\.]+)", match)
             {
                 I := match1
                 J := match2
