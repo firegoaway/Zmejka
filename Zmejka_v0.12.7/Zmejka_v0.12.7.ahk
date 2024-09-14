@@ -214,7 +214,7 @@ StartButton:
 		
 		If !FileExist(filePath)
 		{
-			MsgBox, No %filePath% file in %A_ScriptDir% folder
+			MsgBox, Файл: %filePath% `nв папке: %A_ScriptDir% `n`n не найден
 		}
 		
 		FileExistsRestart := FileExist(folderPath "\" fileName "*.restart")
