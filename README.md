@@ -65,3 +65,5 @@
 ### Актуальный релиз
 > [***Скачать ZmejkaFDS***](https://github.com/firegoaway/Zmejka/releases/download/zmejkav0127hf9/Zmejka_v0.12.7_hotfix9.zip)
 
+> [***Скачать***](https://github.com/firegoaway/Zmejka/releases/download/zmejkav0127hf9/Zmejka_v0.12.7_hotfix9.zip)
+
