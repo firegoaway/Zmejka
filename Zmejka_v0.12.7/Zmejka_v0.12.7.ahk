@@ -43,10 +43,10 @@ HYDRAEXE := A_ScriptDir "\FDS5\hydra_service.exe"
 ; 	Модули (начало)
 
 Insert_DEVC := A_ScriptDir "\a_libs\Insert_DEVC_v0.4.2.ahk"
-PCTT := A_ScriptDir "\p_libs\Plot_CSV_Time_Threshhold_v0.5.2.cpython-311.pyc"
+PCTT := A_ScriptDir "\p_libs\Plot_CSV_Time_Threshhold_v0.5.3.cpython-311.pyc"
 Refine := A_ScriptDir "\p_libs\Refine_v0.1.2.cpython-311.pyc"
 Partition := A_ScriptDir "\p_libs\Partition_v0.1.2.cpython-311.pyc"
-HRRP := A_ScriptDir "\p_libs\HRRP_v0.2.1.cpython-311.pyc"
+HRRP := A_ScriptDir "\p_libs\HRRP_v0.3.0.cpython-311.pyc"
 MBDL := A_ScriptDir "\p_libs\MDBL_v0.1.0.cpython-311.pyc"
 PFED := A_ScriptDir "\p_libs\plot_density_v0.6.0.cpython-311.pyc"
 FSF := A_ScriptDir "\p_libs\FSF_v0.1.7.cpython-311.pyc"
@@ -86,16 +86,22 @@ Else
 If FileExist(A_ScriptDir "\inis\filePath.ini")
 {
 	IniRead, filePath, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
+	IniRead, folderPath, %A_ScriptDir%\inis\filePath.ini, folderPath, folderPath
+	IniRead, fileName, %A_ScriptDir%\inis\filePath.ini, fileName, fileName
+	GuiControl, , folderPath
+	GuiControl, , fileName
 }
 Else
 {
 	filePath := ""
+	folderPath := "Укажите путь к папке с файлом сценария (.fds)"
+	fileName := "Укажите имя файла сценария (.fds)"
 }
 
 Gui, Add, Tab3, x2 y-1 w390 h310 +BackgroundTrans, Главный экран|Параметры|Построение графиков
 Gui, Tab, Главный экран
-Gui, Add, Edit, x12 y39 vFolderPath w240 h20, % "Укажите путь к папке с файлом сценария (.fds)"
-Gui, Add, Edit, x12 y69 vFileName w240 h20, % "Укажите имя файла сценария (.fds)"
+Gui, Add, Edit, x12 y39 vFolderPath w240 h20, % folderPath
+Gui, Add, Edit, x12 y69 vFileName w240 h20, % fileName
 Gui, Add, Button, x262 y49 gBrowseFileButton w100 h30, Выбрать .fds
 Gui, Add, Button, x12 y109 w80 h30 gStartButton, Старт
 Gui, Add, Button, x102 y109 w80 h30 gPauseButton, Пауза
@@ -107,7 +113,7 @@ Gui, Add, Button, x12 y189 w80 h30 gBrowseMPIButton, Найти mpi.exe
 Gui, Add, Edit, x102 y189 w260 h30 vMPIpath, %MPIpath%
 Gui, Add, Button, x12 y229 w80 h30 gCheckFDS, Проверить наличие FDS
 Gui, Add, Button, x102 y229 w80 h30 gAutoUpdateZ, Обновить ZmejkaFDS
-Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix9
+Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix10
 Gui, Tab, Параметры
 Gui, Add, Checkbox, x22 y29 w150 h20 gChckAlwDTR vChckAlw, Добавить DT_RESTART
 Gui, Add, Edit, x172 y29 w50 h20 vChckDTR Number, 100
@@ -123,7 +129,7 @@ Gui, Add, Text, x22 y169 w120 h40 , Разбить расчётную облас
 Gui, Add, Button, x152 y169 w100 h40 gRunPartitioner, Partition
 Gui, Add, Text, x22 y219 w120 h40 , Уменьшить/увеличить размер ячейки
 Gui, Add, Button, x152 y219 w100 h40 gRunRefiner, Refine/Coarsen
-Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix9
+Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix10
 Gui, Tab, Построение графиков
 Gui, Add, Text, x22 y69 w120 h40 , Построить график F (dэфф) для нахождения tпор
 Gui, Add, Button, x152 y69 w100 h40 gRunPCTT, PCTT
@@ -131,15 +137,17 @@ Gui, Add, Text, x22 y119 w110 h40 , Построить график плотно
 Gui, Add, Button, x152 y119 w100 h40 gRunPFED, PFED
 Gui, Add, Text, x22 y169 w120 h40 , Построить график мощности пожара (HRR)
 Gui, Add, Button, x152 y169 w100 h40 gRunHRRP, HRRP
-Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix9
+Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix10
 
 Gui, Show, h310 w395, ZmejkaFDS
 Return
 
 BrowseFileButton:
 	Gui, Submit, NoHide
-	GetSelectedFile(folderPath, fileName, filePath) ; IniWrite теперь внутри функции
+	GetSelectedFile(folderPath, fileName, filePath)
 	IniWrite, %filePath%, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
+	IniWrite, %folderPath%, %A_ScriptDir%\inis\filePath.ini, folderPath, folderPath
+	IniWrite, %fileName%, %A_ScriptDir%\inis\filePath.ini, fileName, fileName
 	GuiControl,, folderPath, %folderPath%
 	GuiControl,, fileName, %fileName%
 	;IniRead, filePath, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
