@@ -21,6 +21,7 @@
             line := RegExReplace(line, "\s*MAX_LEAK_PATHS=[^/]*")
             line := RegExReplace(line, "\s*VISIBILITY_FACTOR=[^/]*")
             line := RegExReplace(line, "\s*BNDF_DEFAULT=[^/]*")
+			line := RegExReplace(line, "\s*MAXIMUM_VISIBILITY=[^/]*")
         }
         
         newFileContent .= line "`n"
