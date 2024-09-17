@@ -18,11 +18,29 @@
         
         if (InStr(line, "&MISC") != 0)
 		{
-            line := RegExReplace(line, "\s*MAX_LEAK_PATHS=[^/]*")
-            line := RegExReplace(line, "\s*VISIBILITY_FACTOR=[^/]*")
-            line := RegExReplace(line, "\s*BNDF_DEFAULT=[^/]*")
-			line := RegExReplace(line, "\s*MAXIMUM_VISIBILITY=[^/]*")
-        }
+			; Заменяем MAX_LEAK_PATHS на SUPPRESSION=.FALSE.
+			line := RegExReplace(line, "\s*MAX_LEAK_PATHS=[^\s/]*", " SUPPRESSION=.FALSE.")
+			
+			; Заменяем VISIBILITY_FACTOR на BAROCLINIC=.FALSE.
+			line := RegExReplace(line, "\s*VISIBILITY_FACTOR=[^\s/]*", " BAROCLINIC=.FALSE.")
+			
+			; Удаляем BNDF_DEFAULT
+			line := RegExReplace(line, "\s*BNDF_DEFAULT=[^\s/]*", "")
+			
+			; Удаляем MAXIMUM_VISIBILITY
+			line := RegExReplace(line, "\s*MAXIMUM_VISIBILITY=[^\s/]*", "")
+		}
+		
+		if (InStr(line, "&TIME") != 0)
+		{
+			;line := RegExReplace(line, "/", " LOCK_TIME_STEP=.TRUE. SYNCHRONIZE=.FALSE./")
+			line := RegExReplace(line, "/", " SYNCHRONIZE=.FALSE./")
+		}
+		
+		if (InStr(line, "&DUMP") != 0)
+		{
+			line := RegExReplace(line, "/", " FLUSH_FILE_BUFFERS=.FALSE./")
+		}
         
         newFileContent .= line "`n"
     }
