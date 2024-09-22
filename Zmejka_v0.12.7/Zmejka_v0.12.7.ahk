@@ -50,7 +50,7 @@ Partition := A_ScriptDir "\p_libs\Partition_v0.1.2.cpython-311.pyc"
 HRRP := A_ScriptDir "\p_libs\HRRP_v0.3.0.cpython-311.pyc"
 MBDL := A_ScriptDir "\p_libs\MDBL_v0.1.0.cpython-311.pyc"
 PFED := A_ScriptDir "\p_libs\plot_density_v0.6.0.cpython-311.pyc"
-FSF := A_ScriptDir "\p_libs\FSF_v0.1.9.cpython-311.py"
+FSF := A_ScriptDir "\p_libs\FSF_v0.1.9.cpython-311.pyc"
 FSF_FDS5 := A_ScriptDir "\p_libs\FSF_v0.1.9_FDS5.cpython-311.pyc"
 
 ;	Модули (конец)
@@ -100,6 +100,8 @@ Else
 }
 
 ChckDTR := 100
+FDS6 := 1
+FDS5 := 0
 
 Gui, Add, Tab3, x2 y-1 w390 h310 +BackgroundTrans, Главный экран|Параметры|Построение графиков
 Gui, Tab, Главный экран
