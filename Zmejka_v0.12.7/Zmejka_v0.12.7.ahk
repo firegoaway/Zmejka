@@ -37,6 +37,7 @@ FDS5EXEnoMPI := A_ScriptDir "\FDS5\fds5.exe"
 FDS5MPIEXE := A_ScriptDir "\FDS5\mpiexec.exe"
 SMPDEXE := A_ScriptDir "\FDS5\smpd.exe"
 HYDRAEXE := A_ScriptDir "\FDS5\hydra_service.exe"
+install_services_run := A_ScriptDir "\FDS5\install_services_run.bat"
 
 ;	Динамические библиотеки (начало)
 
@@ -49,8 +50,8 @@ Partition := A_ScriptDir "\p_libs\Partition_v0.1.2.cpython-311.pyc"
 HRRP := A_ScriptDir "\p_libs\HRRP_v0.3.0.cpython-311.pyc"
 MBDL := A_ScriptDir "\p_libs\MDBL_v0.1.0.cpython-311.pyc"
 PFED := A_ScriptDir "\p_libs\plot_density_v0.6.0.cpython-311.pyc"
-FSF := A_ScriptDir "\p_libs\FSF_v0.1.8.cpython-311.pyc"
-FSF_FDS5 := A_ScriptDir "\p_libs\FSF_v0.1.8_FDS5.cpython-311.pyc"
+FSF := A_ScriptDir "\p_libs\FSF_v0.1.9.cpython-311.pyc"
+FSF_FDS5 := A_ScriptDir "\p_libs\FSF_v0.1.9_FDS5.cpython-311.pyc"
 
 ;	Модули (конец)
 
@@ -113,9 +114,10 @@ Gui, Add, Button, x12 y149 w80 h30 gBrowseFDSButton, Найти fds.exe
 Gui, Add, Edit, x102 y149 w260 h30 vFDSpath, %FDSpath%
 Gui, Add, Button, x12 y189 w80 h30 gBrowseMPIButton, Найти mpi.exe
 Gui, Add, Edit, x102 y189 w260 h30 vMPIpath, %MPIpath%
-Gui, Add, Button, x12 y229 w80 h30 gCheckFDS, Проверить наличие FDS
-Gui, Add, Button, x102 y229 w80 h30 gAutoUpdateZ, Обновить ZmejkaFDS
-Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix14
+Gui, Add, Button, x12 y269 w80 h30 gCheckFDS, Проверить наличие FDS
+Gui, Add, Button, x102 y269 w80 h30 gAutoUpdateZ, Обновить ZmejkaFDS
+Gui, Add, Button, x12 y229 w80 h30 gEmpit, Стравить
+Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix15
 Gui, Tab, Параметры
 Gui, Add, Checkbox, x22 y29 w150 h20 gChckAlwDTR vChckAlw, Добавить DT_RESTART
 Gui, Add, Edit, x172 y29 w50 h20 vChckDTR Number, %ChckDTR%
@@ -131,7 +133,7 @@ Gui, Add, Text, x22 y169 w120 h40 , Разбить расчётную облас
 Gui, Add, Button, x152 y169 w100 h40 gRunPartitioner, Partition
 Gui, Add, Text, x22 y219 w120 h40 , Уменьшить/увеличить размер ячейки
 Gui, Add, Button, x152 y219 w100 h40 gRunRefiner, Refine/Coarsen
-Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix14
+Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix15
 Gui, Tab, Построение графиков
 Gui, Add, Text, x22 y69 w120 h40 , Построить график F (dэфф) для нахождения tпор
 Gui, Add, Button, x152 y69 w100 h40 gRunPCTT, PCTT
@@ -139,7 +141,7 @@ Gui, Add, Text, x22 y119 w110 h40 , Построить график плотно
 Gui, Add, Button, x152 y119 w100 h40 gRunPFED, PFED
 Gui, Add, Text, x22 y169 w120 h40 , Построить график мощности пожара (HRR)
 Gui, Add, Button, x152 y169 w100 h40 gRunHRRP, HRRP
-Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix14
+Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix15
 
 Gui, Show, h310 w395, ZmejkaFDS
 Return
@@ -168,27 +170,6 @@ ChckAlwDTR:
 	Return
 
 StartButton:
-	If FileExist(SMPDEXE) && FileExist(HYDRAEXE)
-	{
-		ToolTip, Стравливаем SMPD
-		sleep, 1000
-		
-		Run, "%SMPDEXE%" " -install"
-		sleep, 1000
-		
-		ToolTip, Стравливаем HYDRA_SERVICE
-		sleep, 1000
-		
-		Run, "%HYDRAEXE%" " -install"
-		sleep, 1000
-		
-		ToolTip
-	}
-	Else
-	{
-		MsgBox, 4160, SMPD и HYDRA_SERVICE не обнаружены, Скачайте полный дистрибутив ZmejkaFDS
-	}
-
 	If (FDS6 = 1)
 	{
 		CheckCHID(filePath)
@@ -815,7 +796,7 @@ PauseButton:
 			
 			IfWinExist, ahk_pid %PID%
 			{
-				StopFile := folderPath "\" part1 ".stop"
+				StopFile := folderPath "\" part1 "_" part2 ".stop"
 				FileAppend, , %StopFile%
 				
 				ToolTip, stopping FDS...
@@ -854,7 +835,8 @@ PauseButton:
 			
 			IfWinExist, ahk_pid %PID%
 			{
-				StopFile := folderPath "\" part1 "_" part3 ".stop"
+				StopFile := folderPath "\" part1 "_" part2 "_" part3 ".stop"
+				StopFile .= folderPath "\" part1 "_" part3 "_" part2 ".stop"
 				FileAppend, , %StopFile%
 				
 				ToolTip, stopping FDS...
@@ -1191,7 +1173,7 @@ StopButton:
 			
 			IfWinExist, ahk_pid %PID%
 			{
-				StopFile := folderPath "\" part1 ".stop"
+				StopFile := folderPath "\" part1 "_" part2 ".stop"
 				FileAppend, , %StopFile%
 				
 				ToolTip, stopping FDS...
@@ -1231,7 +1213,8 @@ StopButton:
 			
 			IfWinExist, ahk_pid %PID%
 			{
-				StopFile := folderPath "\" part1 "_" part3 ".stop"
+				StopFile := folderPath "\" part1 "_" part2 "_" part3 ".stop"
+				StopFile .= folderPath "\" part1 "_" part3 "_" part2 ".stop"
 				FileAppend, , %StopFile%
 				
 				ToolTip, stopping FDS...
@@ -1281,18 +1264,21 @@ StopButton:
 		}
 		
 		checkRTagFDS5 := CheckRestartTagFDS5(filePath)
-		If (checkRTagFDS5 = 0)
+		If (checkRTagFDS5 = 1)
 		{
-			ToolTip, Restart tag was not found in the &MISC line.
+			ToolTip, Restart tag found in the &MISC line.
 			Sleep, 1000
-			AddRestartToMiscLineFDS5(filePath)
-			ToolTip, Restart tag is now added to the &MISC line.
+			
+			removeRestartFromMiscLineFDS5(filePath)
+			
+			ToolTip, Restart tag is removed &MISC line.
 			Sleep, 1000
+			
 			ToolTip
 		}
 		Else
 		{
-			ToolTip, Restart tag is in the &MISC line.
+			ToolTip, Restart tag not found in the &MISC line.
 			Sleep, 1000
 			ToolTip
 		}
@@ -1475,7 +1461,36 @@ RunRefiner:
 RunMDBL:
 	Run, "%PyExe%" "%MBDL%"
 	Return
-	
+
+Empit:
+	If FileExist(SMPDEXE) && FileExist(HYDRAEXE)
+	{
+		ToolTip, Стравливаем SMPD и HYDRA_SERVICE
+		sleep, 1000
+		
+		Run, "%install_services_run%"
+		sleep, 1000
+		
+		;ToolTip, Стравливаем SMPD
+		;sleep, 1000
+		
+		;Run, "%SMPDEXE%" " -install"
+		;sleep, 1000
+		
+		;ToolTip, Стравливаем HYDRA_SERVICE
+		;sleep, 1000
+		
+		;Run, "%HYDRAEXE%" " -install"
+		;sleep, 1000
+		
+		ToolTip
+	}
+	Else
+	{
+		MsgBox, 4160, SMPD и HYDRA_SERVICE не обнаружены, Скачайте полный дистрибутив ZmejkaFDS
+	}
+	Return
+
 ;Поддержка ускорения расчета с помощью FDS5
 FDS5:
 	FDS6 := 0

@@ -1,5 +1,6 @@
 ﻿#NoEnv
 #SingleInstance, Force
+#MaxMem 4095
 ; #Include GetSelectedFile.ahk
 
 Gui, Add, Text, x12 y19 w160 h30 +Center, Выберите параметр`, воздействующий на ИП ДОТ:
