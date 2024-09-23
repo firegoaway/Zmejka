@@ -1,33 +1,41 @@
 RemoveRestartFromMiscLine(filePath)
 {
 	FileRead, fdsContent, %filePath%
+  
+	pattern := "\&MISC\s(.*?)(/)"
 
-	if (RegExMatch(fdsContent, "i)(&(MISC.+/))", miscLine))
+	if (RegExMatch(fdsContent, pattern, miscLine))
 	{
-		modifiedLine := RegExReplace(miscLine1, "\, RESTART=T", "")
-		fdsContent := StrReplace(fdsContent, miscLine1, modifiedLine)
+		modifiedLine := RegExReplace(miscLine, "\sRESTART=T", "")
+
+		fdsContent := StrReplace(fdsContent, miscLine, modifiedLine)
+
+		FileDelete, %filePath%
+		FileAppend, %fdsContent%, %filePath%
+
+		return (miscLine && modifiedLine)
 	}
-
-	FileDelete, %filePath%
-	FileAppend, %fdsContent%, %filePath%
-
-	return (miscLine1 && modifiedLine)
+	return false
 }
 
 RemoveRestartFromMiscLineFDS5(filePath)
 {
 	FileRead, fdsContent, %filePath%
+  
+	pattern := "\&MISC\s(.*?)(/)"
 
-	if (RegExMatch(fdsContent, "i)(&(MISC.+/))", miscLine))
+	if (RegExMatch(fdsContent, pattern, miscLine))
 	{
-		modifiedLine := RegExReplace(miscLine1, "\, RESTART=\.TRUE\.", "")
-		fdsContent := StrReplace(fdsContent, miscLine1, modifiedLine)
+		modifiedLine := RegExReplace(miscLine, "\sRESTART=.TRUE.", "")
+
+		fdsContent := StrReplace(fdsContent, miscLine, modifiedLine)
+
+		FileDelete, %filePath%
+		FileAppend, %fdsContent%, %filePath%
+
+		return (miscLine && modifiedLine)
 	}
-
-	FileDelete, %filePath%
-	FileAppend, %fdsContent%, %filePath%
-
-	return (miscLine1 && modifiedLine)
+	return false
 }
 
 ; Example usage:

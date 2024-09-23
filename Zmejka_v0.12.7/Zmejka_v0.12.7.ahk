@@ -119,7 +119,7 @@ Gui, Add, Edit, x102 y189 w260 h30 vMPIpath, %MPIpath%
 Gui, Add, Button, x12 y269 w80 h30 gCheckFDS, Проверить наличие FDS
 Gui, Add, Button, x102 y269 w80 h30 gAutoUpdateZ, Обновить ZmejkaFDS
 Gui, Add, Button, x12 y229 w80 h30 gEmpit, Стравить
-Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix15
+Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix16
 Gui, Tab, Параметры
 Gui, Add, Checkbox, x22 y29 w150 h20 gChckAlwDTR vChckAlw, Добавить DT_RESTART
 Gui, Add, Edit, x172 y29 w50 h20 vChckDTR Number, %ChckDTR%
@@ -135,7 +135,7 @@ Gui, Add, Text, x22 y169 w120 h40 , Разбить расчётную облас
 Gui, Add, Button, x152 y169 w100 h40 gRunPartitioner, Partition
 Gui, Add, Text, x22 y219 w120 h40 , Уменьшить/увеличить размер ячейки
 Gui, Add, Button, x152 y219 w100 h40 gRunRefiner, Refine/Coarsen
-Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix15
+Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix16
 Gui, Tab, Построение графиков
 Gui, Add, Text, x22 y69 w120 h40 , Построить график F (dэфф) для нахождения tпор
 Gui, Add, Button, x152 y69 w100 h40 gRunPCTT, PCTT
@@ -143,7 +143,7 @@ Gui, Add, Text, x22 y119 w110 h40 , Построить график плотно
 Gui, Add, Button, x152 y119 w100 h40 gRunPFED, PFED
 Gui, Add, Text, x22 y169 w120 h40 , Построить график мощности пожара (HRR)
 Gui, Add, Button, x152 y169 w100 h40 gRunHRRP, HRRP
-Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix15
+Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix16
 
 Gui, Show, h310 w395, ZmejkaFDS
 Return
@@ -211,23 +211,24 @@ StartButton:
 		}
 		
 		FileExistsRestart := FileExist(folderPath "\" fileName "*.restart")
+		checkRTag := CheckRestartTag(filePath)
 		
-		If (FileExistsRestart)
+		If FileExistsRestart && checkRTag
 		{
-			checkRTag := CheckRestartTag(filePath)
 			ToolTip, Restart file(s) found. Trying to resume FDS instance.
 			Sleep, 1000
 			ToolTip
 		}
-		Else
+		Else if !FileExistsRestart && checkRTag
 		{
-			ToolTip, Restart file not found!
+			ToolTip, Restart file not found but RESTART=T is in fds file
 			Sleep, 1000
 			ToolTip
 			
-			removeRTag := removeRestartFromMiscLine(filePath)
+			removeRTag := RemoveRestartFromMiscLine(filePath)
+			checkRTag := CheckRestartTag(filePath)
 			
-			If (removeRTag)
+			If !checkRTag
 			{
 				ToolTip, "RESTART=T" successfully removed from the "&MISC" line.
 				Sleep, 1000
@@ -240,10 +241,46 @@ StartButton:
 				ToolTip
 			}
 		}
+		Else if FileExistsRestart && !checkRTag
+		{
+			ToolTip, Restart file is found but RESTART=T is not in fds file
+			Sleep, 1000
+			ToolTip
+			
+			AddRestartToMiscLine(filePath)
+			
+			ToolTip, RESTART=T is added to the &MISC line
+			Sleep, 1000
+			ToolTip
+		}
 		
-		FileDelete, %folderPath%\%fileName%*.stop
+		StringSplit, part, fileName, _
+			
+		if (part0 > 0)
+		{
+			part1 = %part1%
+		}
+		if (part0 > 1)
+		{
+			part2 = %part2%
+		}
+		if (part0 > 2)
+		{
+			part3 = %part3%
+		}
+		
+		StopFiles := []
+		StopFiles.Push(folderPath "\" part1 ".stop")
+		StopFiles.Push(folderPath "\" part1 "_" part2 ".stop")
+		StopFiles.Push(folderPath "\" part1 "_" part2 "_" part3 ".stop")
+		StopFiles.Push(folderPath "\" part1 "_" part3 "_" part2 ".stop")
+
+		for index, StopFile in StopFiles
+		{
+			FileDelete, %StopFile%
+		}
+		
 		OutfilePath := folderPath "\" fileName ".out"
-		StopFile := folderPath "\" fileName ".stop"
 		
 		If (FileExist(A_ScriptDir "\inis\FDSpath.ini") && (FDSpath != "")) && (FileExist(A_ScriptDir "\inis\MPIpath.ini") && (MPIpath != ""))
 		{
@@ -262,6 +299,9 @@ StartButton:
 			;MsgBox, % RunCmd
 
 			Run, %RunCmd%,,, PID
+			WinWait, ahk_exe powershell.exe
+			WinGet, ID, ID, ahk_exe powershell.exe
+			;MsgBox, run id is %ID%
 			;Run, "%MPIpath%" -n %MPI_PROCESS_NUM% "%FDSpath%" "%filePath%", "%folderPath%", , PID
 		}
 		
@@ -283,6 +323,9 @@ StartButton:
 			;MsgBox, % RunCmd
 
 			Run, %RunCmd%,,, PID
+			WinWait, ahk_exe powershell.exe
+			WinGet, ID, ID, ahk_exe powershell.exe
+			;MsgBox, run id is %ID%
 			;Run, "%MPIpath%" -n %MPI_PROCESS_NUM% "%FDSpath%" "%filePath%", "%folderPath%", , PID
 		}
 		
@@ -303,6 +346,9 @@ StartButton:
 			;MsgBox, % RunCmd
 
 			Run, %RunCmd%,,, PID
+			WinWait, ahk_exe powershell.exe
+			WinGet, ID, ID, ahk_exe powershell.exe
+			;MsgBox, run id is %ID%
 			;Run, "%FDSpath%" "%filePath%", "%folderPath%", , PID
 		}
 		
@@ -328,6 +374,9 @@ StartButton:
 				;MsgBox, % RunCmd
 
 				Run, %RunCmd%,,, PID
+				WinWait, ahk_exe powershell.exe
+				WinGet, ID, ID, ahk_exe powershell.exe
+				;MsgBox, run id is %ID%
 				;Run, fds "%filePath%", "%folderPath%", , PID
 			}
 			Else
@@ -360,7 +409,7 @@ StartButton:
 		
 		Loop
 		{
-			If FileExist(OutfilePath)
+			If FileExist(OutfilePath) && !FileExist(StopFile)
 			{
 				TEND := SearchForTEND(filePath)
 				TotalTime := Ceil(ExtractLastTotalTime(OutfilePath))
@@ -369,7 +418,7 @@ StartButton:
 				Sleep, 250
 				Continue
 			}
-			Else If (TotalTime = TEND) || !FileExist(OutfilePath)
+			If (TotalTime = TEND) || !FileExist(OutfilePath) || FileExist(StopFile)
 			{
 				Break
 			}
@@ -378,7 +427,7 @@ StartButton:
 				Continue
 			}
 		}
-		Until (TotalTime >= TEND) || OutFileExists || FileExist(StopFile)
+		Until (TotalTime >= TEND) || !FileExist(OutfilePath) || FileExist(StopFile)
 		{
 			Progress Off
 		}
@@ -429,6 +478,32 @@ StartButton:
         fileName := RegExReplace(filePath, ".+\\(.+)$", "$1")
 		fileName := SubStr(fileName, 1, StrLen(fileName) - 4)
 		
+		StringSplit, part, fileName, _
+			
+		if (part0 > 0)
+		{
+			part1 = %part1%
+		}
+		if (part0 > 1)
+		{
+			part2 = %part2%
+		}
+		if (part0 > 2)
+		{
+			part3 = %part3%
+		}
+		
+		StopFiles := []
+		StopFiles.Push(folderPath "\" part1 ".stop")
+		StopFiles.Push(folderPath "\" part1 "_" part2 ".stop")
+		StopFiles.Push(folderPath "\" part1 "_" part2 "_" part3 ".stop")
+		StopFiles.Push(folderPath "\" part1 "_" part3 "_" part2 ".stop")
+
+		for index, StopFile in StopFiles
+		{
+			FileDelete, %StopFile%
+		}
+		
 		if InStr(fileName, "_tout") && InStr(fileName, "_nfs")
 		{
 			StringSplit, part, fileName, _
@@ -454,7 +529,6 @@ StartButton:
 			{
 				OutfilePath := folderPath "\" part1 "_" part2 ".out"
 				FileExistsRestart := FileExist(folderPath "\" part1 "_" part2 "*.restart")
-				StopFile := folderPath "\" part1 "_" part2 "_" ".stop"
 				;MsgBox, % OutfilePath "`n" FileExistsRestart "`n" StopFile "`n"
 			}
 			
@@ -462,7 +536,6 @@ StartButton:
 			{
 				OutfilePath := folderPath "\" part1 "_" part3 ".out"
 				FileExistsRestart := FileExist(folderPath "\" part1 "_" part3 "*.restart")
-				StopFile := folderPath "\" part1 "_" part3 "_" ".stop"
 				;MsgBox, % OutfilePath "`n" FileExistsRestart "`n" StopFile "`n"
 			}
 			
@@ -495,7 +568,6 @@ StartButton:
 			
 			OutfilePath := folderPath "\" part1 "_" part2 ".out"
 			FileExistsRestart := FileExist(folderPath "\" part1 "_" part2 "*.restart")
-			StopFile := folderPath "\" part1 "_" part2 ".stop"
 			;MsgBox, % OutfilePath "`n" FileExistsRestart "`n" StopFile "`n"
 			
 			ToolTip, % OutfilePath
@@ -527,7 +599,6 @@ StartButton:
 			
 			OutfilePath := folderPath "\" part1 ".out"
 			FileExistsRestart := FileExist(folderPath "\" part1 "*.restart")
-			StopFile := folderPath "\" part1 ".stop"
 			;MsgBox, % OutfilePath "`n" FileExistsRestart "`n" StopFile "`n"
 			
 			ToolTip, % OutfilePath
@@ -559,7 +630,6 @@ StartButton:
 			
 			OutfilePath := folderPath "\" part1 ".out"
 			FileExistsRestart := FileExist(folderPath "\" part1 "*.restart")
-			StopFile := folderPath "\" part1 "_" part2 ".stop"
 			;MsgBox, % OutfilePath "`n" FileExistsRestart "`n" StopFile "`n"
 			
 			ToolTip, % OutfilePath
@@ -569,22 +639,45 @@ StartButton:
 			IniWrite, %OutfilePath%, %A_ScriptDir%\inis\OutfilePath.ini, OutfilePath, OutfilePath
 		}
 		
-		If (FileExistsRestart = "A")
+		checkRTagFDS5 := CheckRestartTagFDS5(filePath)
+		
+		If FileExistsRestart && checkRTagFDS5
 		{
-			checkRTagFDS5 := CheckRestartTagFDS5(filePath)
 			ToolTip, Restart file(s) found. Trying to resume FDS instance.
 			Sleep, 1000
 			ToolTip
 		}
-		Else
+		Else If !FileExistsRestart && checkRTagFDS5
 		{
 			ToolTip, Restart file not found!
 			Sleep, 1000
 			ToolTip
 			
-			removeRTagFDS5 := removeRestartFromMiscLineFDS5(filePath)
+			removeRTagFDS5 := RemoveRestartFromMiscLineFDS5(filePath)
+			checkRTagFDS5 := CheckRestartTagFDS5(filePath)
 			
-			If (removeRTagFDS5)
+			If !checkRTagFDS5
+			{
+				ToolTip, "RESTART=.TRUE." successfully removed from the "&MISC" line.
+				Sleep, 1000
+				ToolTip
+			}
+			Else
+			{
+				ToolTip, Failed to remove "RESTART=.TRUE." from the "&MISC" line.
+				Sleep, 1000
+				ToolTip
+			}
+		}
+		Else If FileExistsRestart && !checkRTagFDS5
+		{
+			ToolTip, Restart file is found but RESTART=T is not in the &MISC line
+			Sleep, 1000
+			ToolTip
+			
+			AddRestartToMiscLineFDS5(filePath)
+			
+			If checkRTagFDS5
 			{
 				ToolTip, "RESTART=.TRUE." successfully removed from the "&MISC" line.
 				Sleep, 1000
@@ -619,6 +712,9 @@ StartButton:
 				;MsgBox, % RunCmd
 
 				Run, %RunCmd%,,, PID
+				WinWait, ahk_exe powershell.exe
+				WinGet, ID, ID, ahk_exe powershell.exe
+				;MsgBox, run id is %ID%
 				;Run, "%FDS5EXEnoMPI%" "%filePath%", "%folderPath%", , PID
 			}
 			
@@ -631,6 +727,9 @@ StartButton:
 				;MsgBox, % RunCmd
 
 				Run, %RunCmd%,,, PID
+				WinWait, ahk_exe powershell.exe
+				WinGet, ID, ID, ahk_exe powershell.exe
+				;MsgBox, run id is %ID%
 				;Run, "%FDS5MPIEXE%" -n %MPI_PROCESS_NUM% -localonly "%FDS5EXE%" "%filePath%", "%folderPath%", , PID
 			}
 		}
@@ -658,7 +757,7 @@ StartButton:
 		
 		Loop
 		{
-			If FileExist(OutfilePath)
+			If FileExist(OutfilePath) && !FileExist(StopFile)
 			{
 				TEND := SearchForTEND(filePath)
 				TotalTime := Ceil(ExtractLastTotalTime(OutfilePath))
@@ -667,7 +766,7 @@ StartButton:
 				Sleep, 250
 				Continue
 			}
-			Else If (TotalTime = TEND) || !FileExist(OutfilePath)
+			If (TotalTime = TEND) || !FileExist(OutfilePath) || FileExist(StopFile)
 			{
 				Break
 			}
@@ -676,9 +775,8 @@ StartButton:
 				Continue
 			}
 		}
-		Until (TotalTime >= TEND) || OutFileExists || FileExist(StopFile)
+		Until (TotalTime >= TEND) || !FileExist(OutfilePath) || FileExist(StopFile)
 		{
-			WinWaitClose, ahk_pid %PID%
 			Progress Off
 			
 			Sleep, 1000
@@ -695,9 +793,33 @@ PauseButton:
 		GuiControlGet, folderPath, , folderPath
 		GuiControlGet, fileName, , fileName
 		
-		IfWinExist, ahk_pid %PID%
+		StringSplit, part, fileName, _
+			
+		if (part0 > 0)
 		{
-			FileAppend, , %folderPath%\%filename%.stop
+			part1 = %part1%
+		}
+		if (part0 > 1)
+		{
+			part2 = %part2%
+		}
+		if (part0 > 2)
+		{
+			part3 = %part3%
+		}
+		
+		If WinExist("ahk_id " . ID)
+		{
+			StopFiles := []
+			StopFiles.Push(folderPath "\" part1 ".stop")
+			StopFiles.Push(folderPath "\" part1 "_" part2 ".stop")
+			StopFiles.Push(folderPath "\" part1 "_" part2 "_" part3 ".stop")
+			StopFiles.Push(folderPath "\" part1 "_" part3 "_" part2 ".stop")
+
+			for index, StopFile in StopFiles
+			{
+				FileAppend, , %StopFile%
+			}
 			
 			ToolTip, stopping FDS
 			Sleep, 1000
@@ -796,10 +918,16 @@ PauseButton:
 			Sleep, 500
 			ToolTip
 			
-			IfWinExist, ahk_pid %PID%
+			If WinExist("ahk_id " . ID)
 			{
-				StopFile := folderPath "\" part1 "_" part2 ".stop"
-				FileAppend, , %StopFile%
+				StopFiles := []
+				StopFiles.Push(folderPath "\" part1 ".stop")
+				StopFiles.Push(folderPath "\" part1 "_" part2 ".stop")
+
+				for index, StopFile in StopFiles
+				{
+					FileAppend, , %StopFile%
+				}
 				
 				ToolTip, stopping FDS...
 				Sleep, 1000
@@ -835,11 +963,16 @@ PauseButton:
 			Sleep, 500
 			ToolTip
 			
-			IfWinExist, ahk_pid %PID%
+			If WinExist("ahk_id " . ID)
 			{
-				StopFile := folderPath "\" part1 "_" part2 "_" part3 ".stop"
-				StopFile .= folderPath "\" part1 "_" part3 "_" part2 ".stop"
-				FileAppend, , %StopFile%
+				StopFiles := []
+				StopFiles.Push(folderPath "\" part1 "_" part2 "_" part3 ".stop")
+				StopFiles.Push(folderPath "\" part1 "_" part3 "_" part2 ".stop")
+
+				for index, StopFile in StopFiles
+				{
+					FileAppend, , %StopFile%
+				}
 				
 				ToolTip, stopping FDS...
 				Sleep, 1000
@@ -876,10 +1009,15 @@ PauseButton:
 			Sleep, 500
 			ToolTip
 			
-			IfWinExist, ahk_pid %PID%
+			If WinExist("ahk_id " . ID)
 			{
-				StopFile := folderPath "\" part1 ".stop"
-				FileAppend, , %StopFile%
+				StopFiles := []
+				StopFiles.Push(folderPath "\" part1 ".stop")
+
+				for index, StopFile in StopFiles
+				{
+					FileAppend, , %StopFile%
+				}
 				
 				ToolTip, stopping FDS...
 				Sleep, 1000
@@ -950,10 +1088,16 @@ StopButton:
 			Sleep, 500
 			ToolTip
 			
-			IfWinExist, ahk_pid %PID%
+			If WinExist("ahk_id " . ID)
 			{
-				StopFile := folderPath "\" part1 ".stop"
-				FileAppend, , %StopFile%
+				StopFiles := []
+				StopFiles.Push(folderPath "\" part1 ".stop")
+				StopFiles.Push(folderPath "\" part1 "_" part3 ".stop")
+
+				for index, StopFile in StopFiles
+				{
+					FileAppend, , %StopFile%
+				}
 				
 				ToolTip, stopping FDS...
 				Sleep, 1000
@@ -990,10 +1134,16 @@ StopButton:
 			Sleep, 500
 			ToolTip
 			
-			IfWinExist, ahk_pid %PID%
+			If WinExist("ahk_id " . ID)
 			{
-				StopFile := folderPath "\" part1 "_" part3 ".stop"
-				FileAppend, , %StopFile%
+				StopFiles := []
+				StopFiles.Push(folderPath "\" part1 ".stop")
+				StopFiles.Push(folderPath "\" part1 "_" part3 ".stop")
+
+				for index, StopFile in StopFiles
+				{
+					FileAppend, , %StopFile%
+				}
 				
 				ToolTip, stopping FDS...
 				Sleep, 1000
@@ -1030,10 +1180,17 @@ StopButton:
 			Sleep, 500
 			ToolTip
 			
-			IfWinExist, ahk_pid %PID%
+			If WinExist("ahk_id " . ID)
 			{
-				StopFile := folderPath "\" part1 "_" part2 ".stop"
-				FileAppend, , %StopFile%
+				StopFiles := []
+				StopFiles.Push(folderPath "\" part1 ".stop")
+				StopFiles.Push(folderPath "\" part1 "_" part2 ".stop")
+				StopFiles.Push(folderPath "\" part1 "_" part3 ".stop")
+
+				for index, StopFile in StopFiles
+				{
+					FileAppend, , %StopFile%
+				}
 				
 				ToolTip, stopping FDS...
 				Sleep, 1000
@@ -1070,10 +1227,15 @@ StopButton:
 			Sleep, 500
 			ToolTip
 			
-			IfWinExist, ahk_pid %PID%
+			If WinExist("ahk_id " . ID)
 			{
-				StopFile := folderPath "\" part1 ".stop"
-				FileAppend, , %StopFile%
+				StopFiles := []
+				StopFiles.Push(folderPath "\" part1 ".stop")
+
+				for index, StopFile in StopFiles
+				{
+					FileAppend, , %StopFile%
+				}
 				
 				ToolTip, stopping FDS...
 				Sleep, 1000
@@ -1120,7 +1282,7 @@ StopButton:
 		
 		If (checkRTag = 1)
 		{
-			removeRTag := removeRestartFromMiscLine(filePath)
+			removeRTag := RemoveRestartFromMiscLine(filePath)
 			ToolTip, Restart tag is removed from the &MISC line.
 			Sleep, 1000
 			ToolTip
@@ -1173,10 +1335,16 @@ StopButton:
 			Sleep, 500
 			ToolTip
 			
-			IfWinExist, ahk_pid %PID%
+			If WinExist("ahk_id " . ID)
 			{
-				StopFile := folderPath "\" part1 "_" part2 ".stop"
-				FileAppend, , %StopFile%
+				StopFiles := []
+				StopFiles.Push(folderPath "\" part1 ".stop")
+				StopFiles.Push(folderPath "\" part1 "_" part2 ".stop")
+
+				for index, StopFile in StopFiles
+				{
+					FileAppend, , %StopFile%
+				}
 				
 				ToolTip, stopping FDS...
 				Sleep, 1000
@@ -1213,11 +1381,18 @@ StopButton:
 			Sleep, 500
 			ToolTip
 			
-			IfWinExist, ahk_pid %PID%
+			If WinExist("ahk_id " . ID)
 			{
-				StopFile := folderPath "\" part1 "_" part2 "_" part3 ".stop"
-				StopFile .= folderPath "\" part1 "_" part3 "_" part2 ".stop"
-				FileAppend, , %StopFile%
+				StopFiles := []
+				StopFiles.Push(folderPath "\" part1 ".stop")
+				StopFiles.Push(folderPath "\" part1 "_" part2 ".stop")
+				StopFiles.Push(folderPath "\" part1 "_" part2 "_" part3 ".stop")
+				StopFiles.Push(folderPath "\" part1 "_" part3 "_" part2 ".stop")
+
+				for index, StopFile in StopFiles
+				{
+					FileAppend, , %StopFile%
+				}
 				
 				ToolTip, stopping FDS...
 				Sleep, 1000
@@ -1254,10 +1429,18 @@ StopButton:
 			Sleep, 500
 			ToolTip
 			
-			IfWinExist, ahk_pid %PID%
+			If WinExist("ahk_id " . ID)
 			{
-				StopFile := folderPath "\" part1 ".stop"
-				FileAppend, , %StopFile%
+				StopFiles := []
+				StopFiles.Push(folderPath "\" part1 ".stop")
+				StopFiles.Push(folderPath "\" part1 "_" part2 ".stop")
+				StopFiles.Push(folderPath "\" part1 "_" part2 "_" part3 ".stop")
+				StopFiles.Push(folderPath "\" part1 "_" part3 "_" part2 ".stop")
+
+				for index, StopFile in StopFiles
+				{
+					FileAppend, , %StopFile%
+				}
 				
 				ToolTip, stopping FDS...
 				Sleep, 1000
@@ -1271,7 +1454,7 @@ StopButton:
 			ToolTip, Restart tag found in the &MISC line.
 			Sleep, 1000
 			
-			removeRestartFromMiscLineFDS5(filePath)
+			RemoveRestartFromMiscLineFDS5(filePath)
 			
 			ToolTip, Restart tag is removed &MISC line.
 			Sleep, 1000
@@ -1295,9 +1478,10 @@ KillButton:
 		GuiControlGet, fileName, , fileName
 		
 		; Close CMD with FDS or MPI job instance
-		If WinExist(AHK_exe fds.exe) || WinExist(AHK_exe mpiexec.exe) || WinExist(AHK_pid PID)
+		If WinExist(ahk_id ID)
 		{
-			WinKill, ahk_pid %PID%
+			;MsgBox, WinExist %ID%
+			WinKill, ahk_id %ID%
 		}
 		Else
 		{
@@ -1331,7 +1515,7 @@ KillButton:
 		
 		FileDelete, %folderPath%\%filename%.stop
 		IniRead, filePath, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
-		removeRTag := removeRestartFromMiscLine(filePath)
+		removeRTag := RemoveRestartFromMiscLine(filePath)
 		
 		If (removeRTag)
 		{
@@ -1364,9 +1548,10 @@ KillButton:
         fileName := RegExReplace(filePath, ".+\\(.+)$", "$1")
 		fileName := SubStr(fileName, 1, StrLen(fileName) - 4)
 
-		If WinExist(ahk_pid PID)
+		If WinExist("ahk_id " . ID)
 		{
-			WinKill, ahk_pid %PID%
+			;MsgBox, WinExist %ID%
+			WinKill, ahk_id %ID%
 		}
 		Else
 		{
@@ -1375,7 +1560,7 @@ KillButton:
 		
 		FileDelete, %folderPath%\%filename%.stop
 		IniRead, filePath, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
-		removeRTagFDS5 := removeRestartFromMiscLineFDS5(filePath)
+		removeRTagFDS5 := RemoveRestartFromMiscLineFDS5(filePath)
 		
 		If (removeRTagFDS5)
 		{
