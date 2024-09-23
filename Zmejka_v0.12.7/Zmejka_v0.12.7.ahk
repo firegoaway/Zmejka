@@ -1513,7 +1513,41 @@ KillButton:
 		}
 		*/
 		
-		FileDelete, %folderPath%\%filename%.stop
+		StringSplit, part, fileName, _
+			
+		if (part0 > 0)
+		{
+			part1 = %part1%
+		}
+		if (part0 > 1)
+		{
+			part2 = %part2%
+		}
+		if (part0 > 2)
+		{
+			part3 = %part3%
+		}
+		
+		If WinExist("ahk_id " . ID)
+		{
+			StopFiles := []
+			StopFiles.Push(folderPath "\" part1 ".stop")
+			StopFiles.Push(folderPath "\" part1 "_" part2 ".stop")
+			StopFiles.Push(folderPath "\" part1 "_" part2 "_" part3 ".stop")
+			StopFiles.Push(folderPath "\" part1 "_" part3 "_" part2 ".stop")
+
+			for index, StopFile in StopFiles
+			{
+				FileAppend, , %StopFile%
+			}
+			
+			ToolTip, stopping FDS
+			Sleep, 2000
+			
+			WinWaitClose
+		}
+		
+		FileDelete, %StopFile%
 		IniRead, filePath, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
 		removeRTag := RemoveRestartFromMiscLine(filePath)
 		
@@ -1558,7 +1592,41 @@ KillButton:
 			MsgBox, There is no active FDS or MPI job running
 		}
 		
-		FileDelete, %folderPath%\%filename%.stop
+		StringSplit, part, fileName, _
+			
+		if (part0 > 0)
+		{
+			part1 = %part1%
+		}
+		if (part0 > 1)
+		{
+			part2 = %part2%
+		}
+		if (part0 > 2)
+		{
+			part3 = %part3%
+		}
+		
+		If WinExist("ahk_id " . ID)
+		{
+			StopFiles := []
+			StopFiles.Push(folderPath "\" part1 ".stop")
+			StopFiles.Push(folderPath "\" part1 "_" part2 ".stop")
+			StopFiles.Push(folderPath "\" part1 "_" part2 "_" part3 ".stop")
+			StopFiles.Push(folderPath "\" part1 "_" part3 "_" part2 ".stop")
+
+			for index, StopFile in StopFiles
+			{
+				FileAppend, , %StopFile%
+			}
+			
+			ToolTip, stopping FDS
+			Sleep, 2000
+			
+			WinWaitClose
+		}
+		
+		FileDelete, %StopFile%
 		IniRead, filePath, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
 		removeRTagFDS5 := RemoveRestartFromMiscLineFDS5(filePath)
 		
