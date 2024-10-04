@@ -2,6 +2,15 @@
 	ZmejkaFDS версии 0.12.7 и выше разработана экслюзивно для сообщества FIREGOAWAY
 */
 
+#SingleInstance Off
+#Persistent
+#NoEnv
+SetTitleMatchMode, 2
+
+/*
+	AHK Functions
+*/
+
 #Include %A_ScriptDir%\a_libs\GetSelectedFile.ahk
 #Include %A_ScriptDir%\a_libs\GetSelectedExe.ahk
 #Include %A_ScriptDir%\a_libs\CheckFDSInstallation.ahk
@@ -19,11 +28,6 @@
 #Include %A_ScriptDir%\a_libs\Remove_HCL_Lines.ahk
 #Include %A_ScriptDir%\a_libs\Remove_SPEC_COMB_WIND_Lines.ahk
 #Include %A_ScriptDir%\a_libs\RunSimulationFDS5.ahk
-
-#SingleInstance Off
-#Persistent
-#NoEnv
-SetTitleMatchMode, 2
 
 /*
 	Инициализация среды embed (начало)
@@ -49,7 +53,7 @@ Refine := A_ScriptDir "\p_libs\Refine_v0.1.2.cpython-311.pyc"
 Partition := A_ScriptDir "\p_libs\Partition_v0.1.2.cpython-311.pyc"
 HRRP := A_ScriptDir "\p_libs\HRRP_v0.3.0.cpython-311.pyc"
 MBDL := A_ScriptDir "\p_libs\MDBL_v0.1.0.cpython-311.pyc"
-PFED := A_ScriptDir "\p_libs\plot_density_v0.6.0.cpython-311.pyc"
+PFED := A_ScriptDir "\p_libs\plot_density_v0.6.1.cpython-311.pyc"
 FSF := A_ScriptDir "\p_libs\FSF_v0.1.9.cpython-311.pyc"
 FSF_FDS5 := A_ScriptDir "\p_libs\FSF_v0.1.9_FDS5.cpython-311.pyc"
 
@@ -102,8 +106,9 @@ Else
 ChckDTR := 100
 FDS6 := 1
 FDS5 := 0
+ProgressPercentage := 0
 
-Gui, Add, Tab3, x2 y-1 w390 h310 +BackgroundTrans, Главный экран|Параметры|Построение графиков
+Gui, Add, Tab3, x2 y-1 w390 h310 +BackgroundTrans, Главный экран|Параметры|Построение графиков|Дополнительно|
 Gui, Tab, Главный экран
 Gui, Add, Edit, x12 y39 vFolderPath w240 h20, % folderPath
 Gui, Add, Edit, x12 y69 vFileName w240 h20, % fileName
@@ -116,26 +121,20 @@ Gui, Add, Button, x12 y149 w80 h30 gBrowseFDSButton, Найти fds.exe
 Gui, Add, Edit, x102 y149 w260 h30 vFDSpath, %FDSpath%
 Gui, Add, Button, x12 y189 w80 h30 gBrowseMPIButton, Найти mpi.exe
 Gui, Add, Edit, x102 y189 w260 h30 vMPIpath, %MPIpath%
-Gui, Add, Button, x12 y269 w80 h30 gCheckFDS, Проверить наличие FDS
-Gui, Add, Button, x102 y269 w80 h30 gAutoUpdateZ, Обновить ZmejkaFDS
-Gui, Add, Button, x12 y229 w80 h30 gEmpit, Стравить
-Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix16
+Gui, Add, Progress, x13 y229 w350 h30 vProgressPercentage c0077BB, %ProgressPercentage%
+Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix17
 Gui, Tab, Параметры
-Gui, Add, Checkbox, x22 y29 w150 h20 gChckAlwDTR vChckAlw, Добавить DT_RESTART
-Gui, Add, Edit, x172 y29 w50 h20 vChckDTR Number, %ChckDTR%
-Gui, Add, Text, x225 y29 w30 h20 , сек
-Gui, Add, Button, x292 y29 w45 h25 gRunMDBL, MDBL
-Gui, Add, Radio, x262 y119 w80 h40 gFDS5 vFDS5, Ускорить расчет
-Gui, Add, Radio, x262 y69 w110 h40 gFDS6 vFDS6 Checked, Расчет по умолчанию
-Gui, Add, Text, x22 y69 w120 h40 , Подготовить FDS к расчёту F (dэфф) для нахождения tпор
-Gui, Add, Button, x152 y69 w100 h40 gRunInsertDEVC, Insert_DEVC
-Gui, Add, Text, x22 y119 w120 h40 , Привести параметры моделирования пожара к требуемым
-Gui, Add, Button, x152 y119 w100 h40 gRunSURF, SURF_FIX
-Gui, Add, Text, x22 y169 w120 h40 , Разбить расчётную область
-Gui, Add, Button, x152 y169 w100 h40 gRunPartitioner, Partition
-Gui, Add, Text, x22 y219 w120 h40 , Уменьшить/увеличить размер ячейки
-Gui, Add, Button, x152 y219 w100 h40 gRunRefiner, Refine/Coarsen
-Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix16
+Gui, Add, Text, x22 y29 w160 h40 , Добавить поверхностные измерители
+Gui, Add, Button, x172 y34 w80 h30 gRunMDBL, MDBL
+Gui, Add, Text, x22 y79 w120 h40 , Подготовить FDS к расчёту F (dэфф) для нахождения tпор
+Gui, Add, Button, x172 y79 w100 h40 gRunInsertDEVC, Insert_DEVC
+Gui, Add, Text, x22 y129 w120 h40 , Привести параметры моделирования пожара к требуемым
+Gui, Add, Button, x172 y129 w100 h40 gRunSURF, SURF_FIX
+Gui, Add, Text, x22 y179 w120 h40 , Разбить расчётную область
+Gui, Add, Button, x172 y179 w100 h40 gRunPartitioner, Partition
+Gui, Add, Text, x22 y229 w120 h40 , Уменьшить/увеличить размер ячейки
+Gui, Add, Button, x172 y229 w100 h40 gRunRefiner, Refine/Coarsen
+Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix17
 Gui, Tab, Построение графиков
 Gui, Add, Text, x22 y69 w120 h40 , Построить график F (dэфф) для нахождения tпор
 Gui, Add, Button, x152 y69 w100 h40 gRunPCTT, PCTT
@@ -143,7 +142,17 @@ Gui, Add, Text, x22 y119 w110 h40 , Построить график плотно
 Gui, Add, Button, x152 y119 w100 h40 gRunPFED, PFED
 Gui, Add, Text, x22 y169 w120 h40 , Построить график мощности пожара (HRR)
 Gui, Add, Button, x152 y169 w100 h40 gRunHRRP, HRRP
-Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix16
+Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix17
+Gui, Tab, Дополнительно
+Gui, Add, Checkbox, x22 y29 w270 h20 gChckAlwDTR vChckAlw, Сохранять результаты моделирования каждые ;бывш. Добавить DT_RESTART
+Gui, Add, Edit, x292 y29 w50 h20 vChckDTR Number, %ChckDTR%
+Gui, Add, Text, x345 y29 w30 h20 , сек
+Gui, Add, Radio, x22 y59 w280 h30 gFDS5 vFDS5, Ускорить моделирование пожара 
+Gui, Add, Radio, x22 y89 w280 h30 gFDS6 vFDS6 Checked, Моделирование пожара по умолчанию
+Gui, Add, Button, x12 y269 w80 h30 gCheckFDS, Проверить наличие FDS
+Gui, Add, Button, x102 y269 w80 h30 gAutoUpdateZ, Обновить ZmejkaFDS
+Gui, Add, Button, x12 y229 w170 h30 gEmpit, Стравить службы MPI
+Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix17
 
 Gui, Show, h310 w395, ZmejkaFDS
 Return
@@ -405,7 +414,7 @@ StartButton:
 			}
 		}
 		
-		Progress, M2 x500 y500 w250
+		;Progress, M2 x500 y500 w250
 		
 		Loop
 		{
@@ -414,7 +423,7 @@ StartButton:
 				TEND := SearchForTEND(filePath)
 				TotalTime := Ceil(ExtractLastTotalTime(OutfilePath))
 				ProgressPercentage := Ceil((TotalTime / TEND) * 100)
-				Progress, %ProgressPercentage%
+				GuiControl,, ProgressPercentage, %ProgressPercentage%
 				Sleep, 250
 				Continue
 			}
@@ -429,7 +438,11 @@ StartButton:
 		}
 		Until (TotalTime >= TEND) || !FileExist(OutfilePath) || FileExist(StopFile)
 		{
-			Progress Off
+			;Progress Off
+			
+			ToolTip, Моделирование завершено!
+			Sleep, 1000
+			ToolTip
 		}
 		
 		/*
@@ -753,7 +766,7 @@ StartButton:
 			}
 		}
 		
-		Progress, M2 x500 y500 w250
+		;Progress, M2 x500 y500 w250
 		
 		Loop
 		{
@@ -762,7 +775,7 @@ StartButton:
 				TEND := SearchForTEND(filePath)
 				TotalTime := Ceil(ExtractLastTotalTime(OutfilePath))
 				ProgressPercentage := Ceil((TotalTime / TEND) * 100)
-				Progress, %ProgressPercentage%
+				GuiControl,, ProgressPercentage, %ProgressPercentage%
 				Sleep, 250
 				Continue
 			}
@@ -777,7 +790,11 @@ StartButton:
 		}
 		Until (TotalTime >= TEND) || !FileExist(OutfilePath) || FileExist(StopFile)
 		{
-			Progress Off
+			;Progress Off
+			
+			ToolTip, Моделирование завершено!
+			Sleep, 1000
+			ToolTip
 			
 			Sleep, 1000
 			Run, "%PyExe%" "%Proceed_FDS5_DEVC_CSV%"
