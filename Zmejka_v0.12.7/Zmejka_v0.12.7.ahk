@@ -122,7 +122,7 @@ Gui, Add, Edit, x102 y149 w260 h30 vFDSpath, %FDSpath%
 Gui, Add, Button, x12 y189 w80 h30 gBrowseMPIButton, Найти mpi.exe
 Gui, Add, Edit, x102 y189 w260 h30 vMPIpath, %MPIpath%
 Gui, Add, Progress, x13 y229 w350 h30 vProgressPercentage c0077BB, %ProgressPercentage%
-Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix19
+Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix20
 Gui, Tab, Параметры
 Gui, Add, Text, x22 y29 w160 h40 , Добавить поверхностные измерители
 Gui, Add, Button, x172 y34 w80 h30 gRunMDBL, MDBL
@@ -134,7 +134,7 @@ Gui, Add, Text, x22 y179 w120 h40 , Разбить расчётную облас
 Gui, Add, Button, x172 y179 w100 h40 gRunPartitioner, Partition
 Gui, Add, Text, x22 y229 w120 h40 , Уменьшить/увеличить размер ячейки
 Gui, Add, Button, x172 y229 w100 h40 gRunRefiner, Refine/Coarsen
-Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix19
+Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix20
 Gui, Tab, Построение графиков
 Gui, Add, Text, x22 y69 w120 h40 , Построить график F (dэфф) для нахождения tпор
 Gui, Add, Button, x152 y69 w100 h40 gRunPCTT, PCTT
@@ -142,7 +142,7 @@ Gui, Add, Text, x22 y119 w110 h40 , Построить график плотно
 Gui, Add, Button, x152 y119 w100 h40 gRunPFED, PFED
 Gui, Add, Text, x22 y169 w120 h40 , Построить график мощности пожара (HRR)
 Gui, Add, Button, x152 y169 w100 h40 gRunHRRP, HRRP
-Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix19
+Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix20
 Gui, Tab, Дополнительно
 Gui, Add, Checkbox, x22 y29 w270 h20 gChckAlwDTR vChckAlw, Сохранять результаты моделирования каждые ;бывш. Добавить DT_RESTART
 Gui, Add, Edit, x292 y29 w50 h20 vChckDTR Number, %ChckDTR%
@@ -152,9 +152,10 @@ Gui, Add, Radio, x22 y89 w280 h30 gFDS6 vFDS6 Checked, Моделировани�
 Gui, Add, Button, x12 y269 w80 h30 gCheckFDS, Проверить наличие FDS
 Gui, Add, Button, x102 y269 w80 h30 gAutoUpdateZ, Обновить ZmejkaFDS
 Gui, Add, Button, x12 y229 w170 h30 gEmpit, Стравить службы MPI
-Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix19
+Gui, Add, Text, x265 y285 w160 h20 , Zmejka_v0.12.7_hotfix20
 
 Gui, Show, h310 w395, ZmejkaFDS
+
 Return
 
 BrowseFileButton:
@@ -166,6 +167,7 @@ BrowseFileButton:
 	GuiControl,, folderPath, %folderPath%
 	GuiControl,, fileName, %fileName%
 	;IniRead, filePath, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
+	
 	Return
 	
 ChckAlwDTR:
@@ -178,9 +180,29 @@ ChckAlwDTR:
 	{
 		UnCheckDUMP(filePath)
 	}
+	
 	Return
 
 StartButton:
+	GuiControlGet, folderPath, , folderPath
+	GuiControlGet, fileName, , fileName
+	GuiControlGet, FDSpath, , FDSpath
+	GuiControlGet, MPIpath, , MPIpath
+	
+	IniWrite, %folderPath%, %A_ScriptDir%\inis\filePath.ini, folderPath, folderPath
+	IniWrite, %fileName%, %A_ScriptDir%\inis\filePath.ini, fileName, fileName
+	IniWrite, %FDSpath%, %A_ScriptDir%\inis\FDSpath.ini, FDSpath, FDSpath
+	IniWrite, %MPIpath%, %A_ScriptDir%\inis\MPIpath.ini, MPIpath, MPIpath
+
+	If !FileExist(filePath)
+	{
+		MsgBox, Файл: %filePath% `nв папке: %A_ScriptDir% `n`nне найден
+	}
+	
+	/*
+		FDS6
+	*/
+
 	If (FDS6 = 1)
 	{
 		CheckCHID(filePath)
@@ -189,35 +211,6 @@ StartButton:
 		sleep, 50
 		
 		IniRead, filePath, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
-		GuiControlGet, folderPath, , folderPath
-		GuiControlGet, fileName, , fileName
-		
-		If (FDSpath != "")
-		{
-			GuiControlGet, FDSpath, , FDSpath
-		}
-		Else
-		{
-			ToolTip, No fds.exe specified
-			Sleep, 1000
-			ToolTip
-		}
-		
-		If (MPIpath != "")
-		{
-			GuiControlGet, MPIpath, , MPIpath
-		}
-		Else
-		{
-			ToolTip, No mpiexec.exe specified
-			Sleep, 1000
-			ToolTip
-		}
-		
-		If !FileExist(filePath)
-		{
-			MsgBox, Файл: %filePath% `nв папке: %A_ScriptDir% `n`nне найден
-		}
 		
 		FileExistsRestart := FileExist(folderPath "\" fileName "*.restart")
 		checkRTag := CheckRestartTag(filePath)
@@ -436,13 +429,15 @@ StartButton:
 				Continue
 			}
 		}
-		Until (TotalTime >= TEND) || !FileExist(OutfilePath) || FileExist(StopFile)
+		Until (TotalTime >= TEND) || !FileExist(OutfilePath) || FileExist(StopFile) || !WinExist("ahk_id " . ID)
 		{
 			;Progress Off
 			
 			ProgressPercentage := 100
+			GuiControl,, ProgressPercentage, %ProgressPercentage%
 			Sleep, 200
 			ProgressPercentage := 0
+			GuiControl,, ProgressPercentage, %ProgressPercentage%
 			
 			ToolTip, Моделирование завершено!
 			Sleep, 1000
@@ -478,6 +473,10 @@ StartButton:
 		}
 		*/
 	}
+	
+	/*
+		FDS5
+	*/
 	
 	If (FDS5 = 1)
 	{
@@ -792,13 +791,15 @@ StartButton:
 				Continue
 			}
 		}
-		Until (TotalTime >= TEND) || !FileExist(OutfilePath) || FileExist(StopFile)
+		Until (TotalTime >= TEND) || !FileExist(OutfilePath) || FileExist(StopFile) || !WinExist("ahk_id " . ID)
 		{
 			;Progress Off
 			
 			ProgressPercentage := 100
+			GuiControl,, ProgressPercentage, %ProgressPercentage%
 			Sleep, 200
 			ProgressPercentage := 0
+			GuiControl,, ProgressPercentage, %ProgressPercentage%
 			
 			ToolTip, Моделирование завершено!
 			Sleep, 1000
@@ -1074,10 +1075,6 @@ PauseButton:
 		}
 		; MsgBox, 4096, DEBUG, checkRTag is %checkRTag%
 	}
-	
-	ProgressPercentage := 100
-	Sleep, 200
-	ProgressPercentage := 0
 	
 	Return
 
@@ -1500,10 +1497,6 @@ StopButton:
 		; MsgBox, 4096, DEBUG, checkRTag is %checkRTag%
 	}
 	
-	ProgressPercentage := 100
-	Sleep, 200
-	ProgressPercentage := 0
-	
 	Return
 
 KillButton:
@@ -1678,10 +1671,6 @@ KillButton:
 			ToolTip
 		}
 	}
-	
-	ProgressPercentage := 100
-	Sleep, 200
-	ProgressPercentage := 0
 	
 	Return
 
