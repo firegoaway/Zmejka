@@ -6,9 +6,9 @@ set "currentPath=%PATH%"
 set "systemDrive=%SystemDrive%"
 
 :: Directories to add
-set "dir1=%systemDrive%\Program Files\Zmejka_v0.12.7"
-set "dir2=%systemDrive%\Program Files\Zmejka_v0.12.7\FDS5"
-set "dir3=%systemDrive%\Program Files\Zmejka_v0.12.7\FDS5\dll"
+set "dir1=%systemDrive%\Program Files\Zmejka_v0.12.8"
+set "dir2=%systemDrive%\Program Files\Zmejka_v0.12.8\FDS5"
+set "dir3=%systemDrive%\Program Files\Zmejka_v0.12.8\FDS5\dll"
 
 set "dir4=%systemDrive%\Program Files\Zmejka"
 set "dir5=%systemDrive%\Program Files\Zmejka\FDS5"
