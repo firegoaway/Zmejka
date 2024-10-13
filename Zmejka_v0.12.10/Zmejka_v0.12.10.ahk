@@ -28,6 +28,7 @@ SetTitleMatchMode, 2
 #Include %A_ScriptDir%\a_libs\Remove_HCL_Lines.ahk
 #Include %A_ScriptDir%\a_libs\Remove_SPEC_COMB_WIND_Lines.ahk
 #Include %A_ScriptDir%\a_libs\RunSimulationFDS5.ahk
+#Include %A_ScriptDir%\a_libs\WatchFolderForOutFiles.ahk
 
 /*
 	Инициализация среды embed (начало)
@@ -48,7 +49,7 @@ install_services_run := A_ScriptDir "\FDS5\install_services_run.bat"
 ; 	Модули (начало)
 
 Insert_DEVC := A_ScriptDir "\a_libs\Insert_DEVC_v0.4.2.ahk"
-PCTT := A_ScriptDir "\p_libs\Plot_CSV_Time_Threshhold_v0.6.0.cpython-311.pyc"
+PCTT := A_ScriptDir "\p_libs\Plot_CSV_Time_Threshhold_v0.6.1.cpython-311.pyc"
 Refine := A_ScriptDir "\p_libs\Refine_v0.1.2.cpython-311.pyc"
 Partition := A_ScriptDir "\p_libs\Partition_v0.1.2.cpython-311.pyc"
 HRRP := A_ScriptDir "\p_libs\HRRP_v0.3.0.cpython-311.pyc"
@@ -122,7 +123,7 @@ Gui, Add, Edit, x102 y149 w260 h30 vFDSpath, %FDSpath%
 Gui, Add, Button, x12 y189 w80 h30 gBrowseMPIButton, Найти mpi.exe
 Gui, Add, Edit, x102 y189 w260 h30 vMPIpath, %MPIpath%
 Gui, Add, Progress, x13 y229 w350 h30 vProgressPercentage c0077BB, %ProgressPercentage%
-Gui, Add, Text, x305 y285 w160 h20 , Zmejka_v0.12.9
+Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.10
 Gui, Tab, Параметры
 Gui, Add, Text, x22 y29 w160 h40 , Добавить поверхностные измерители
 Gui, Add, Button, x172 y34 w80 h30 gRunMDBL, MDBL
@@ -134,7 +135,7 @@ Gui, Add, Text, x22 y179 w120 h40 , Разбить расчётную облас
 Gui, Add, Button, x172 y179 w100 h40 gRunPartitioner, Partition
 Gui, Add, Text, x22 y229 w120 h40 , Уменьшить/увеличить размер ячейки
 Gui, Add, Button, x172 y229 w100 h40 gRunRefiner, Refine/Coarsen
-Gui, Add, Text, x305 y285 w160 h20 , Zmejka_v0.12.9
+Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.10
 Gui, Tab, Построение графиков
 Gui, Add, Text, x22 y69 w120 h40 , Построить график F (dэфф) для нахождения tпор
 Gui, Add, Button, x152 y69 w100 h40 gRunPCTT, PCTT
@@ -142,7 +143,7 @@ Gui, Add, Text, x22 y119 w110 h40 , Построить график плотно
 Gui, Add, Button, x152 y119 w100 h40 gRunPFED, PFED
 Gui, Add, Text, x22 y169 w120 h40 , Построить график мощности пожара (HRR)
 Gui, Add, Button, x152 y169 w100 h40 gRunHRRP, HRRP
-Gui, Add, Text, x305 y285 w160 h20 , Zmejka_v0.12.9
+Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.10
 Gui, Tab, Дополнительно
 Gui, Add, Checkbox, x22 y29 w270 h20 gChckAlwDTR vChckAlw, Сохранять результаты моделирования каждые ;бывш. Добавить DT_RESTART
 Gui, Add, Edit, x292 y29 w50 h20 vChckDTR Number, %ChckDTR%
@@ -152,7 +153,7 @@ Gui, Add, Radio, x22 y89 w280 h30 gFDS6 vFDS6 Checked, Моделировани�
 Gui, Add, Button, x12 y269 w80 h30 gCheckFDS, Проверить наличие FDS
 Gui, Add, Button, x102 y269 w80 h30 gAutoUpdateZ, Обновить ZmejkaFDS
 Gui, Add, Button, x12 y229 w170 h30 gEmpit, Стравить службы MPI
-Gui, Add, Text, x305 y285 w160 h20 , Zmejka_v0.12.9
+Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.10
 
 Gui, Show, h310 w395, ZmejkaFDS
 
@@ -197,6 +198,74 @@ StartButton:
 		MsgBox, Файл: %filePath% `nв папке: %A_ScriptDir% `n`nне найден
 	}
 	
+	StringSplit, part, fileName, _
+			
+	if (part0 > 0)
+	{
+		part1 = %part1%
+	}
+	if (part0 > 1)
+	{
+		part2 = %part2%
+	}
+	if (part0 > 2)
+	{
+		part3 = %part3%
+	}
+	
+	ToolTip, Part 1: %part1%`nPart 2: %part2%`nPart 3: %part3%
+	Sleep, 500
+	ToolTip
+	
+	StopFiles := []
+	StopFiles.Push(folderPath "\" part1 ".stop")
+	StopFiles.Push(folderPath "\" part1 "_" part2 ".stop")
+	StopFiles.Push(folderPath "\" part1 "_" part3 ".stop")
+	StopFiles.Push(folderPath "\" part1 "_" part2 "_" part3 ".stop")
+	StopFiles.Push(folderPath "\" part1 "_" part3 "_" part2 ".stop")
+
+	for index, StopFile in StopFiles
+	{
+		FileDelete, %StopFile%
+	}
+	
+/*	
+	If part2 = "tout"
+	{
+		OutfilePath := folderPath "\" part1 "_" part2 ".out"
+		IniWrite, %OutfilePath%, %A_ScriptDir%\inis\OutfilePath.ini, OutfilePath, OutfilePath
+	}
+	Else If part3 = "tout"
+	{
+		OutfilePath := folderPath "\" part1 "_" part3 ".out"
+		IniWrite, %OutfilePath%, %A_ScriptDir%\inis\OutfilePath.ini, OutfilePath, OutfilePath
+	}
+	Else
+	{
+		OutfilePath := folderPath "\" part1 ".out"
+		IniWrite, %OutfilePath%, %A_ScriptDir%\inis\OutfilePath.ini, OutfilePath, OutfilePath
+	}
+	
+	MsgBox % OutfilePath
+	
+	If part2 = "tout"
+	{
+		FileExistsRestart := folderPath "\" part1 "_" part2 ".restart"
+		IniWrite, %FileExistsRestart%, %A_ScriptDir%\inis\RestartFilePath.ini, RestartFilePath, RestartFilePath
+	}
+	Else If part3 = "tout"
+	{
+		FileExistsRestart := folderPath "\" part1 "_" part3 ".restart"
+		IniWrite, %FileExistsRestart%, %A_ScriptDir%\inis\RestartFilePath.ini, RestartFilePath, RestartFilePath
+	}
+	Else
+	{
+		FileExistsRestart := folderPath "\" part1 ".restart"
+		IniWrite, %FileExistsRestart%, %A_ScriptDir%\inis\RestartFilePath.ini, RestartFilePath, RestartFilePath
+	}
+	
+	MsgBox % FileExistsRestart
+*/
 	/*
 		FDS6
 	*/
@@ -210,16 +279,15 @@ StartButton:
 		
 		IniRead, filePath, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
 		
-		FileExistsRestart := FileExist(folderPath "\" fileName "*.restart")
 		checkRTag := CheckRestartTag(filePath)
 		
-		If FileExistsRestart && checkRTag
+		If FileExist(FileExistsRestart) && checkRTag
 		{
 			ToolTip, Restart file(s) found. Trying to resume FDS instance.
 			Sleep, 1000
 			ToolTip
 		}
-		Else if !FileExistsRestart && checkRTag
+		Else if !FileExist(FileExistsRestart) && checkRTag
 		{
 			ToolTip, Restart file not found but RESTART=T is in fds file
 			Sleep, 1000
@@ -241,7 +309,7 @@ StartButton:
 				ToolTip
 			}
 		}
-		Else if FileExistsRestart && !checkRTag
+		Else if FileExist(FileExistsRestart) && !checkRTag
 		{
 			ToolTip, Restart file is found but RESTART=T is not in fds file
 			Sleep, 1000
@@ -253,34 +321,6 @@ StartButton:
 			Sleep, 1000
 			ToolTip
 		}
-		
-		StringSplit, part, fileName, _
-			
-		if (part0 > 0)
-		{
-			part1 = %part1%
-		}
-		if (part0 > 1)
-		{
-			part2 = %part2%
-		}
-		if (part0 > 2)
-		{
-			part3 = %part3%
-		}
-		
-		StopFiles := []
-		StopFiles.Push(folderPath "\" part1 ".stop")
-		StopFiles.Push(folderPath "\" part1 "_" part2 ".stop")
-		StopFiles.Push(folderPath "\" part1 "_" part2 "_" part3 ".stop")
-		StopFiles.Push(folderPath "\" part1 "_" part3 "_" part2 ".stop")
-
-		for index, StopFile in StopFiles
-		{
-			FileDelete, %StopFile%
-		}
-		
-		OutfilePath := folderPath "\" fileName ".out"
 		
 		If (FileExist(A_ScriptDir "\inis\FDSpath.ini") && (FDSpath != "")) && (FileExist(A_ScriptDir "\inis\MPIpath.ini") && (MPIpath != ""))
 		{
@@ -385,23 +425,34 @@ StartButton:
 			}
 		}
 		
-		Loop
+		OutfilePath := ""
+		OutfilePattern := folderpath "\" part1 "*.out"
+		
+		ToolTip % OutfilePattern
+		sleep 300
+		ToolTip
+		
+		Loop, Files, %OutfilePattern%, F
 		{
-			Sleep, 1000
-			LastTotalTime := ExtractLastTotalTime(OutfilePath)
-			Sleep, 1000
-			
-			If FileExist(OutfilePath)
+			OutfilePath := A_LoopFileFullPath
+			if OutfilePath
 			{
+				Sleep, 1000
+				LastTotalTime := ExtractLastTotalTime(OutfilePath)
+				Sleep, 1000
+				If !(FileExist(OutfilePath)) || (LastTotalTime < LastTotalTime + 10)
+				{
+					Continue
+				}
+				Else
+				{
+					Continue
+				}
+				ToolTip % OutfilePath
+				sleep 300
+				ToolTip
+				
 				Break
-			}
-			Else If !(FileExist(OutfilePath)) || (LastTotalTime < LastTotalTime + 10)
-			{
-				Continue
-			}
-			Else
-			{
-				Continue
 			}
 		}
 		
@@ -484,184 +535,20 @@ StartButton:
 		
 		CheckDUMP(filePath, ChckDTR)
 		sleep, 50
-		
-		IniRead, filePath, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
-		
-		folderPath := RegExReplace(filePath, "(.*\\).*", "$1")
-		folderPath := SubStr(folderPath, 1, StrLen(folderPath) - 1)
-        fileName := RegExReplace(filePath, ".+\\(.+)$", "$1")
-		fileName := SubStr(fileName, 1, StrLen(fileName) - 4)
-		
-		StringSplit, part, fileName, _
 			
-		if (part0 > 0)
-		{
-			part1 = %part1%
-		}
-		if (part0 > 1)
-		{
-			part2 = %part2%
-		}
-		if (part0 > 2)
-		{
-			part3 = %part3%
-		}
-		
-		StopFiles := []
-		StopFiles.Push(folderPath "\" part1 ".stop")
-		StopFiles.Push(folderPath "\" part1 "_" part2 ".stop")
-		StopFiles.Push(folderPath "\" part1 "_" part2 "_" part3 ".stop")
-		StopFiles.Push(folderPath "\" part1 "_" part3 "_" part2 ".stop")
+		ToolTip, % OutfilePath
+		Sleep, 500
+		ToolTip
 
-		for index, StopFile in StopFiles
-		{
-			FileDelete, %StopFile%
-		}
-		
-		if InStr(fileName, "_tout") && InStr(fileName, "_nfs")
-		{
-			StringSplit, part, fileName, _
-			
-			if (part0 > 0)
-			{
-				part1 = %part1%
-			}
-			if (part0 > 1)
-			{
-				part2 = %part2%
-			}
-			if (part0 > 2)
-			{
-				part3 = %part3%
-			}
-			
-			ToolTip, Part 1: %part1%`nPart 2: %part2%`nPart 3: %part3%
-			Sleep, 500
-			ToolTip
-			
-			if part2 = "_tout"
-			{
-				OutfilePath := folderPath "\" part1 "_" part2 ".out"
-				FileExistsRestart := FileExist(folderPath "\" part1 "_" part2 "*.restart")
-				;MsgBox, % OutfilePath "`n" FileExistsRestart "`n" StopFile "`n"
-			}
-			
-			if part2 = "_nfs"
-			{
-				OutfilePath := folderPath "\" part1 "_" part3 ".out"
-				FileExistsRestart := FileExist(folderPath "\" part1 "_" part3 "*.restart")
-				;MsgBox, % OutfilePath "`n" FileExistsRestart "`n" StopFile "`n"
-			}
-			
-			ToolTip, % OutfilePath
-			Sleep, 500
-			ToolTip
-			
-			IniWrite, %OutfilePath%, %A_ScriptDir%\inis\OutfilePath.ini, OutfilePath, OutfilePath
-		}
-		else if InStr(fileName, "_tout") && !InStr(fileName, "_nfs")
-		{
-			StringSplit, part, fileName, _
-			
-			if (part0 > 0)
-			{
-				part1 = %part1%
-			}
-			if (part0 > 1)
-			{
-				part2 = %part2%
-			}
-			if (part0 > 2)
-			{
-				part3 = %part3%
-			}
-			
-			ToolTip, Part 1: %part1%`nPart 2: %part2%`nPart 3: %part3%
-			Sleep, 500
-			ToolTip
-			
-			OutfilePath := folderPath "\" part1 "_" part2 ".out"
-			FileExistsRestart := FileExist(folderPath "\" part1 "_" part2 "*.restart")
-			;MsgBox, % OutfilePath "`n" FileExistsRestart "`n" StopFile "`n"
-			
-			ToolTip, % OutfilePath
-			Sleep, 500
-			ToolTip
-			
-			IniWrite, %OutfilePath%, %A_ScriptDir%\inis\OutfilePath.ini, OutfilePath, OutfilePath
-		}
-		else if !InStr(fileName, "_tout") && InStr(fileName, "_nfs")
-		{
-			StringSplit, part, fileName, _
-			
-			if (part0 > 0)
-			{
-				part1 = %part1%
-			}
-			if (part0 > 1)
-			{
-				part2 = %part2%
-			}
-			if (part0 > 2)
-			{
-				part3 = %part3%
-			}
-			
-			ToolTip, Part 1: %part1%`nPart 2: %part2%`nPart 3: %part3%
-			Sleep, 500
-			ToolTip
-			
-			OutfilePath := folderPath "\" part1 ".out"
-			FileExistsRestart := FileExist(folderPath "\" part1 "*.restart")
-			;MsgBox, % OutfilePath "`n" FileExistsRestart "`n" StopFile "`n"
-			
-			ToolTip, % OutfilePath
-			Sleep, 500
-			ToolTip
-			
-			IniWrite, %OutfilePath%, %A_ScriptDir%\inis\OutfilePath.ini, OutfilePath, OutfilePath
-		}
-		else
-		{
-			StringSplit, part, fileName, _
-			
-			if (part0 > 0)
-			{
-				part1 = %part1%
-			}
-			if (part0 > 1)
-			{
-				part2 = %part2%
-			}
-			if (part0 > 2)
-			{
-				part3 = %part3%
-			}
-			
-			ToolTip, Part 1: %part1%`nPart 2: %part2%`nPart 3: %part3%
-			Sleep, 500
-			ToolTip
-			
-			OutfilePath := folderPath "\" part1 ".out"
-			FileExistsRestart := FileExist(folderPath "\" part1 "*.restart")
-			;MsgBox, % OutfilePath "`n" FileExistsRestart "`n" StopFile "`n"
-			
-			ToolTip, % OutfilePath
-			Sleep, 500
-			ToolTip
-			
-			IniWrite, %OutfilePath%, %A_ScriptDir%\inis\OutfilePath.ini, OutfilePath, OutfilePath
-		}
-		
 		checkRTagFDS5 := CheckRestartTagFDS5(filePath)
 		
-		If FileExistsRestart && checkRTagFDS5
+		If FileExist(FileExistsRestart) && checkRTagFDS5
 		{
 			ToolTip, Restart file(s) found. Trying to resume FDS instance.
 			Sleep, 1000
 			ToolTip
 		}
-		Else If !FileExistsRestart && checkRTagFDS5
+		Else If !FileExist(FileExistsRestart) && checkRTagFDS5
 		{
 			ToolTip, Restart file not found!
 			Sleep, 1000
@@ -683,7 +570,7 @@ StartButton:
 				ToolTip
 			}
 		}
-		Else If FileExistsRestart && !checkRTagFDS5
+		Else If FileExist(FileExistsRestart) && !checkRTagFDS5
 		{
 			ToolTip, Restart file is found but RESTART=T is not in the &MISC line
 			Sleep, 1000
@@ -704,8 +591,6 @@ StartButton:
 				ToolTip
 			}
 		}
-		
-		FileDelete, %StopFile%
 		
 		If FileExist(A_ScriptDir "\FDS5\fds5_mpi_win_64.exe") && FileExist(A_ScriptDir "\FDS5\mpiexec.exe")
 		{
@@ -748,22 +633,34 @@ StartButton:
 			}
 		}
 		
-		Loop
+		OutfilePath := ""
+		OutfilePattern := folderpath "\" part1 "*.out"
+		
+		ToolTip % OutfilePattern
+		sleep 300
+		ToolTip
+		
+		Loop, Files, %OutfilePattern%, F
 		{
-			Sleep, 1000
-			LastTotalTime := ExtractLastTotalTime(OutfilePath)
-			Sleep, 1000
-			If FileExist(OutfilePath)
+			OutfilePath := A_LoopFileFullPath
+			if OutfilePath
 			{
+				Sleep, 1000
+				LastTotalTime := ExtractLastTotalTime(OutfilePath)
+				Sleep, 1000
+				If !(FileExist(OutfilePath)) || (LastTotalTime < LastTotalTime + 10)
+				{
+					Continue
+				}
+				Else
+				{
+					Continue
+				}
+				ToolTip % OutfilePath
+				sleep 300
+				ToolTip
+				
 				Break
-			}
-			Else If !(FileExist(OutfilePath)) || (LastTotalTime < LastTotalTime + 10)
-			{
-				Continue
-			}
-			Else
-			{
-				Continue
 			}
 		}
 		
@@ -992,6 +889,9 @@ PauseButton:
 				StopFiles := []
 				StopFiles.Push(folderPath "\" part1 "_" part2 "_" part3 ".stop")
 				StopFiles.Push(folderPath "\" part1 "_" part3 "_" part2 ".stop")
+				StopFiles.Push(folderPath "\" part1 "_" part2 ".stop")
+				StopFiles.Push(folderPath "\" part1 "_" part3 ".stop")
+				StopFiles.Push(folderPath "\" part1 ".stop")
 
 				for index, StopFile in StopFiles
 				{
@@ -1413,6 +1313,7 @@ StopButton:
 				StopFiles.Push(folderPath "\" part1 "_" part2 ".stop")
 				StopFiles.Push(folderPath "\" part1 "_" part2 "_" part3 ".stop")
 				StopFiles.Push(folderPath "\" part1 "_" part3 "_" part2 ".stop")
+				StopFiles.Push(folderPath "\" part1 "_" part3 ".stop")
 
 				for index, StopFile in StopFiles
 				{
