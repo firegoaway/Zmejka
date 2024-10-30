@@ -29,6 +29,7 @@ SetTitleMatchMode, 2
 #Include %A_ScriptDir%\a_libs\WatchFolderForOutFiles.ahk
 #Include %A_ScriptDir%\a_libs\ShowToolTip.ahk
 #Include %A_ScriptDir%\a_libs\Clear_FDS5_SMV.ahk
+#Include %A_ScriptDir%\a_libs\CheckFDSCompletedSuccessfully.ahk
 
 /*
 	Инициализация среды embed (начало)
@@ -125,7 +126,7 @@ Gui, Add, Edit, x102 y149 w260 h30 vFDSpath, %FDSpath%
 Gui, Add, Button, x12 y189 w80 h30 gBrowseMPIButton, Найти mpi.exe
 Gui, Add, Edit, x102 y189 w260 h30 vMPIpath, %MPIpath%
 Gui, Add, Progress, x13 y229 w350 h30 vProgressPercentage c0077BB, %ProgressPercentage%
-Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.16
+Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.17
 Gui, Tab, Параметры
 Gui, Add, Text, x22 y29 w160 h40 , Добавить поверхностные измерители
 Gui, Add, Button, x172 y34 w80 h30 gRunMDBL, MDBL
@@ -137,7 +138,7 @@ Gui, Add, Text, x22 y179 w120 h40 , Разбить расчётную облас
 Gui, Add, Button, x172 y179 w100 h40 gRunPartitioner, Partition
 Gui, Add, Text, x22 y229 w120 h40 , Уменьшить/увеличить размер ячейки
 Gui, Add, Button, x172 y229 w100 h40 gRunRefiner, Refine/Coarsen
-Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.16
+Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.17
 Gui, Tab, Построение графиков
 Gui, Add, Text, x22 y69 w120 h40 , Построить график F (dэфф) для нахождения tпор
 Gui, Add, Button, x152 y69 w100 h40 gRunPCTT, PCTT
@@ -145,7 +146,7 @@ Gui, Add, Text, x22 y119 w110 h40 , Построить график плотно
 Gui, Add, Button, x152 y119 w100 h40 gRunPFED, PFED
 Gui, Add, Text, x22 y169 w120 h40 , Построить график мощности пожара (HRR)
 Gui, Add, Button, x152 y169 w100 h40 gRunHRRP, HRRP
-Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.16
+Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.17
 Gui, Tab, Дополнительно
 Gui, Add, Checkbox, x22 y29 w270 h20 gChckAlwDTR vChckAlw, Сохранять результаты моделирования каждые ;бывш. Добавить DT_RESTART
 Gui, Add, Edit, x292 y29 w50 h20 vChckDTR Number, %ChckDTR%
@@ -155,7 +156,7 @@ Gui, Add, Radio, x22 y89 w280 h30 gFDS6 vFDS6 Checked, Моделировани�
 Gui, Add, Button, x12 y269 w80 h30 gCheckFDS, Проверить наличие FDS
 Gui, Add, Button, x102 y269 w80 h30 gAutoUpdateZ, Обновить ZmejkaFDS
 Gui, Add, Button, x12 y229 w170 h30 gEmpit, Стравить службы MPI
-Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.16
+Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.17
 
 Gui, Show, h310 w395, ZmejkaFDS
 
@@ -574,8 +575,8 @@ StartButton:
 			If FileExist(OutfilePath) && !FileExist(StopFile)
 			{
 				TEND := SearchForTEND(filePath)
-				TotalTime := Ceil(ExtractLastTotalTime(OutfilePath))
-				ProgressPercentage := Ceil((TotalTime / TEND) * 100)
+				TotalTime := ExtractLastTotalTime(OutfilePath)
+				ProgressPercentage := (TotalTime / TEND) * 100
 				GuiControl,, ProgressPercentage, %ProgressPercentage%
 				Sleep, 250
 				Continue
@@ -584,45 +585,61 @@ StartButton:
 			{
 				Continue
 			}
-		} Until (TotalTime >= TEND) || !FileExist(OutfilePath) || FileExist(StopFile) || !WinExist("ahk_id " . ID)
-		
-		ProgressPercentage := 100
-		GuiControl,, ProgressPercentage, %ProgressPercentage%
-		Sleep, 200
-		ProgressPercentage := 0
-		GuiControl,, ProgressPercentage, %ProgressPercentage%
+		} Until (TotalTime >= TEND && ProgressPercentage >= 100) || !FileExist(OutfilePath) || FileExist(StopFile) || !WinExist("ahk_id " . ID)
 		
 		ShowToolTip("Моделирование завершено!", 1000)
 		
-		If StartButton = 1
+		If WinExist("ahk_id " . ID)
 		{
-			SetTitleMatchMode, RegEx
-			
-			WinWaitClose, (fds5\.exe|fds5_win_64\.exe|fds5_mpi\.exe|fds5_mpi_win_64\.exe)
-			
-			Sleep, 1000
-			RunWait, "%PyExeConsole%" "%Proceed_FDS5_HRR_CSV%"
-			Sleep, 1000
-			RunWait, "%PyExeConsole%" "%Proceed_FDS5_DEVC_CSV%"
-			Sleep, 1000
-			RunWait, "%PyExeConsole%" "%Delete_DEVC_XnYn_MESHn%"
-			Sleep, 1000
-			
-			If (part1 != "") && InStr(fileName, "_tout")
+			WinWaitClose, ahk_id %ID%
+		
+			If CheckFDSCompletedSuccessfully(OutfilePath) && !WinExist("ahk_id " . ID)
 			{
-				fds5smv := folderPath "\" part1 ".smv"
+				ShowToolTip("Файл OUT содержит строчку 'STOP: FDS completed successfully'", 1000)
+				ShowToolTip("AHK_ID " ID " не существует", 1000)
 				
-				FileCopy, fds5smv, folderPath "\dэфф\" part1 "_tout.smv"			
-				
-				Sleep, 1000
-				
-				Clear_FDS5_SMV(fds5smv)
+				If (StartButton = 1) && (ProgressPercentage >= 100)
+				{
+					SetTitleMatchMode, RegEx
+					
+					Sleep, 1000
+					RunWait, "%PyExeConsole%" "%Proceed_FDS5_HRR_CSV%"
+					Sleep, 1000
+					RunWait, "%PyExeConsole%" "%Proceed_FDS5_DEVC_CSV%"
+					Sleep, 1000
+					RunWait, "%PyExeConsole%" "%Delete_DEVC_XnYn_MESHn%"
+					Sleep, 1000
+					
+					If (part1 != "") && InStr(fileName, "_tout")
+					{
+						fds5smv := folderPath "\" part1 ".smv"
+						
+						FileCopy, fds5smv, folderPath "\dэфф\" part1 "_tout.smv"			
+						
+						Sleep, 1000
+						
+						Clear_FDS5_SMV(fds5smv)
+					}
+					
+					ShowToolTip("Результаты отгружены в программу по расчёту пожарного риска", 1000)
+					
+					SetTitleMatchMode, 2
+				}
 			}
-			
-			ShowToolTip("Результаты отгружены в программу по расчёту пожарного риска", 1000)
-			
-			SetTitleMatchMode, 2
+			Else If CheckFDSStoppedByUser(OutfilePath)
+			{
+				ShowToolTip("Файл OUT содержиит строчку 'STOP: FDS stopped by user'", 1000)
+			}
+			Else
+			{
+				MsgBox, Neither of the specified lines were found in the file.
+			}
 		}
+		
+		ShowToolTip("Преобразование результатов моделирования завершено!", 1000)
+		
+		ProgressPercentage := 0
+		GuiControl,, ProgressPercentage, %ProgressPercentage%
 	}
 	
 	Return
