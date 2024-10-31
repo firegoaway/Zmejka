@@ -32,15 +32,19 @@
 		}
 		
 		if (InStr(line, "&TIME") != 0)
-		{
-			;line := RegExReplace(line, "/", " LOCK_TIME_STEP=.TRUE. SYNCHRONIZE=.FALSE./")
-			;line := RegExReplace(line, "/", " RESTRICT_TIME_STEP=.FALSE. SYNCHRONIZE=.FALSE./")
-		}
+        {
+            ;	line := RegExReplace(line, "/", " LOCK_TIME_STEP=.TRUE. SYNCHRONIZE=.FALSE./")
+            ;	line := RegExReplace(line, "/", " RESTRICT_TIME_STEP=.FALSE. SYNCHRONIZE=.FALSE./")
+        }
 		
 		if (InStr(line, "&DUMP") != 0)
-		{
-			line := RegExReplace(line, "/", " FLUSH_FILE_BUFFERS=.FALSE./")
-		}
+        {
+            ; Удаляем DIAGNOSTICS_INTERVAL=1, если он существует
+            line := RegExReplace(line, "\s*DIAGNOSTICS_INTERVAL=1", "")
+            
+            ; Добавляем FLUSH_FILE_BUFFERS=.FALSE.
+            line := RegExReplace(line, "/", " FLUSH_FILE_BUFFERS=.FALSE./")
+        }
         
         newFileContent .= line "`n"
     }
@@ -48,7 +52,3 @@
     FileDelete, %filePath%
     FileAppend, %newFileContent%, %filePath%
 }
-/*
-Process_MISC_Line_to_FDS5("E:\ЗАДАЧИ\(503) Ф3.1, Ленинградская область г Кингисепп ул Большая Советская 28 (РПР)\Ленинградская область г Кингисепп ул Большая Советская 28\Results\ffdb7ff7\fds\ffdb7ff7_nfs.fds")
-MsgBox, Done!
-*/
