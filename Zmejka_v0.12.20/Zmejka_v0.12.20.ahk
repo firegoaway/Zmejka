@@ -439,22 +439,6 @@ StartButton:
 		GuiControl,, ProgressPercentage, %ProgressPercentage%
 		
 		ShowToolTip("Моделирование завершено!", 1000)
-		
-		RunWait, "%PyExeConsole%" "%Delete_DEVC_XnYn_MESHn%"
-		Sleep, 1000
-		
-		If (part1 != "") && InStr(fileName, "_tout")
-		{
-			fds5smv := folderPath "\" part1 ".smv"
-			
-			FileCopy, fds5smv, folderPath "\dэфф\" part1 "_tout.smv"			
-			
-			Sleep, 1000
-			
-			Clear_FDS5_SMV(fds5smv)
-		}
-		
-		ShowToolTip("Результаты отгружены в программу по расчёту пожарного риска", 1000)
 	}
 	
 	/*
@@ -621,11 +605,12 @@ StartButton:
 					If (part1 != "") && InStr(fileName, "_tout")
 					{
 						fds5smv := folderPath "\" part1 ".smv"
+						smvfolder := folderPath "\dэфф"
 						
-						FileCopy, fds5smv, folderPath "\dэфф\" part1 "_tout.smv"			
+						FileCreateDir, smvfolder
+						FileCopy, fds5smv, smvfolder "\" part1 "_tout.smv"			
 						
-						Sleep, 1000
-						
+						Sleep, 2000
 						Clear_FDS5_SMV(fds5smv)
 					}
 					
