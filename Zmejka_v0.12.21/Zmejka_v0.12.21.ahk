@@ -120,6 +120,7 @@ FDS6 := 1
 FDS5 := 0
 ProgressPercentage := 0
 chunksize := 50000
+batchsize := 20
 
 Gui, Add, Tab3, x2 y-1 w390 h310 +BackgroundTrans, Главный экран|Параметры|Построение графиков|Дополнительно|
 Gui, Tab, Главный экран
@@ -178,6 +179,7 @@ BrowseFileButton:
 	IniWrite, %folderPath%, %A_ScriptDir%\inis\filePath.ini, folderPath, folderPath
 	IniWrite, %fileName%, %A_ScriptDir%\inis\filePath.ini, fileName, fileName
 	IniWrite, %chunksize%, %A_ScriptDir%\inis\filePath.ini, chunksize, chunksize
+	IniWrite, %batchsize%, %A_ScriptDir%\inis\filePath.ini, batchsize, batchsize
 	GuiControl,, folderPath, %folderPath%
 	GuiControl,, fileName, %fileName%
 	
