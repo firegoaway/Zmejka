@@ -123,19 +123,32 @@ RemoveRestartFromMiscLine(filePath)
 RemoveRestartFromMiscLineFDS5(filePath)
 {
 	FileRead, fdsContent, %filePath%
-  
+	
 	pattern := "\&MISC\s(.*?)(/)"
-
+	
 	if (RegExMatch(fdsContent, pattern, miscLine))
 	{
 		modifiedLine := RegExReplace(miscLine, "\sRESTART=.TRUE.", "")
-
+		
 		fdsContent := StrReplace(fdsContent, miscLine, modifiedLine)
-
+		
 		FileDelete, %filePath%
 		FileAppend, %fdsContent%, %filePath%
-
+		
 		return (miscLine && modifiedLine)
 	}
+	
+	if (RegExMatch(fdsContent, pattern, miscLine))
+	{
+		modifiedLine := RegExReplace(miscLine, "\sRESTART=.True.", "")
+		
+		fdsContent := StrReplace(fdsContent, miscLine, modifiedLine)
+		
+		FileDelete, %filePath%
+		FileAppend, %fdsContent%, %filePath%
+		
+		return (miscLine && modifiedLine)
+	}
+	
 	return false
 }
