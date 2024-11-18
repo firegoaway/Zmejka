@@ -1621,7 +1621,7 @@ RunInsertDEVC:
 	{
 		if FileExist(A_LoopFileFullPath)
 		{
-			fileFound := 1
+			toutfileFound := 1
 			
 			fileName := fileName "_tout"
 			filePath := folderpath "\" fileName ".fds"
