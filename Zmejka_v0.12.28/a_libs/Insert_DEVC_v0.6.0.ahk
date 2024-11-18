@@ -3,7 +3,7 @@
 #MaxMem 4095
 
 Gui, Add, Text, x12 y19 w160 h30 +Center, Выберите параметр`, воздействующий на ИП ДОТ:
-Gui, Add, DropDownList, x12 y59 w160 h60 vQuantity, VISIBILITY|EXTINCTION COEFFICIENT|OPTICAL DENSITY
+Gui, Add, DropDownList, x12 y59 w160 h60 gQuantity vQuantity, VISIBILITY|EXTINCTION COEFFICIENT|OPTICAL DENSITY
 Gui, Add, Text, x12 y109 w160 h40 +Center, Введите высоту помещения`, в котором требуется определить tпор:
 Gui, Add, Edit, x62 y159 w80 h20 vHZ, 
 Gui, Add, Button, x12 y409 w160 h30 gOkButton, Применить
@@ -13,7 +13,7 @@ Gui, Add, Text, x12 y209 w160 h40 +Center, Введите абсолютную �
 Gui, Add, Edit, x62 y259 w80 h20 vZh, 
 Gui, Add, Text, x152 y259 w20 h20 , м
 Gui, Add, Text, x12 y259 w40 h20 , Zпом =
-Gui, Add, Progress, x12 y89 w160 h10 vQuantityProgressBar cbCBCBCB, 100
+Gui, Add, Progress, x12 y89 w160 h10 vQuantityProgressBar cb0077BB, 0
 Gui, Add, Progress, x12 y189 w160 h10 vHZProgressBar cbCBCBCB, 100
 Gui, Add, Progress, x12 y289 w160 h10 vZhProgressBar cbCBCBCB, 100
 Gui, Add, Checkbox, x12 y309 w200 h60 gChckOnlyOne vOnlyOne, Помещение подлежит оборудованию 1 пожарным извещателем
@@ -25,6 +25,10 @@ Return
 
 ChckOnlyOne:
 	Gui, Submit, NoHide
+	Return
+
+Quantity:
+    GuiControl, , QuantityProgressBar, 100
 	Return
 
 OkButton:

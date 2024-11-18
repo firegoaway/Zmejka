@@ -1616,14 +1616,25 @@ BrowseMPIButton:
 RunInsertDEVC:
 	RunWait, "%AHKU64EXE%" "%Insert_DEVC%"
 	
-	fileName := fileName "_tout"
-	filePath := folderpath "\" fileName ".fds"
-	
-	IniWrite, %filePath%, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
-	IniWrite, %fileName%, %A_ScriptDir%\inis\filePath.ini, fileName, fileName
-	
-	GuiControl,, folderPath, %folderPath%
-	GuiControl,, fileName, %fileName%
+	toutfileFound := 0
+	Loop, %folderPath%\*_tout*
+	{
+		if FileExist(A_LoopFileFullPath)
+		{
+			fileFound := 1
+			
+			fileName := fileName "_tout"
+			filePath := folderpath "\" fileName ".fds"
+			
+			IniWrite, %filePath%, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
+			IniWrite, %fileName%, %A_ScriptDir%\inis\filePath.ini, fileName, fileName
+			
+			GuiControl,, folderPath, %folderPath%
+			GuiControl,, fileName, %fileName%
+			
+			break
+		}
+	}
 	
 	Return
 
