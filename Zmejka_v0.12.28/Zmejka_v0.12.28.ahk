@@ -33,6 +33,7 @@ SetTitleMatchMode, 2
 #Include %A_ScriptDir%\a_libs\ReplaceQuotesInCSV.ahk
 #Include %A_ScriptDir%\a_libs\GetHeatOfCombustion.ahk
 #Include %A_ScriptDir%\a_libs\CheckSURFFIX.ahk
+#Include %A_ScriptDir%\a_libs\RemoveExternalFilenameParameter.ahk
 
 /*
 	Инициализация среды embed (начало)
@@ -52,7 +53,7 @@ install_services_run := A_ScriptDir "\FDS5\install_services_run.bat"
 
 ; 	Модули (начало)
 
-Insert_DEVC := A_ScriptDir "\a_libs\Insert_DEVC_v0.5.0.ahk"
+Insert_DEVC := A_ScriptDir "\a_libs\Insert_DEVC_v0.6.0.ahk"
 PCTT := A_ScriptDir "\p_libs\Plot_CSV_Time_Threshhold_v0.6.1.cpython-311.pyc"
 Refine := A_ScriptDir "\p_libs\Refine_v0.1.2.cpython-311.pyc"
 Partition := A_ScriptDir "\p_libs\Partition_v0.1.2.cpython-311.pyc"
@@ -138,10 +139,10 @@ Gui, Add, Button, x192 y109 w80 h30 gStopButton vStopButton, Стоп
 Gui, Add, Button, x282 y109 w80 h30 gKillButton vKillButton, Прервать
 Gui, Add, Button, x12 y149 w80 h30 gBrowseFDSButton, Найти fds.exe
 Gui, Add, Edit, x102 y149 w260 h30 vFDSpath, %FDSpath%
-Gui, Add, Button, x12 y189 w80 h30 gBrowseMPIButton, Найти mpi.exe
+Gui, Add, Button, x12 y189 w80 h30 gBrowseMPIButton, Найти mpiexec
 Gui, Add, Edit, x102 y189 w260 h30 vMPIpath, %MPIpath%
 Gui, Add, Progress, x13 y229 w350 h30 vProgressPercentage c0077BB, %ProgressPercentage%
-Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.27
+Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.28
 Gui, Tab, Параметры
 Gui, Add, Text, x22 y29 w160 h40 , Добавить поверхностные измерители
 Gui, Add, Button, x172 y34 w80 h30 gRunMDBL, MDBL
@@ -153,7 +154,7 @@ Gui, Add, Text, x22 y179 w120 h40 , Разбить расчётную облас
 Gui, Add, Button, x172 y179 w100 h40 gRunPartitioner, Partition
 Gui, Add, Text, x22 y229 w120 h40 , Уменьшить/увеличить размер ячейки
 Gui, Add, Button, x172 y229 w100 h40 gRunRefiner, Refine/Coarsen
-Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.27
+Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.28
 Gui, Tab, Построение графиков
 Gui, Add, Text, x22 y69 w120 h40 , Построить график F (dэфф) для нахождения tпор
 Gui, Add, Button, x152 y69 w100 h40 gRunPCTT, PCTT
@@ -161,7 +162,7 @@ Gui, Add, Text, x22 y119 w110 h40 , Построить график плотно
 Gui, Add, Button, x152 y119 w100 h40 gRunPFED, PFED
 Gui, Add, Text, x22 y169 w120 h40 , Построить график мощности пожара (HRR)
 Gui, Add, Button, x152 y169 w100 h40 gRunHRRP, HRRP
-Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.27
+Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.28
 Gui, Tab, Дополнительно
 Gui, Add, Checkbox, x22 y29 w270 h20 gChckAlwDTR vChckAlw, Сохранять результаты моделирования каждые ;бывш. Добавить DT_RESTART
 Gui, Add, Edit, x292 y29 w50 h20 vChckDTR Number, %ChckDTR%
@@ -172,7 +173,7 @@ Gui, Add, Button, x345 y152 w15 h15 gRIbatulin vRIbatulin, N
 Gui, Add, Button, x12 y269 w80 h30 gCheckFDS, Проверить наличие FDS
 Gui, Add, Button, x102 y269 w80 h30 gAutoUpdateZ, Обновить ZmejkaFDS
 Gui, Add, Button, x12 y229 w170 h30 gEmpit, Стравить службы MPI
-Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.27
+Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.28
 
 Gui, Show, h310 w395, ZmejkaFDS
 
@@ -1613,7 +1614,17 @@ BrowseMPIButton:
 	Return
 
 RunInsertDEVC:
-	Run, "%AHKU64EXE%" "%Insert_DEVC%"
+	RunWait, "%AHKU64EXE%" "%Insert_DEVC%"
+	
+	fileName := fileName "_tout"
+	filePath := folderpath "\" fileName ".fds"
+	
+	IniWrite, %filePath%, %A_ScriptDir%\inis\filePath.ini, filePath, filePath
+	IniWrite, %fileName%, %A_ScriptDir%\inis\filePath.ini, fileName, fileName
+	
+	GuiControl,, folderPath, %folderPath%
+	GuiControl,, fileName, %fileName%
+	
 	Return
 
 RunPCTT:
@@ -1712,39 +1723,33 @@ FDS5:
 				nfsfile := folderPath . "\" . fileName . "_nfs.fds"
 				
 				FileCopy, %filePath%, %nfsfile%
-				ToolTip, % "Пожалуйста, подождите"
-				sleep, 2000
+				ShowToolTip("Пожалуйста, подождите .", 400)
+				ShowToolTip("Пожалуйста, подождите . .", 400)
+				ShowToolTip("Пожалуйста, подождите . . .", 400)
+				ShowToolTip("Пожалуйста, подождите . . . .", 400)
+				ShowToolTip("Пожалуйста, подождите . . . . .", 400)
 				
 				;fileName := fileName "_nfs"
 				filePath := nfsfile
 				
-				ToolTip, % "Создан " filePath
-				Sleep, 400
-				ToolTip
+				ShowToolTip("Создан " filePath, 400)
 				
 				Process_REAC_Line_to_FDS5(filePath)
-				ToolTip, Подготовка реакции &REAC
-				Sleep, 400
-				ToolTip
+				ShowToolTip("Подготовка реакции &REAC", 400)
 				
 				Process_MISC_Line_to_FDS5(filePath)
-				ToolTip, Подготовка строки &MISC
-				Sleep, 400
-				ToolTip
+				ShowToolTip("Подготовка строки &MISC", 400)
+				
+				RemoveExternalFilenameParameter(filePath)
+				ShowToolTip("Удаление  параметра EXTERNAL_FILENAME", 400)
 				
 				Remove_HCL_Lines(filePath)
-				ToolTip, Подготовка слайсов &SLCF и измерителей &DEVC
-				Sleep, 400
-				ToolTip
+				ShowToolTip("Подготовка слайсов &SLCF и измерителей &DEVC", 400)
 				
 				Remove_SPEC_COMB_WIND_Lines(filePath)
-				ToolTip, Очистка входного сценария от лишних &SPEC, &COMB, &WIND
-				Sleep, 400
-				ToolTip
+				ShowToolTip("Очистка входного сценария от лишних &SPEC, &COMB, &WIND", 400)
 				
-				ToolTip, % "Сценарий " fileName ".fds готов к запуску"
-				Sleep, 800
-				ToolTip
+				ShowToolTip("Сценарий " fileName ".fds готов к запуску", 400)
 				
 				fileName := fileName "_nfs"
 				filePath := folderpath "\" fileName ".fds"
@@ -1783,7 +1788,7 @@ FDS6:
 	}
 	Else
 	{
-		FDSpath := ""
+		FDSpath := FDSpath
 	}
 
 	If FileExist(A_ScriptDir "\inis\MPIpath.ini")
@@ -1792,7 +1797,7 @@ FDS6:
 	}
 	Else
 	{
-		MPIpath := ""
+		MPIpath := MPIpath
 	}
 	
 	fileName := RTrim(fileName, "_nfs")

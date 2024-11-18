@@ -20,7 +20,7 @@ Gui, Add, Checkbox, x12 y309 w200 h60 gChckOnlyOne vOnlyOne, Помещение 
 Gui, Add, Edit, x12 y369 w80 h20 vFpom
 Gui, Add, Text, x102 y370 , м2
 
-Gui, Show, x130 y134 h468 w184, Insert_DEVC_v0.5.0
+Gui, Show, x130 y134 h468 w184, Insert_DEVC_v0.6.0
 Return
 
 ChckOnlyOne:
@@ -99,6 +99,7 @@ OkButton:
         setpoint := 28.5709
         trip_direction := -1
         IniWrite, %setpoint%, %A_ScriptDir%\..\inis\IniSetpoint.ini, IniSetpoint, setpoint
+		
     }
     else if (Quantity = "EXTINCTION COEFFICIENT")
     {
@@ -171,7 +172,6 @@ OkButton:
 	Sleep, 300
 	Tooltip
 	
-    
     ExitApp
 Return
 

@@ -32,12 +32,18 @@
 			
 			; Удаляем MAXIMUM_VISIBILITY
 			line := RegExReplace(line, "\s*MAXIMUM_VISIBILITY=[^\s/]*", "")
+			
+			; Удаляем EXTERNAL_FILENAME
+			;line := RegExReplace(line, "\s*EXTERNAL_FILENAME=[^\s/]*", "") Отправлено в RemoveExternalFilenameParameter.ahk
 		}
 		
 		if (InStr(line, "&TIME") != 0)
         {
             ;	line := RegExReplace(line, "/", " LOCK_TIME_STEP=.TRUE. SYNCHRONIZE=.FALSE./")
             ;	line := RegExReplace(line, "/", " RESTRICT_TIME_STEP=.FALSE. SYNCHRONIZE=.FALSE./")
+			
+			; Удаляем DT_EXTERNAL
+			line := RegExReplace(line, "\s*DT_EXTERNAL=[^\s/]*", "")
         }
 		
 		if (InStr(line, "&DUMP") != 0)
