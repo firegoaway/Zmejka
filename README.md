@@ -22,8 +22,8 @@ ZmejkaFDS дополняет и упрощает работу в програм�
 
 ### Поддерживаемые версии FDS
 > [**FDS 6.9.1**](https://github.com/firemodels/fds/releases/tag/FDS-6.9.1)
-> [**FDS 6.9.0**](https://github.com/firemodels/fds/releases/tag/FDS-6.9.0)
 > [**FDS 6.8.0**](https://github.com/firemodels/fds/releases/tag/FDS-6.8.0)
+> [**FDS 6.5.3**](https://github.com/firemodels/fds/releases/tag/FDS6.5.3)
 
 ## Как установить и пользоваться
 |	№ п/п	|	Действие	|
