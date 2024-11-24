@@ -144,7 +144,7 @@ Gui, Add, Edit, x102 y149 w260 h30 vFDSpath, %FDSpath%
 Gui, Add, Button, x12 y189 w80 h30 gBrowseMPIButton, Найти mpiexec
 Gui, Add, Edit, x102 y189 w260 h30 vMPIpath, %MPIpath%
 Gui, Add, Progress, x13 y229 w350 h30 vProgressPercentage c0077BB, %ProgressPercentage%
-Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.29
+Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.30
 Gui, Tab, Параметры
 Gui, Add, Text, x22 y29 w160 h40 , Добавить поверхностные измерители
 Gui, Add, Button, x172 y34 w80 h30 gRunMDBL, MDBL
@@ -156,7 +156,7 @@ Gui, Add, Text, x22 y179 w120 h40 , Разбить расчётную облас
 Gui, Add, Button, x172 y179 w100 h40 gRunPartitioner, Partition
 Gui, Add, Text, x22 y229 w120 h40 , Уменьшить/увеличить размер ячейки
 Gui, Add, Button, x172 y229 w100 h40 gRunRefiner, Refine/Coarsen
-Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.29
+Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.30
 Gui, Tab, Построение графиков
 Gui, Add, Text, x22 y69 w120 h40 , Построить график F (dэфф) для нахождения tпор
 Gui, Add, Button, x152 y69 w100 h40 gRunPCTT, PCTT
@@ -164,7 +164,7 @@ Gui, Add, Text, x22 y119 w110 h40 , Построить график плотно
 Gui, Add, Button, x152 y119 w100 h40 gRunPFED, PFED
 Gui, Add, Text, x22 y169 w120 h40 , Построить график мощности пожара (HRR)
 Gui, Add, Button, x152 y169 w100 h40 gRunHRRP, HRRP
-Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.29
+Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.30
 Gui, Tab, Дополнительно
 Gui, Add, Checkbox, x22 y29 w270 h20 gChckAlwDTR vChckAlw, Сохранять результаты моделирования каждые ;бывш. Добавить DT_RESTART
 Gui, Add, Edit, x292 y29 w50 h20 vChckDTR Number, %ChckDTR%
@@ -175,7 +175,7 @@ Gui, Add, Button, x345 y152 w15 h15 gRIbatulin vRIbatulin, N
 Gui, Add, Button, x12 y269 w80 h30 gCheckFDS, Проверить наличие FDS
 Gui, Add, Button, x102 y269 w80 h30 gAutoUpdateZ, Обновить ZmejkaFDS
 Gui, Add, Button, x12 y229 w170 h30 gEmpit, Стравить службы MPI
-Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.29
+Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.30
 
 Gui, Show, h310 w395, ZmejkaFDS
 
@@ -621,8 +621,6 @@ StartButton:
 		WinWaitClose, ahk_id %ID%
 		
 		ShowToolTip("Моделирование завершено!", 1000)
-		
-		OutfilePath := folderPath "\" part1 ".out"
 		
 		IniRead, CheckfileName, %A_ScriptDir%\inis\filePath.ini, fileName, fileName
 		csvALONE := folderPath "\" part1 "_devc.csv"
