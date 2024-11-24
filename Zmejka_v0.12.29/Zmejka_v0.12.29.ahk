@@ -53,8 +53,8 @@ install_services_run := A_ScriptDir "\FDS5\install_services_run.bat"
 
 ; 	Модули (начало)
 
-Insert_DEVC := A_ScriptDir "\a_libs\Insert_DEVC_v0.6.0.ahk"
-PCTT := A_ScriptDir "\p_libs\Plot_CSV_Time_Threshhold_v0.6.1.cpython-311.pyc"
+Insert_DEVC := A_ScriptDir "\a_libs\Insert_DEVC_v0.7.1.ahk"
+PCTT := A_ScriptDir "\p_libs\Plot_CSV_Time_Threshhold_v0.7.1.cpython-311.pyc"
 Refine := A_ScriptDir "\p_libs\Refine_v0.1.2.cpython-311.pyc"
 Partition := A_ScriptDir "\p_libs\Partition_v0.1.2.cpython-311.pyc"
 HRRP := A_ScriptDir "\p_libs\HRRP_v0.3.0.cpython-311.pyc"
@@ -87,6 +87,7 @@ If FileExist(A_ScriptDir "\inis\FDSpath.ini")
 Else If FileExist(A_ScriptDir "\FDS6\fds.exe")
 {
 	FDSPath := A_ScriptDir "\FDS6\fds.exe"
+	IniWrite, %FDSpath%, %A_ScriptDir%\inis\FDSpath.ini, FDSpath, FDSpath
 }
 Else
 {
@@ -100,6 +101,7 @@ If FileExist(A_ScriptDir "\inis\MPIpath.ini")
 Else If FileExist(A_ScriptDir "\FDS6\mpiexec.exe")
 {
 	MPIpath := A_ScriptDir "\FDS6\mpiexec.exe"
+	IniWrite, %MPIpath%, %A_ScriptDir%\inis\MPIpath.ini, MPIpath, MPIpath
 }
 Else
 {
@@ -142,7 +144,7 @@ Gui, Add, Edit, x102 y149 w260 h30 vFDSpath, %FDSpath%
 Gui, Add, Button, x12 y189 w80 h30 gBrowseMPIButton, Найти mpiexec
 Gui, Add, Edit, x102 y189 w260 h30 vMPIpath, %MPIpath%
 Gui, Add, Progress, x13 y229 w350 h30 vProgressPercentage c0077BB, %ProgressPercentage%
-Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.28
+Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.29
 Gui, Tab, Параметры
 Gui, Add, Text, x22 y29 w160 h40 , Добавить поверхностные измерители
 Gui, Add, Button, x172 y34 w80 h30 gRunMDBL, MDBL
@@ -154,7 +156,7 @@ Gui, Add, Text, x22 y179 w120 h40 , Разбить расчётную облас
 Gui, Add, Button, x172 y179 w100 h40 gRunPartitioner, Partition
 Gui, Add, Text, x22 y229 w120 h40 , Уменьшить/увеличить размер ячейки
 Gui, Add, Button, x172 y229 w100 h40 gRunRefiner, Refine/Coarsen
-Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.28
+Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.29
 Gui, Tab, Построение графиков
 Gui, Add, Text, x22 y69 w120 h40 , Построить график F (dэфф) для нахождения tпор
 Gui, Add, Button, x152 y69 w100 h40 gRunPCTT, PCTT
@@ -162,7 +164,7 @@ Gui, Add, Text, x22 y119 w110 h40 , Построить график плотно
 Gui, Add, Button, x152 y119 w100 h40 gRunPFED, PFED
 Gui, Add, Text, x22 y169 w120 h40 , Построить график мощности пожара (HRR)
 Gui, Add, Button, x152 y169 w100 h40 gRunHRRP, HRRP
-Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.28
+Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.29
 Gui, Tab, Дополнительно
 Gui, Add, Checkbox, x22 y29 w270 h20 gChckAlwDTR vChckAlw, Сохранять результаты моделирования каждые ;бывш. Добавить DT_RESTART
 Gui, Add, Edit, x292 y29 w50 h20 vChckDTR Number, %ChckDTR%
@@ -173,7 +175,7 @@ Gui, Add, Button, x345 y152 w15 h15 gRIbatulin vRIbatulin, N
 Gui, Add, Button, x12 y269 w80 h30 gCheckFDS, Проверить наличие FDS
 Gui, Add, Button, x102 y269 w80 h30 gAutoUpdateZ, Обновить ZmejkaFDS
 Gui, Add, Button, x12 y229 w170 h30 gEmpit, Стравить службы MPI
-Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.28
+Gui, Add, Text, x295 y285 w160 h20 , Zmejka_v0.12.29
 
 Gui, Show, h310 w395, ZmejkaFDS
 
@@ -620,9 +622,10 @@ StartButton:
 		
 		ShowToolTip("Моделирование завершено!", 1000)
 		
+		OutfilePath := folderPath "\" part1 ".out"
+		
 		IniRead, CheckfileName, %A_ScriptDir%\inis\filePath.ini, fileName, fileName
 		csvALONE := folderPath "\" part1 "_devc.csv"
-		fds5smv := folderPath "\" part1 ".smv"
 		smvfolder := folderPath "\smvfolder"
 		
 		If (StartButton = 1) && (ProgressPercentage >= 100) && CheckFDSCompletedSuccessfully(OutfilePath) && !WinExist("ahk_id " . ID)
@@ -645,8 +648,9 @@ StartButton:
 				ReplaceQuotesInCSV(csvALONE)
 				ShowToolTip("Из ALONE CSV удалены лишние двойные кавычки", 1000)
 				
+				fds5smv := folderPath "\" part1 "_tout.smv"
 				FileCreateDir, smvfolder
-				FileCopy, fds5smv, smvfolder "\" part1 ".smv"
+				FileCopy, fds5smv, smvfolder "\" part1 "_tout.smv"	
 				
 				Sleep, 1000
 				Clear_FDS5_SMV(fds5smv)
@@ -661,8 +665,9 @@ StartButton:
 				RunWait, "%PyExeConsole%" "%Delete_DEVC_XnYn_MESHn%"
 				Sleep, 1000
 				
+				fds5smv := folderPath "\" part1 ".smv"
 				FileCreateDir, smvfolder
-				FileCopy, fds5smv, smvfolder "\" part1 "_tout.smv"			
+				FileCopy, fds5smv, smvfolder "\" part1 ".smv"
 				
 				Sleep, 1000
 				Clear_FDS5_SMV(fds5smv)
@@ -676,7 +681,7 @@ StartButton:
 		}
 		Else
 		{
-			MsgBox, Neither of the specified lines were found in the file.
+			MsgBox, 4160, ZmejkaFDS, По какой-то причине FDS плохо кончил.`n`nЭта проблема ещё исследуется.`n`nПожалуйста, обратитесь к Нисе.`n`nОна поможет выявить проблему в вашем сценарии и оперативно решить её.`n`nЕсли вы нажали 'Прервать', то проигнорируйте это собщение
 		}
 		
 		SetTitleMatchMode, 2
@@ -1692,7 +1697,7 @@ Empit:
 	}
 	Else
 	{
-		MsgBox, 4160, SMPD и HYDRA_SERVICE не обнаружены, Скачайте полный дистрибутив ZmejkaFDS
+		MsgBox, 4160,, SMPD и HYDRA_SERVICE не обнаружены, Скачайте полный дистрибутив ZmejkaFDS
 	}
 	Return
 

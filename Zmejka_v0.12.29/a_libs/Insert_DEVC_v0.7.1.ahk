@@ -3,7 +3,7 @@
 #MaxMem 4095
 
 Gui, Add, Text, x12 y19 w160 h30 +Center, Выберите параметр`, воздействующий на ИП ДОТ:
-Gui, Add, DropDownList, x12 y59 w160 h60 gQuantity vQuantity, VISIBILITY|EXTINCTION COEFFICIENT|OPTICAL DENSITY
+Gui, Add, DropDownList, x12 y59 w160 h120 gQuantity vQuantity, VISIBILITY|EXTINCTION COEFFICIENT|OPTICAL DENSITY|TEMPERATURE
 Gui, Add, Text, x12 y109 w160 h40 +Center, Введите высоту помещения`, в котором требуется определить tпор:
 Gui, Add, Edit, x62 y159 w80 h20 vHZ, 
 Gui, Add, Button, x12 y409 w160 h30 gOkButton, Применить
@@ -20,7 +20,7 @@ Gui, Add, Checkbox, x12 y309 w200 h60 gChckOnlyOne vOnlyOne, Помещение 
 Gui, Add, Edit, x12 y369 w80 h20 vFpom
 Gui, Add, Text, x102 y370 , м2
 
-Gui, Show, x130 y134 h468 w184, Insert_DEVC_v0.6.0
+Gui, Show, x130 y134 h468 w184, Insert_DEVC_v0.7.1
 Return
 
 ChckOnlyOne:
@@ -117,6 +117,12 @@ OkButton:
         trip_direction := 1
         IniWrite, %setpoint%, %A_ScriptDir%\..\inis\IniSetpoint.ini, IniSetpoint, setpoint
     }
+	else if (Quantity = "TEMPERATURE")
+    {
+        setpoint := 58
+        trip_direction := 1
+        IniWrite, %setpoint%, %A_ScriptDir%\..\inis\IniSetpoint.ini, IniSetpoint, setpoint
+    }
 
     loop, %lines0%
     {
@@ -145,7 +151,7 @@ OkButton:
                 deltaY := (Y2 - Y1) / J
                 deltaZ := (Z2 - Z1) / K
                 
-                Z := Zh + HZ - deltaZ
+                Z := Round((Round((Zh + HZ - deltaZ), 2)) - (deltaZ / 3) - 0.01, 2)
                 
                 Loop, % I
                 {
