@@ -22,7 +22,8 @@
         if (InStr(line, "&MISC") != 0)
 		{
 			; Заменяем MAX_LEAK_PATHS на SUPPRESSION=.FALSE.
-			line := RegExReplace(line, "\s*MAX_LEAK_PATHS=[^\s/]*", " SUPPRESSION=.FALSE.")
+			;line := RegExReplace(line, "\s*MAX_LEAK_PATHS=[^\s/]*", " SUPPRESSION=.FALSE.")
+			line := RegExReplace(line, "\s*MAX_LEAK_PATHS=[^\s/]*", " ")
 			
 			; Заменяем VISIBILITY_FACTOR на BAROCLINIC=.FALSE.
 			line := RegExReplace(line, "\s*VISIBILITY_FACTOR=[^\s/]*", " BAROCLINIC=.FALSE.")

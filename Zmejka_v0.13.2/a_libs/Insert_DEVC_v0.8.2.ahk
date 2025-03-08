@@ -88,22 +88,27 @@ OkButton:
 		If (Fpom = "")
 		{
 			MsgBox, % "Введите значение площади помещения"
-			Return	;	Return to allow further actions without exiting the program
+			Return
 		}
 		IniWrite, %Fpom%, %A_ScriptDir%\..\inis\IniFpom.ini, IniFpom, Fpom
+	}
+	If !OnlyOne
+	{
+		IniWrite, %Fpom%, %A_ScriptDir%\..\inis\IniFpom.ini, IniFpom, Fpom
+		Return
 	}
 	
     if (Quantity = "")
     {
         MsgBox, % "Выберите значение параметра, воздействующего на ИП ДОТ!"
-        Return ; Return to allow further actions without exiting the program
+        Return
     }
     IniWrite, %Quantity%, %A_ScriptDir%\..\inis\IniQuantity.ini, IniQuantity, Quantity
 	
     if (HZ = "") || (HZ <= 0)
     {
         MsgBox, % "Введите достоверное значение высоты!"
-        Return ; Return to allow further actions without exiting the program
+        Return
     }
     IniWrite, %HZ%, %A_ScriptDir%\..\inis\IniHZ.ini, IniHZ, HZ
     ; MsgBox, % "Параметр: " . Quantity . "`nВысота: " . HZ
@@ -111,7 +116,7 @@ OkButton:
 	if (Zh = "")
     {
         MsgBox, % "Введите достоверное значение высотной отметки!"
-        Return ; Return to allow further actions without exiting the program
+        Return
     }
     IniWrite, %Zh%, %A_ScriptDir%\..\inis\IniZh.ini, IniZh, Zh
     ; MsgBox, % "Высота: " . HZ . "`nВысотная отметка: " . Zh
