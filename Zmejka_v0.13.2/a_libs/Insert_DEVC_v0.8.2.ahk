@@ -92,11 +92,7 @@ OkButton:
 		}
 		IniWrite, %Fpom%, %A_ScriptDir%\..\inis\IniFpom.ini, IniFpom, Fpom
 	}
-	If !OnlyOne
-	{
-		IniWrite, %Fpom%, %A_ScriptDir%\..\inis\IniFpom.ini, IniFpom, Fpom
-		Return
-	}
+	IniWrite, %Fpom%, %A_ScriptDir%\..\inis\IniFpom.ini, IniFpom, Fpom
 	
     if (Quantity = "")
     {

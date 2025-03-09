@@ -64,7 +64,7 @@ Insert_DEVC := A_ScriptDir "\a_libs\Insert_DEVC_v0.8.2.ahk"
 PCTT := A_ScriptDir "\p_libs\Plot_CSV_Time_Threshhold_v0.7.1.cpython-311.pyc"
 Refine := A_ScriptDir "\p_libs\Refine_v0.2.0.cpython-311.pyc"
 Partition := A_ScriptDir "\p_libs\Partition_v0.2.0.cpython-311.pyc"
-SPDZ := A_ScriptDir "\p_libs\INIT_md_v0.1.2.cpython-311.pyc"
+SPDZ := A_ScriptDir "\p_libs\INIT_md_v0.1.4.cpython-311.pyc"
 HRRP := A_ScriptDir "\p_libs\HRRP_v0.3.0.cpython-311.pyc"
 MBDL := A_ScriptDir "\p_libs\MDBL_v0.1.0.cpython-311.pyc"
 PFED := A_ScriptDir "\p_libs\plot_density_v0.6.2.cpython-311.pyc"
@@ -967,7 +967,7 @@ PauseButton:
 		}
 		; MsgBox, 4096, DEBUG, checkRTag is %checkRTag%
 	}
-	
+	GuiControl, Enable, StartButton%UniqueID%
 	Return
 
 StopButton:
