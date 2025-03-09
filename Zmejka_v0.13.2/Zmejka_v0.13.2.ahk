@@ -1699,7 +1699,7 @@ RunSURF:
 	Return
 
 RunSPDZ:
-	Run, "%PyExeConsole%" "%SPDZ%" %ProcessID%, , , PID
+	Run, "%PyExe%" "%SPDZ%" %ProcessID%, , , PID
 	Return
 
 RunHRRP:
