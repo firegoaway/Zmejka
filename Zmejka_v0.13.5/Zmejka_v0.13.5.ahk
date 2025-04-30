@@ -63,20 +63,22 @@ global install_services_run := A_ScriptDir "\FDS5\install_services_run.bat"
 ; 	Модули (начало)
 Insert_DEVC := A_ScriptDir "\a_libs\Insert_DEVC_v0.8.2.ahk"
 PCTT := A_ScriptDir "\p_libs\Plot_CSV_Time_Threshhold_v0.8.0.cpython-311.pyc"
-Refine := A_ScriptDir "\p_libs\Refine_v0.2.1.cpython-311.pyc"
-Partition := A_ScriptDir "\p_libs\Partition_v0.2.1.cpython-311.pyc"
+Refine := A_ScriptDir "\p_libs\Refine_v0.2.2.cpython-311.pyc"
+Partition := A_ScriptDir "\p_libs\Partition_v0.2.2.cpython-311.pyc"
 SPDZ := A_ScriptDir "\p_libs\INIT_md_v0.2.0.cpython-311.pyc"
-HRRP := A_ScriptDir "\p_libs\HRRP_v0.3.0.cpython-311.pyc"
+HRRP := A_ScriptDir "\p_libs\HRRP_v0.4.0.cpython-311.pyc"
 MBDL := A_ScriptDir "\p_libs\MDBL_v0.1.0.cpython-311.pyc"
 PFED := A_ScriptDir "\p_libs\plot_density_v0.6.2.cpython-311.pyc"
-FSF := A_ScriptDir "\p_libs\FSF_v0.5.2.cpython-311.pyc"
-FSF_FDS5 := A_ScriptDir "\p_libs\FSF_v0.5.2_FDS5.cpython-311.pyc"
+FSF := A_ScriptDir "\p_libs\FSF_v0.5.3.cpython-311.pyc"
+FSF_FDS5 := A_ScriptDir "\p_libs\FSF_v0.5.3_FDS5.cpython-311.pyc"
 FRP := A_ScriptDir "\p_libs\FDS_REAC_Prooner.cpython-311.pyc"
 RIbatulin := A_ScriptDir "\p_libs\update_num_pic.cpython-311.pyc"
 
 ;	Модули (конец)
 Proceed_DUMP := A_ScriptDir "\p_libs\Proceed_DUMP.cpython-311.pyc"
 Proceed_FDS5_CSV := A_ScriptDir "\p_libs\Proceed_FDS5_CSV.cpython-311.pyc"
+Proceed_FDS6_CSV := A_ScriptDir "\p_libs\Proceed_FDS6_CSV.cpython-311.pyc"
+renaming_utils := A_ScriptDir "\p_libs\renaming_utils.cpython-311.pyc"
 HashLib_AutoUpdate_ZmejkaFDS := A_ScriptDir "\p_libs\HashLib_AutoUpdate_ZmejkaFDS.cpython-311.pyc"
 HashLib_AutoUpdate_Libs := A_ScriptDir "\p_libs\HashLib_AutoUpdate_Libs.cpython-311.pyc"
 Delete_FDS5_DEVC_CLOCK := A_ScriptDir "\p_libs\Delete_FDS5_DEVC_CLOCK.cpython-311.pyc"
@@ -193,7 +195,8 @@ Gui, Add, Checkbox, x22 y29 w270 h20 gChckAlwDTR vChckAlw, Выгружать р
 ;Gui, Add, Text, x345 y29 w30 h20 , сек
 Gui, Add, Radio, x22 y59 w280 h30 gFDS5 vFDS5, Ускорить моделирование пожара 
 Gui, Add, Radio, x22 y89 w280 h30 gFDS6 vFDS6 Checked, Моделирование пожара по умолчанию
-Gui, Add, Button, x22 y139 w200 h25 gRunFRP, Калькулятор реакции для FDS 6.8.0
+Gui, Add, Button, x22 y129 w200 h20 gRunFRP, Калькулятор реакции для FDS 6.8.0
+Gui, Add, Button, x22 y159 w50 h20 gRunArise, Arise
 Gui, Add, Button, x345 y152 w18 h15 gRIbatulin vRIbatulin, RI
 Gui, Add, Button, x12 y269 w80 h30 gCheckFDS, Проверить наличие FDS
 Gui, Add, Button, x102 y269 w80 h30 gAutoUpdateZ, Обновить ZmejkaFDS
@@ -247,6 +250,10 @@ StartButton:
 	PauseButton := 0
 	StopButton := 0
 	KillButton := 0
+
+	IniRead, filePath, %filePathIni%, filePath, filePath
+	IniRead, folderPath, %filePathIni%, folderPath, folderPath
+	IniRead, fileName, %filePathIni%, fileName, fileName
 	
 	GuiControlGet, folderPath, , folderPath%UniqueID%
     GuiControlGet, fileName, , fileName%UniqueID%
@@ -483,12 +490,56 @@ StartButton:
 		ProgressPercentage := 100
 		GuiControl,, ProgressPercentage%UniqueID%, %ProgressPercentage%
 		Sleep, 200
-		ProgressPercentage := 0
-		GuiControl,, ProgressPercentage%UniqueID%, %ProgressPercentage%
 		
 		ShowToolTip("Моделирование завершено!", 1000)
 		
 		GuiControl, Disable, StartButton%UniqueID%
+		
+		IniRead, filePath, %filePathIni%, fileName, fileName
+		csvALONE := folderPath "\" part1 "_devc.csv"
+		
+		If (StartButton = 1) && (ProgressPercentage >= 100) && CheckFDSCompletedSuccessfully(OutfilePath) && !WinExist("ahk_id " . ID)
+		{	
+			ShowToolTip("Файл OUT содержит строчку 'STOP: FDS completed successfully'", 1000)
+			ShowToolTip("AHK_ID " ID " не существует", 1000)
+			
+			SetTitleMatchMode, RegEx
+
+			if InStr(filename, "_tout")
+			{
+				RunWait, "%PyExe%" "%Proceed_FDS6_CSV%" %ProcessID%, , , PID
+				ShowToolTip("Результаты успешно обработаны", 1000)
+
+				if FileExist(csvALONE)
+				{
+					ReplaceQuotesInCSV(csvALONE)
+					ShowToolTip("Из ALONE CSV удалены лишние двойные кавычки", 1000)
+				}
+				
+				ShowToolTip("Результаты отгружены в программу по расчёту пожарного риска", 1000)
+			}
+			Else
+			{
+				ShowToolTip("Расчет tout не выполнялся", 1000)
+			}
+		}
+		Else If CheckFDSStoppedByUser(OutfilePath)
+		{
+			ShowToolTip("Файл OUT содержиит строчку 'STOP: FDS stopped by user'", 1000)
+		}
+		Else
+		{
+			ShowToolTip(CheckFDSStoppedByUser(OutfilePath) " строчка 'STOP: FDS stopped by user' не найдена.", 1000)
+		}
+		
+		SetTitleMatchMode, 2
+		
+		ShowToolTip("Преобразование результатов моделирования завершено!", 1000)
+		
+		GuiControl, Enable, StartButton%UniqueID%
+
+		ProgressPercentage := 0
+		GuiControl,, ProgressPercentage%UniqueID%, %ProgressPercentage%
 	}
 	
 	/*
@@ -1638,7 +1689,7 @@ RunInsertDEVC:
 	Return
 
 RunPCTT:
-	Run, "%PyExe%" "%PCTT%"
+	Run, "%PyExe%" "%PCTT%" %ProcessID%, , , PID
 	Return
 
 RunPFED:
@@ -1666,6 +1717,23 @@ RunFRP:
 	If FDS6 = 1
 	{
 		Run, "%PyExe%" "%FRP%" %ProcessID%, , , PID
+	}
+	
+	If FDS5 = 1
+	{
+		MsgBox, Данная функция не предназначена для ускоренных расчетов.
+	}
+	Return
+
+RunArise:
+	If FDS6 = 1
+	{
+		MsgBox, 4, , Выполнить преобразование результатов моделировая FDS 6.8.0 ещё раз?`n`nНа случай, если преобразование не было выполнено корректно, в папке с результатами остались файоы с постфикосом '_tout'(или) программа по расчету риска не видит результаты моделирования.
+		IfMsgBox Yes
+		{
+			RunWait, "%PyExe%" "%Proceed_FDS6_CSV%" %ProcessID%, , , PID
+			ShowToolTip("Преобразование результатов моделирования завершено!", 1000)
+		}
 	}
 	
 	If FDS5 = 1
