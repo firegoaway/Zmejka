@@ -203,7 +203,7 @@ Gui, Add, Button, x102 y269 w80 h30 gAutoUpdateZ, Обновить ZmejkaFDS
 Gui, Add, Button, x12 y229 w170 h30 gEmpit, Стравить службы MPI
 Gui, Add, Text, x325 y285 w160 h20 , ID:%UniqueID%
 
-Gui, Show, h310 w395, ZmejkaFDS v0.13.6
+Gui, Show, h310 w395, ZmejkaFDS v0.13.7
 
 Return
 
