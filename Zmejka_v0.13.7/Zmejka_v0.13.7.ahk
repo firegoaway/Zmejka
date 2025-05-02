@@ -66,7 +66,7 @@ PCTT := A_ScriptDir "\p_libs\Plot_CSV_Time_Threshhold_v0.8.0.cpython-311.pyc"
 Refine := A_ScriptDir "\p_libs\Refine_v0.2.2.cpython-311.pyc"
 Partition := A_ScriptDir "\p_libs\Partition_v0.2.2.cpython-311.pyc"
 SPDZ := A_ScriptDir "\p_libs\INIT_md_v0.2.0.cpython-311.pyc"
-HRRP := A_ScriptDir "\p_libs\HRRP_v0.4.1.cpython-311.pyc"
+HRRP := A_ScriptDir "\p_libs\HRRP_v0.5.0.cpython-311.pyc"
 MBDL := A_ScriptDir "\p_libs\MDBL_v0.1.0.cpython-311.pyc"
 PFED := A_ScriptDir "\p_libs\plot_density_v0.6.2.cpython-311.pyc"
 FSF := A_ScriptDir "\p_libs\FSF_v0.5.3.cpython-311.pyc"
@@ -195,7 +195,7 @@ Gui, Add, Checkbox, x22 y29 w270 h20 gChckAlwDTR vChckAlw, Выгружать р
 ;Gui, Add, Text, x345 y29 w30 h20 , сек
 Gui, Add, Radio, x22 y59 w280 h30 gFDS5 vFDS5, Ускорить моделирование пожара 
 Gui, Add, Radio, x22 y89 w280 h30 gFDS6 vFDS6 Checked, Моделирование пожара по умолчанию
-Gui, Add, Button, x22 y129 w200 h20 gRunFRP, Калькулятор реакции для FDS 6.8.0
+Gui, Add, Button, x22 y129 w200 h25 gRunFRP, Калькулятор реакции FDS 6
 Gui, Add, Button, x22 y159 w50 h20 gRunArise, Arise
 Gui, Add, Button, x345 y152 w18 h15 gRIbatulin vRIbatulin, RI
 Gui, Add, Button, x12 y269 w80 h30 gCheckFDS, Проверить наличие FDS
