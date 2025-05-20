@@ -198,15 +198,15 @@ Gui, Add, Checkbox, x22 y29 w270 h20 gChckAlwDTR vChckAlw, Выгружать р
 ;Gui, Add, Text, x345 y29 w30 h20 , сек
 Gui, Add, Radio, x22 y59 w280 h30 gFDS5 vFDS5, Ускорить моделирование пожара 
 Gui, Add, Radio, x22 y89 w280 h30 gFDS6 vFDS6 Checked, Моделирование пожара по умолчанию
-Gui, Add, Button, x22 y129 w200 h25 gRunFRP, Калькулятор реакции FDS 6
-Gui, Add, Button, x22 y159 w50 h20 gRunArise, Arise
+Gui, Add, Button, x22 y129 w125 h45 gRunFRP, Калькулятор реакции FDS 6
+Gui, Add, Button, x159 y129 w100 h45 gRunArise, Обработать результаты FDS 6
 Gui, Add, Button, x345 y152 w18 h15 gRIbatulin vRIbatulin, RI
 Gui, Add, Button, x12 y269 w80 h30 gCheckFDS, Проверить наличие FDS
 Gui, Add, Button, x102 y269 w80 h30 gAutoUpdateZ, Обновить ZmejkaFDS
 Gui, Add, Button, x12 y229 w170 h30 gEmpit, Стравить службы MPI
 Gui, Add, Text, x325 y285 w160 h20 , ID:%UniqueID%
 
-Gui, Show, h310 w395, ZmejkaFDS v0.13.8
+Gui, Show, h310 w395, ZmejkaFDS v0.13.9
 
 Return
 
@@ -1928,9 +1928,19 @@ RIbatulin:
 	Return
 
 GuiClose:
-	;	Очищаем кэш конфигурации
-	IfExist, %A_ScriptDir%\inis
-		DeleteIniFiles()
-	;	Закругляемся
+	; Проверяем, сколько экземпляров ZmejkaFDS.exe запущено
+	instanceCount := 0
+	for process in ComObjGet("winmgmts:").ExecQuery("Select Name from Win32_Process where Name = 'ZmejkaFDS.exe'")
+	{
+		instanceCount++
+	}
+	
+	; Удаляем ini файлы, если это последний экземпляр
+	If (instanceCount <= 1)
+	{
+		IfExist, %A_ScriptDir%\inis
+			DeleteIniFiles()
+	}
+
 	ExitApp
 	Return
