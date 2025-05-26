@@ -83,7 +83,7 @@ class InsertDEVCApp(QMainWindow):
         main_layout.setSpacing(15)
         
         # Заголовок приложения
-        header = QLabel("Конструктор областей ввода DEVC в модели FDS")
+        header = QLabel("Подготовка сценария к расчету tпор")
         header.setFont(QFont("Segoe UI", 16, QFont.Weight.Bold))
         header.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header.setStyleSheet("color: rgb(3, 105, 161); padding: 10px;")
