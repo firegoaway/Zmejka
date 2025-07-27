@@ -15,13 +15,13 @@ set "dir5=%systemDrive%\Program Files\ZmejkaFDS\FDS5"
 set "dir6=%systemDrive%\Program Files\ZmejkaFDS\FDS5\dll"
 
 :: Check if the directory is already in PATH
-echo !currentPath! | find /i "%dir4%" >nul || set "newPath=!dir1!;!currentPath!"
-echo !currentPath! | find /i "%dir5%" >nul || set "newPath=!dir2!;!newPath!"
-echo !currentPath! | find /i "%dir6%" >nul || set "newPath=!dir3!;!newPath!"
+echo !currentPath! | find /i "%dir1%" >nul || set "newPath=!dir1!;!currentPath!"
+echo !currentPath! | find /i "%dir2%" >nul || set "newPath=!dir2!;!newPath!"
+echo !currentPath! | find /i "%dir3%" >nul || set "newPath=!dir3!;!newPath!"
 
-echo !currentPath! | find /i "%dir7%" >nul || set "newPath=!dir4!;!currentPath!"
-echo !currentPath! | find /i "%dir8%" >nul || set "newPath=!dir5!;!newPath!"
-echo !currentPath! | find /i "%dir9%" >nul || set "newPath=!dir6!;!newPath!"
+echo !currentPath! | find /i "%dir4%" >nul || set "newPath=!dir4!;!currentPath!"
+echo !currentPath! | find /i "%dir5%" >nul || set "newPath=!dir5!;!newPath!"
+echo !currentPath! | find /i "%dir6%" >nul || set "newPath=!dir6!;!newPath!"
 
 :: Set the new PATH value
 if defined newPath (
