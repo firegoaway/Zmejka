@@ -235,7 +235,26 @@ BrowseFileButton:
 	IniWrite, %fileName%, %filePathIni%, fileName, fileName
 	IniWrite, %chunksize%, %filePathIni%, chunksize, chunksize
 	IniWrite, %batchsize%, %filePathIni%, batchsize, batchsize
-	IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
+	
+	IniRead, CheckSURFFIX, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
+	if InStr(CheckSURFFIX, "Done")
+		GuiControl, Enable, StartButton%UniqueID%
+	Else
+	{
+		FileRead, Contents, %filePath%
+		If InStr(Contents, "CheckSURFFIX=Done")
+		{
+			CheckSURFFIX := "Done"
+			GuiControl, Enable, StartButton%UniqueID%
+			IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
+		}
+		Else
+		{
+			CheckSURFFIX := "None"
+			;GuiControl, Disable, StartButton%UniqueID%
+			IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
+		}
+	}
 	
 	GuiControl,, folderPath%UniqueID%, %folderPath%
 	GuiControl,, fileName%UniqueID%, %fileName%
@@ -243,6 +262,7 @@ BrowseFileButton:
 	
 ChckAlwDTR:
 	Gui, Submit, NoHide
+	
 	If (ChckAlw = 1)
 	{
 		;CheckDUMP(filePath, ChckDTR)
@@ -568,18 +588,28 @@ StartButton:
 		
 		; Функция проверки, что пользователь прогнал _nfs через SURF_FIX
 		IniRead, CheckSURFFIX, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
-		If InStr(CheckSURFFIX, "Done")
-		{
+		if InStr(CheckSURFFIX, "Done")
 			GuiControl, Enable, StartButton%UniqueID%
-			ShowToolTip("SURF_FIX checked", 1000)
-		}
 		Else
 		{
-			GuiControl, Disable, StartButton%UniqueID%
-			MsgBox, 48, ZmejkaFDS, % "Пожалуйста, проведите ускоренный сценарий через SURF_FIX."
-			return
+			FileRead, Contents, %filePath%
+			If InStr(Contents, "CheckSURFFIX=Done")
+			{
+				CheckSURFFIX := "Done"
+				GuiControl, Enable, StartButton%UniqueID%
+				IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
+			}
+			Else
+			{
+				CheckSURFFIX := "None"
+				GuiControl, Disable, StartButton%UniqueID%
+				IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
+				MsgBox, 48, ZmejkaFDS, % "Пожалуйста, проведите ускоренный сценарий через SURF_FIX."
+				return
+			}
 		}
 		
+		Sleep, 50
 		GuiControl, Disable, StartButton%UniqueID%
 		
 		CheckDUMP(filePath, ChckDTR)
@@ -1719,11 +1749,14 @@ RunSURF:
 	{
 		RunWait, "%PyExe%" "%FSF_FDS5%" %ProcessID%, , , PID
 		IniRead, CheckSURFFIX, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
-		if InStr(CheckSURFFIX, "Done")
+		FileRead, Contents, %filePath%
+		If InStr(CheckSURFFIX, "Done") && InStr(Contents, "CheckSURFFIX=Done")
 			GuiControl, Enable, StartButton%UniqueID%
 		Else
 		{
+			CheckSURFFIX := "None"
 			GuiControl, Disable, StartButton%UniqueID%
+			IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
 			MsgBox, 48, ZmejkaFDS, % "Пожалуйста, проведите ускоренный сценарий через SURF_FIX."
 		}
 	}
