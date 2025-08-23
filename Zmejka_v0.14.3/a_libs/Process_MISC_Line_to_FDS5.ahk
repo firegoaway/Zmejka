@@ -17,7 +17,7 @@
         line := A_LoopField
 		
 		; Удаляем CELL_CENTERED=.True. из любой строки
-        line := RegExReplace(line, "\s*CELL_CENTERED=.True.", "")
+        ; line := RegExReplace(line, "\s*CELL_CENTERED=.True.", "")
         
         if (InStr(line, "&MISC") != 0)
 		{

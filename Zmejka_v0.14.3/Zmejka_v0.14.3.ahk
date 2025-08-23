@@ -40,7 +40,6 @@ IniWrite, %UniqueID%, %UniqueIDinipath%, UniqueID, UniqueID
 #Include %A_ScriptDir%\a_libs\CheckFDSCompletedSuccessfully.ahk
 #Include %A_ScriptDir%\a_libs\ReplaceQuotesInCSV.ahk
 #Include %A_ScriptDir%\a_libs\GetHeatOfCombustion.ahk
-#Include %A_ScriptDir%\a_libs\CheckSURFFIX.ahk
 #Include %A_ScriptDir%\a_libs\RemoveExternalFilenameParameter.ahk
 #Include %A_ScriptDir%\a_libs\RecycleInis.ahk
 #Include %A_ScriptDir%\a_libs\HSEmpit.ahk
@@ -71,8 +70,8 @@ SPDZ := A_ScriptDir "\p_libs\INIT_md_v0.2.0.cpython-311.pyc"
 HRRP := A_ScriptDir "\p_libs\HRRP_v0.5.0.cpython-311.pyc"
 MBDL := A_ScriptDir "\p_libs\MDBL_v0.1.0.cpython-311.pyc"
 PFED := A_ScriptDir "\p_libs\plot_density_v0.7.0.cpython-311.pyc"
-FSF := A_ScriptDir "\p_libs\FSF_v0.6.0_pyqt.cpython-311.pyc"
-FSF_FDS5 := A_ScriptDir "\p_libs\FSF_v0.6.0_FDS5_pyqt.cpython-311.pyc"
+FSF := A_ScriptDir "\p_libs\FSF_v0.6.1_pyqt.cpython-311.pyc"
+FSF_FDS5 := A_ScriptDir "\p_libs\FSF_v0.6.1_FDS5_pyqt.cpython-311.pyc"
 FRP := A_ScriptDir "\p_libs\FDS_REAC_Prooner.cpython-311.pyc"
 RIbatulin := A_ScriptDir "\p_libs\update_num_pic.cpython-311.pyc"
 
@@ -97,6 +96,7 @@ FDSpathIni := A_ScriptDir "\inis\FDSpath_" UniqueID ".ini"
 MPIpathIni := A_ScriptDir "\inis\MPIpath_" UniqueID ".ini"
 filePathIni := A_ScriptDir "\inis\filePath_" UniqueID ".ini"
 HOCpathIni := A_ScriptDir "\inis\HOC_" UniqueID ".ini"
+CheckSURFFIXini := A_ScriptDir "\inis\CheckSURFFIX_" UniqueID ".ini"
 
 ;	Проверяем наличие папки "Inis"
 IfNotExist, %A_ScriptDir%\inis
@@ -143,6 +143,16 @@ Else
 	filePath := ""
 	folderPath := "Укажите путь к папке с файлом сценария (.fds)"
 	fileName := "Укажите имя файла сценария (.fds)"
+}
+
+If FileExist(CheckSURFFIXini)
+{
+	IniRead, CheckSURFFIX, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
+}
+Else
+{
+	CheckSURFFIX := ""
+	IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
 }
 
 ChckDTR := 50
@@ -204,7 +214,7 @@ Gui, Add, Button, x102 y269 w80 h30 gAutoUpdateZ, Обновить ZmejkaFDS
 Gui, Add, Button, x12 y229 w170 h30 gEmpit, Стравить службы MPI
 Gui, Add, Text, x325 y285 w160 h20 , ID:%UniqueID%
 
-Gui, Show, h310 w395, ZmejkaFDS v0.14.2
+Gui, Show, h310 w395, ZmejkaFDS v0.14.3
 
 Return
 
@@ -225,6 +235,7 @@ BrowseFileButton:
 	IniWrite, %fileName%, %filePathIni%, fileName, fileName
 	IniWrite, %chunksize%, %filePathIni%, chunksize, chunksize
 	IniWrite, %batchsize%, %filePathIni%, batchsize, batchsize
+	IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
 	
 	GuiControl,, folderPath%UniqueID%, %folderPath%
 	GuiControl,, fileName%UniqueID%, %fileName%
@@ -555,21 +566,18 @@ StartButton:
 		Sleep, 300
 		ToolTip
 		
-		;Функция проверки, что пользователь прогнал _nfs через SURF_FIX
-		If InStr(filename, "_nfs")
+		; Функция проверки, что пользователь прогнал _nfs через SURF_FIX
+		IniRead, CheckSURFFIX, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
+		If InStr(CheckSURFFIX, "Done")
 		{
-			check := CheckSURFFIX(filePath)
-			
-			if check = 0
-			{
-				GuiControl, Enable, StartButton%UniqueID%
-				ShowToolTip("SURF_FIX checked", 1000)
-			}
-			else
-			{
-				GuiControl, Disable, StartButton%UniqueID%
-				return
-			}
+			GuiControl, Enable, StartButton%UniqueID%
+			ShowToolTip("SURF_FIX checked", 1000)
+		}
+		Else
+		{
+			GuiControl, Disable, StartButton%UniqueID%
+			MsgBox, 48, ZmejkaFDS, % "Пожалуйста, проведите ускоренный сценарий через SURF_FIX."
+			return
 		}
 		
 		GuiControl, Disable, StartButton%UniqueID%
@@ -1705,31 +1713,28 @@ RunPFED:
 
 RunSURF:
 	If FDS6 = 1
-	{
 		Run, "%PyExe%" "%FSF%" %ProcessID%, , , PID
-	}
 	
 	If FDS5 = 1
 	{
 		RunWait, "%PyExe%" "%FSF_FDS5%" %ProcessID%, , , PID
-		
-		check := CheckSURFFIX(filepath)
-		
-		if check = 0
-			GuiControl, Enable, StartButton
+		IniRead, CheckSURFFIX, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
+		if InStr(CheckSURFFIX, "Done")
+			GuiControl, Enable, StartButton%UniqueID%
+		Else
+		{
+			GuiControl, Disable, StartButton%UniqueID%
+			MsgBox, 48, ZmejkaFDS, % "Пожалуйста, проведите ускоренный сценарий через SURF_FIX."
+		}
 	}
 	Return
 	
 RunFRP:
 	If FDS6 = 1
-	{
 		Run, "%PyExe%" "%FRP%" %ProcessID%, , , PID
-	}
 	
 	If FDS5 = 1
-	{
 		MsgBox, Данная функция не предназначена для ускоренных расчетов.
-	}
 	Return
 
 RunArise:
