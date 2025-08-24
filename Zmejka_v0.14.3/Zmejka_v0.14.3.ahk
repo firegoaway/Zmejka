@@ -43,6 +43,7 @@ IniWrite, %UniqueID%, %UniqueIDinipath%, UniqueID, UniqueID
 #Include %A_ScriptDir%\a_libs\RemoveExternalFilenameParameter.ahk
 #Include %A_ScriptDir%\a_libs\RecycleInis.ahk
 #Include %A_ScriptDir%\a_libs\HSEmpit.ahk
+#Include %A_ScriptDir%\a_libs\CustomMsgbox.ahk
 
 /*
 	Инициализация среды embed (начало)
@@ -601,11 +602,15 @@ StartButton:
 			}
 			Else
 			{
-				CheckSURFFIX := "None"
-				GuiControl, Disable, StartButton%UniqueID%
-				IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
-				MsgBox, 48, ZmejkaFDS, % "Пожалуйста, проведите ускоренный сценарий через SURF_FIX."
-				return
+				result := CustomMsgBox("Предупреждение", "Вы не провели ускоренный сценарий через SURF_FIX.", "Не запускать", "Игнорировать и запустить")
+				if (result != 1)
+				{
+					CheckSURFFIX := "None"
+					GuiControl, Disable, StartButton%UniqueID%
+					IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
+					MsgBox, 48, ZmejkaFDS, % "Пожалуйста, проведите ускоренный сценарий через SURF_FIX."
+					return
+				}
 			}
 		}
 		
