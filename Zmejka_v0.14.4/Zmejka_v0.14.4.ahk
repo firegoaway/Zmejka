@@ -215,7 +215,7 @@ Gui, Add, Button, x102 y269 w80 h30 gAutoUpdateZ, Обновить ZmejkaFDS
 Gui, Add, Button, x12 y229 w170 h30 gEmpit, Стравить службы MPI
 Gui, Add, Text, x325 y285 w160 h20 , ID:%UniqueID%
 
-Gui, Show, h310 w395, ZmejkaFDS v0.14.3
+Gui, Show, h310 w395, ZmejkaFDS v0.14.4
 
 Return
 
@@ -602,14 +602,19 @@ StartButton:
 			}
 			Else
 			{
-				result := CustomMsgBox("Предупреждение", "Вы не провели ускоренный сценарий через SURF_FIX.", "Не запускать", "Игнорировать и запустить")
-				if (result != 1)
+				result := CustomMsgBox("Вы не провели ускоренный сценарий через SURF_FIX.", "Предупреждение", "OK", "Игнорировать")
+				if result = 1
 				{
 					CheckSURFFIX := "None"
 					GuiControl, Disable, StartButton%UniqueID%
 					IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
 					MsgBox, 48, ZmejkaFDS, % "Пожалуйста, проведите ускоренный сценарий через SURF_FIX."
-					return
+				}
+				else if result = 2
+				{
+					CheckSURFFIX := "Done"
+					GuiControl, Enable, StartButton%UniqueID%
+					IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
 				}
 			}
 		}
@@ -1759,10 +1764,20 @@ RunSURF:
 			GuiControl, Enable, StartButton%UniqueID%
 		Else
 		{
-			CheckSURFFIX := "None"
-			GuiControl, Disable, StartButton%UniqueID%
-			IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
-			MsgBox, 48, ZmejkaFDS, % "Пожалуйста, проведите ускоренный сценарий через SURF_FIX."
+			result := CustomMsgBox("Вы не провели ускоренный сценарий через SURF_FIX.", "Предупреждение", "OK", "Игнорировать")
+			if result = 1
+			{
+				CheckSURFFIX := "None"
+				GuiControl, Disable, StartButton%UniqueID%
+				IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
+				MsgBox, 48, ZmejkaFDS, % "Пожалуйста, проведите ускоренный сценарий через SURF_FIX."
+			}
+			else if result = 2
+			{
+				CheckSURFFIX := "Done"
+				GuiControl, Enable, StartButton%UniqueID%
+				IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
+			}
 		}
 	}
 	Return
@@ -1969,6 +1984,18 @@ AutoUpdateZ:
 RIbatulin:
 	Run, "%PyExeConsole%" "%RIbatulin%"
 	Return
+	
+CustomMsgBox_Btn1:
+    CustomMsgBox_Result := 1
+	return
+
+CustomMsgBox_Btn2:
+    CustomMsgBox_Result := 2
+	return
+
+CustomMsgBox_Btn3:
+    CustomMsgBox_Result := 3
+	return
 
 GuiClose:
 	; Проверяем, сколько экземпляров ZmejkaFDS.exe запущено
