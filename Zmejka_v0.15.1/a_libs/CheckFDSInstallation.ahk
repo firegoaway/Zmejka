@@ -4,16 +4,16 @@ CheckFDSInstallation()
         MsgBox, FDS уже установлен в системе.
     else
 	{
-		If !(FileExist(A_ScriptDir "\FDS-6.8.0_SMV-6.8.0_win.exe"))
+		If !(FileExist(A_ScriptDir "\FDS-6.10.1_SMV-6.10.1_win.exe"))
 		{
-			URLDownloadToFile, https://github.com/firemodels/fds/releases/download/FDS-6.8.0/FDS-6.8.0_SMV-6.8.0_win.exe, FDS-6.8.0_SMV-6.8.0_win.exe
+			URLDownloadToFile, https://github.com/firemodels/fds/releases/download/FDS-6.10.1/FDS-6.10.1_SMV-6.10.1_win.exe, FDS-6.10.1_SMV-6.10.1_win.exe
 			ToolTip, Downloading FDS...
 			Return
 		}
-		If (FileExist(A_ScriptDir "\FDS-6.8.0_SMV-6.8.0_win.exe"))
+		If (FileExist(A_ScriptDir "\FDS-6.10.1_SMV-6.10.1_win.exe"))
 		{
 			ToolTip, Installing FDS...
-			Run, FDS-6.8.0_SMV-6.8.0_win.exe /S
+			Run, FDS-6.10.1_SMV-6.10.1_win.exe /S
 			WinWait, ahk_exe cmd.exe
 			Loop,
 			{
@@ -42,7 +42,7 @@ CheckFDSInstallation()
 				}
 				Break
 			}
-			Process, WaitClose, ahk_exe FDS-6.8.0_SMV-6.8.0_win.exe
+			Process, WaitClose, ahk_exe FDS-6.10.1_SMV-6.10.1_win.exe
 
 			if (FileExist(A_ProgramFiles "\firemodels\FDS6\bin\fds.exe"))
 				MsgBox, FDS has been successfully installed.
