@@ -62,10 +62,9 @@ global install_services_run := A_ScriptDir "\FDS5\install_services_run.bat"
 ;	Динамические библиотеки (начало)
 
 ; 	Модули (начало)
-;Insert_DEVC := A_ScriptDir "\a_libs\Insert_DEVC_v0.8.2.ahk"
-Insert_DEVC := A_ScriptDir "\p_libs\Insert_DEVC_v0.9.0.cpython-311.pyc"
-Tu_on_u := A_ScriptDir "\p_libs\Tu_v0.6.0.cpython-311.pyc"
-PCTT := A_ScriptDir "\p_libs\Plot_CSV_Time_Threshhold_v0.8.0.cpython-311.pyc"
+Insert_DEVC := A_ScriptDir "\p_libs\Insert_DEVC_v0.10.1c.cpython-311.pyc"
+Tu_on_u := A_ScriptDir "\p_libs\Tu_v0.7.0.cpython-311.pyc"
+PCTT := A_ScriptDir "\p_libs\Plot_CSV_Time_Threshhold_v0.10.1c.cpython-311.pyc"
 FMT := A_ScriptDir "\p_libs\FDS_Mesh_Tools.cpython-311.pyc"
 SPDZ := A_ScriptDir "\p_libs\INIT_md_v0.2.0.cpython-311.pyc"
 HRRP := A_ScriptDir "\p_libs\HRRP_v0.5.0.cpython-311.pyc"
@@ -83,8 +82,9 @@ Proceed_FDS6_CSV := A_ScriptDir "\p_libs\Proceed_FDS6_CSV.cpython-311.pyc"
 renaming_utils := A_ScriptDir "\p_libs\renaming_utils.cpython-311.pyc"
 HashLib_AutoUpdate_ZmejkaFDS := A_ScriptDir "\p_libs\HashLib_AutoUpdate_ZmejkaFDS.cpython-311.pyc"
 HashLib_AutoUpdate_Libs := A_ScriptDir "\p_libs\HashLib_AutoUpdate_Libs.cpython-311.pyc"
-Delete_FDS5_DEVC_CLOCK := A_ScriptDir "\p_libs\Delete_FDS5_DEVC_CLOCK.cpython-311.pyc"
-Delete_DEVC_XnYn_MESHn := A_ScriptDir "\p_libs\Delete_DEVC_XnYn_MESHn.cpython-311.pyc"
+Proceed_FDS5_SMV := A_ScriptDir "\p_libs\Proceed_FDS5_SMV.cpython-311.pyc"
+;	Delete_FDS5_DEVC_CLOCK := A_ScriptDir "\p_libs\Delete_FDS5_DEVC_CLOCK.cpython-311.pyc"
+;	Delete_DEVC_XnYn_MESHn := A_ScriptDir "\p_libs\Delete_DEVC_XnYn_MESHn.cpython-311.pyc"
 
 ;	Динамические библиотеки (конец)
 
@@ -193,7 +193,7 @@ Gui, Add, Text, x325 y285 w160 h20 , ID:%UniqueID%
 Gui, Tab, Построение графиков
 Gui, Add, Text, x22 y69 w120 h40 , Построить график F (dэфф) для нахождения tпор
 Gui, Add, Button, x152 y69 w100 h40 gRunPCTT, PCTT
-Gui, Add, Button, x252 y69 w60 h40 gRunTu_on_u, АУПТ
+Gui, Add, Button, x252 y69 w90 h40 gRunTu_on_u, Расчет tпор`nинтегр. модель
 Gui, Add, Text, x22 y119 w110 h40 , Построить график плотности людских потоков
 Gui, Add, Button, x152 y119 w100 h40 gRunPFED, PFED
 Gui, Add, Text, x22 y169 w120 h40 , Построить график мощности пожара (HRR)
@@ -779,11 +779,16 @@ StartButton:
 			}
 						
 			fds5smv := folderPath "\" part1 ".smv"
+			smvfolder := folderPath "\smvfolder"
 			FileCreateDir, smvfolder
 			FileCopy, fds5smv, smvfolder "\" part1 ".smv"	
+			ShowToolTip("Файл " %fds5smv% " скопирован в папку " %smvfolder%, 1000)
 			
-			Sleep, 1000
 			Clear_FDS5_SMV(fds5smv)
+			ShowToolTip("Выполнен Clear_FDS5_SMV.`n" %fds5smv% " очищен.", 1000)
+			
+			RunWait, "%PyExe%" "%Proceed_FDS5_SMV%" %ProcessID%, , , PID
+			ShowToolTip("В " %fds5smv% " выполнены преобразования для `n'.bf', '.sf' и '.s3d'", 1000)
 			
 			ShowToolTip("Результаты отгружены в программу по расчёту пожарного риска", 1000)
 		}
@@ -1495,14 +1500,16 @@ StopButton:
 			}
 			
 			fds5smv := folderPath "\" part1 ".smv"
-			smvfolder := folderPath "\smvfolder"
-			
 			FileCreateDir, smvfolder
-			FileCopy, fds5smv, smvfolder "\" part1 ".smv"			
+			FileCopy, fds5smv, smvfolder "\" part1 ".smv"	
+			ShowToolTip("Файл " %fds5smv% " скопирован в папку " %smvfolder%, 1000)
 			
-			Sleep, 2000
 			Clear_FDS5_SMV(fds5smv)
-							
+			ShowToolTip("Выполнен Clear_FDS5_SMV.`n" %fds5smv% " очищен.", 1000)
+			
+			RunWait, "%PyExe%" "%Proceed_FDS5_SMV%" %ProcessID%, , , PID
+			ShowToolTip("В " %fds5smv% " выполнены преобразования для `n'.bf', '.sf' и '.s3d'", 1000)
+			
 			ShowToolTip("Результаты отгружены в программу по расчёту пожарного риска", 1000)
 		}
 		Else
