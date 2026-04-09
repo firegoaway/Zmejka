@@ -78,11 +78,12 @@ RIbatulin := A_ScriptDir "\p_libs\update_num_pic.cpython-311.pyc"
 ;	Модули (конец)
 Proceed_DUMP := A_ScriptDir "\p_libs\Proceed_DUMP.cpython-311.pyc"
 Proceed_FDS5_CSV := A_ScriptDir "\p_libs\Proceed_FDS5_CSV.cpython-311.pyc"
+Proceed_FDS5_SMV := A_ScriptDir "\p_libs\Proceed_FDS5_SMV.cpython-311.pyc"
 Proceed_FDS6_CSV := A_ScriptDir "\p_libs\Proceed_FDS6_CSV.cpython-311.pyc"
 renaming_utils := A_ScriptDir "\p_libs\renaming_utils.cpython-311.pyc"
 HashLib_AutoUpdate_ZmejkaFDS := A_ScriptDir "\p_libs\HashLib_AutoUpdate_ZmejkaFDS.cpython-311.pyc"
 HashLib_AutoUpdate_Libs := A_ScriptDir "\p_libs\HashLib_AutoUpdate_Libs.cpython-311.pyc"
-Proceed_FDS5_SMV := A_ScriptDir "\p_libs\Proceed_FDS5_SMV.cpython-311.pyc"
+
 ;	Delete_FDS5_DEVC_CLOCK := A_ScriptDir "\p_libs\Delete_FDS5_DEVC_CLOCK.cpython-311.pyc"
 ;	Delete_DEVC_XnYn_MESHn := A_ScriptDir "\p_libs\Delete_DEVC_XnYn_MESHn.cpython-311.pyc"
 
