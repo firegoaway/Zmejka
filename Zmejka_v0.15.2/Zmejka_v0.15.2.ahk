@@ -62,16 +62,17 @@ global install_services_run := A_ScriptDir "\FDS5\install_services_run.bat"
 ;	Динамические библиотеки (начало)
 
 ; 	Модули (начало)
-Insert_DEVC := A_ScriptDir "\p_libs\Insert_DEVC_v0.10.1c.cpython-311.pyc"
-Tu_on_u := A_ScriptDir "\p_libs\Tu_v0.7.0.cpython-311.pyc"
-PCTT := A_ScriptDir "\p_libs\Plot_CSV_Time_Threshhold_v0.10.1c.cpython-311.pyc"
+Insert_DEVC := A_ScriptDir "\p_libs\Insert_DEVC_v0.10.1c.pyc"
+md_to_docx := A_ScriptDir "\p_libs\md_to_docx.pyc"
+Tu_on_u := A_ScriptDir "\p_libs\Tu_v0.7.1.pyc"
+PCTT := A_ScriptDir "\p_libs\Plot_CSV_Time_Threshhold_v0.10.1c.pyc"
 FMT := A_ScriptDir "\p_libs\FDS_Mesh_Tools.cpython-311.pyc"
 SPDZ := A_ScriptDir "\p_libs\INIT_md_v0.2.0.cpython-311.pyc"
 HRRP := A_ScriptDir "\p_libs\HRRP_v0.5.0.cpython-311.pyc"
 MBDL := A_ScriptDir "\p_libs\MDBL_v0.1.0.cpython-311.pyc"
 PFED := A_ScriptDir "\p_libs\plot_density_v0.7.0.cpython-311.pyc"
-FSF := A_ScriptDir "\p_libs\FSF_v0.6.1_pyqt.cpython-311.pyc"
-FSF_FDS5 := A_ScriptDir "\p_libs\FSF_v0.6.1_FDS5_pyqt.cpython-311.pyc"
+FSF := A_ScriptDir "\p_libs\FSF_v0.7.1_pyqt.pyc"
+FSF_FDS5 := A_ScriptDir "\p_libs\FSF_v0.7.1_FDS5_pyqt.pyc"
 FRP := A_ScriptDir "\p_libs\FDS_REAC_Prooner.cpython-311.pyc"
 RIbatulin := A_ScriptDir "\p_libs\update_num_pic.cpython-311.pyc"
 
@@ -216,7 +217,7 @@ Gui, Add, Button, x102 y269 w80 h30 gAutoUpdateZ, Обновить ZmejkaFDS
 Gui, Add, Button, x12 y229 w170 h30 gEmpit, Стравить службы MPI
 Gui, Add, Text, x325 y285 w160 h20 , ID:%UniqueID%
 
-Gui, Show, h310 w395, ZmejkaFDS v0.15.1
+Gui, Show, h310 w395, ZmejkaFDS v0.15.2
 
 Return
 
