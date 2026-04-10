@@ -217,7 +217,7 @@ Gui, Add, Button, x102 y269 w80 h30 gAutoUpdateZ, Обновить ZmejkaFDS
 Gui, Add, Button, x12 y229 w170 h30 gEmpit, Стравить службы MPI
 Gui, Add, Text, x325 y285 w160 h20 , ID:%UniqueID%
 
-Gui, Show, h310 w395, ZmejkaFDS v0.15.2
+Gui, Show, h310 w395, ZmejkaFDS v0.15.3
 
 Return
 
@@ -784,13 +784,13 @@ StartButton:
 			smvfolder := folderPath "\smvfolder"
 			FileCreateDir, smvfolder
 			FileCopy, fds5smv, smvfolder "\" part1 ".smv"	
-			ShowToolTip("Файл " %fds5smv% " скопирован в папку " %smvfolder%, 1000)
+			ShowToolTip("Файл " fds5smv " скопирован в папку " smvfolder, 1000)
 			
 			Clear_FDS5_SMV(fds5smv)
-			ShowToolTip("Выполнен Clear_FDS5_SMV.`n" %fds5smv% " очищен.", 1000)
+			ShowToolTip("Выполнен Clear_FDS5_SMV.`n" fds5smv " очищен.", 1000)
 			
 			;RunWait, "%PyExe%" "%Proceed_FDS5_SMV%" %ProcessID%, , , PID
-			;ShowToolTip("В " %fds5smv% " выполнены преобразования для `n'.bf', '.sf' и '.s3d'", 1000)
+			;ShowToolTip("В " fds5smv " выполнены преобразования для `n'.bf', '.sf' и '.s3d'", 1000)
 			
 			ShowToolTip("Результаты отгружены в программу по расчёту пожарного риска", 1000)
 		}
@@ -1504,13 +1504,13 @@ StopButton:
 			fds5smv := folderPath "\" part1 ".smv"
 			FileCreateDir, smvfolder
 			FileCopy, fds5smv, smvfolder "\" part1 ".smv"	
-			ShowToolTip("Файл " %fds5smv% " скопирован в папку " %smvfolder%, 1000)
+			ShowToolTip("Файл " fds5smv " скопирован в папку " smvfolder, 1000)
 			
 			Clear_FDS5_SMV(fds5smv)
-			ShowToolTip("Выполнен Clear_FDS5_SMV.`n" %fds5smv% " очищен.", 1000)
+			ShowToolTip("Выполнен Clear_FDS5_SMV.`n" fds5smv " очищен.", 1000)
 			
 			;RunWait, "%PyExe%" "%Proceed_FDS5_SMV%" %ProcessID%, , , PID
-			;ShowToolTip("В " %fds5smv% " выполнены преобразования для `n'.bf', '.sf' и '.s3d'", 1000)
+			;ShowToolTip("В " fds5smv " выполнены преобразования для `n'.bf', '.sf' и '.s3d'", 1000)
 			
 			ShowToolTip("Результаты отгружены в программу по расчёту пожарного риска", 1000)
 		}
