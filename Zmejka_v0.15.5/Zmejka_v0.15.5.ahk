@@ -71,8 +71,8 @@ SPDZ := A_ScriptDir "\p_libs\INIT_md_v0.2.0.cpython-311.pyc"
 HRRP := A_ScriptDir "\p_libs\HRRP_v0.5.0.cpython-311.pyc"
 MBDL := A_ScriptDir "\p_libs\MDBL_v0.1.0.cpython-311.pyc"
 PFED := A_ScriptDir "\p_libs\plot_density_v0.7.0.cpython-311.pyc"
-FSF := A_ScriptDir "\p_libs\FSF_v0.7.1_pyqt.pyc"
-FSF_FDS5 := A_ScriptDir "\p_libs\FSF_v0.7.1_FDS5_pyqt.pyc"
+FSF := A_ScriptDir "\p_libs\FSF_v0.8.0_pyqt.pyc"
+FSF_FDS5 := A_ScriptDir "\p_libs\FSF_v0.8.0_FDS5_pyqt.pyc"
 FRP := A_ScriptDir "\p_libs\FDS_REAC_Prooner.cpython-311.pyc"
 RIbatulin := A_ScriptDir "\p_libs\update_num_pic.cpython-311.pyc"
 
@@ -217,7 +217,7 @@ Gui, Add, Button, x102 y269 w80 h30 gAutoUpdateZ, Обновить ZmejkaFDS
 Gui, Add, Button, x12 y229 w170 h30 gEmpit, Стравить службы MPI
 Gui, Add, Text, x325 y285 w160 h20 , ID:%UniqueID%
 
-Gui, Show, h310 w395, ZmejkaFDS v0.15.4
+Gui, Show, h310 w395, ZmejkaFDS v0.15.5
 
 Return
 
@@ -789,8 +789,8 @@ StartButton:
 			Clear_FDS5_SMV(fds5smv)
 			ShowToolTip("Выполнен Clear_FDS5_SMV.`n" fds5smv " очищен.", 1000)
 			
-			;RunWait, "%PyExe%" "%Proceed_FDS5_SMV%" %ProcessID%, , , PID
-			;ShowToolTip("В " fds5smv " выполнены преобразования для `n'.bf', '.sf' и '.s3d'", 1000)
+			RunWait, "%PyExe%" "%Proceed_FDS5_SMV%" %ProcessID%, , , PID
+			ShowToolTip("В " fds5smv " выполнены преобразования для `n'.bf', '.sf' и '.s3d'", 1000)
 			
 			ShowToolTip("Результаты отгружены в программу по расчёту пожарного риска", 1000)
 		}
@@ -1509,8 +1509,8 @@ StopButton:
 			Clear_FDS5_SMV(fds5smv)
 			ShowToolTip("Выполнен Clear_FDS5_SMV.`n" fds5smv " очищен.", 1000)
 			
-			;RunWait, "%PyExe%" "%Proceed_FDS5_SMV%" %ProcessID%, , , PID
-			;ShowToolTip("В " fds5smv " выполнены преобразования для `n'.bf', '.sf' и '.s3d'", 1000)
+			RunWait, "%PyExe%" "%Proceed_FDS5_SMV%" %ProcessID%, , , PID
+			ShowToolTip("В " fds5smv " выполнены преобразования для `n'.bf', '.sf' и '.s3d'", 1000)
 			
 			ShowToolTip("Результаты отгружены в программу по расчёту пожарного риска", 1000)
 		}
