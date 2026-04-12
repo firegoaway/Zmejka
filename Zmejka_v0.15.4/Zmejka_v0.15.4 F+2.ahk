@@ -62,10 +62,10 @@ global install_services_run := A_ScriptDir "\FDS5\install_services_run.bat"
 ;	Динамические библиотеки (начало)
 
 ; 	Модули (начало)
-Insert_DEVC := A_ScriptDir "\p_libs\Insert_DEVC_v0.10.1c.pyc"
+Insert_DEVC := A_ScriptDir "\p_libs\Insert_DEVC_v0.10.2.pyc"
 md_to_docx := A_ScriptDir "\p_libs\md_to_docx.pyc"
 Tu_on_u := A_ScriptDir "\p_libs\Tu_v0.7.1.pyc"
-PCTT := A_ScriptDir "\p_libs\Plot_CSV_Time_Threshhold_v0.10.1c.pyc"
+PCTT := A_ScriptDir "\p_libs\Plot_CSV_Time_Threshhold_v0.10.2.pyc"
 FMT := A_ScriptDir "\p_libs\FDS_Mesh_Tools.cpython-311.pyc"
 SPDZ := A_ScriptDir "\p_libs\INIT_md_v0.2.0.cpython-311.pyc"
 HRRP := A_ScriptDir "\p_libs\HRRP_v0.5.0.cpython-311.pyc"
@@ -789,8 +789,8 @@ StartButton:
 			Clear_FDS5_SMV(fds5smv)
 			ShowToolTip("Выполнен Clear_FDS5_SMV.`n" fds5smv " очищен.", 1000)
 			
-			RunWait, "%PyExe%" "%Proceed_FDS5_SMV%" %ProcessID%, , , PID
-			ShowToolTip("В " fds5smv " выполнены преобразования для `n'.bf', '.sf' и '.s3d'", 1000)
+			;RunWait, "%PyExe%" "%Proceed_FDS5_SMV%" %ProcessID%, , , PID
+			;ShowToolTip("В " fds5smv " выполнены преобразования для `n'.bf', '.sf' и '.s3d'", 1000)
 			
 			ShowToolTip("Результаты отгружены в программу по расчёту пожарного риска", 1000)
 		}
@@ -1509,8 +1509,8 @@ StopButton:
 			Clear_FDS5_SMV(fds5smv)
 			ShowToolTip("Выполнен Clear_FDS5_SMV.`n" fds5smv " очищен.", 1000)
 			
-			RunWait, "%PyExe%" "%Proceed_FDS5_SMV%" %ProcessID%, , , PID
-			ShowToolTip("В " fds5smv " выполнены преобразования для `n'.bf', '.sf' и '.s3d'", 1000)
+			;RunWait, "%PyExe%" "%Proceed_FDS5_SMV%" %ProcessID%, , , PID
+			;ShowToolTip("В " fds5smv " выполнены преобразования для `n'.bf', '.sf' и '.s3d'", 1000)
 			
 			ShowToolTip("Результаты отгружены в программу по расчёту пожарного риска", 1000)
 		}
