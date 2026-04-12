@@ -25,14 +25,17 @@
 			;line := RegExReplace(line, "\s*MAX_LEAK_PATHS=[^\s/]*", " SUPPRESSION=.FALSE.")
 			line := RegExReplace(line, "\s*MAX_LEAK_PATHS=[^\s/]*", " ")
 			
-			; Заменяем VISIBILITY_FACTOR на BAROCLINIC=.FALSE.
-			line := RegExReplace(line, "\s*VISIBILITY_FACTOR=[^\s/]*", " BAROCLINIC=.FALSE.")
+			; Заменяем VISIBILITY_FACTOR на BAROCLINIC=.FALSE.? - нет, на пустоту
+			line := RegExReplace(line, "\s*VISIBILITY_FACTOR=[^\s/]*", " ")
 			
 			; Удаляем BNDF_DEFAULT
-			line := RegExReplace(line, "\s*BNDF_DEFAULT=[^\s/]*", "")
+			line := RegExReplace(line, "\s*BNDF_DEFAULT=[^\s/]*", " ")
 			
 			; Удаляем MAXIMUM_VISIBILITY
-			line := RegExReplace(line, "\s*MAXIMUM_VISIBILITY=[^\s/]*", "")
+			line := RegExReplace(line, "\s*MAXIMUM_VISIBILITY=[^\s/]*", " ")
+			
+			; Удаляем MINIMUM_ZONE_VOLUME
+			line := RegExReplace(line, "\s*MINIMUM_ZONE_VOLUME=[^\s/]*", " ")
 			
 			; Удаляем EXTERNAL_FILENAME
 			;line := RegExReplace(line, "\s*EXTERNAL_FILENAME=[^\s/]*", "") Отправлено в RemoveExternalFilenameParameter.ahk
