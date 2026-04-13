@@ -28,6 +28,7 @@ IniWrite, %UniqueID%, %UniqueIDinipath%, UniqueID, UniqueID
 #Include %A_ScriptDir%\a_libs\CheckCHID.ahk
 #Include %A_ScriptDir%\a_libs\CheckDUMP.ahk
 #Include %A_ScriptDir%\a_libs\CheckMPIPROCESS.ahk
+#Include %A_ScriptDir%\a_libs\CheckSURFFIX.ahk
 #Include %A_ScriptDir%\a_libs\UnCheckDUMP.ahk
 #Include %A_ScriptDir%\a_libs\Process_MISC_Line_to_FDS5.ahk
 #Include %A_ScriptDir%\a_libs\Process_REAC_Line_to_FDS5.ahk
@@ -62,10 +63,10 @@ global install_services_run := A_ScriptDir "\FDS5\install_services_run.bat"
 ;	Динамические библиотеки (начало)
 
 ; 	Модули (начало)
-Insert_DEVC := A_ScriptDir "\p_libs\Insert_DEVC_v0.10.2.pyc"
+Insert_DEVC := A_ScriptDir "\p_libs\Insert_DEVC_v0.10.3.pyc"
 md_to_docx := A_ScriptDir "\p_libs\md_to_docx.pyc"
 Tu_on_u := A_ScriptDir "\p_libs\Tu_v0.7.1.pyc"
-PCTT := A_ScriptDir "\p_libs\Plot_CSV_Time_Threshhold_v0.10.2.pyc"
+PCTT := A_ScriptDir "\p_libs\Plot_CSV_Time_Threshhold_v0.10.3.pyc"
 FMT := A_ScriptDir "\p_libs\FDS_Mesh_Tools.cpython-311.pyc"
 SPDZ := A_ScriptDir "\p_libs\INIT_md_v0.2.0.cpython-311.pyc"
 HRRP := A_ScriptDir "\p_libs\HRRP_v0.5.0.cpython-311.pyc"
@@ -150,12 +151,15 @@ Else
 
 If FileExist(CheckSURFFIXini)
 {
-	IniRead, CheckSURFFIX, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
+	;CheckSURFFIX := ""
+	;IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
+	;MsgBox % CheckSURFFIX " в " CheckSURFFIXini " 1 "
 }
 Else
 {
-	CheckSURFFIX := ""
-	IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
+	;CheckSURFFIX := ""
+	;IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
+	;MsgBox % CheckSURFFIX " в " CheckSURFFIXini " 2 "
 }
 
 ChckDTR := 50
@@ -217,7 +221,7 @@ Gui, Add, Button, x102 y269 w80 h30 gAutoUpdateZ, Обновить ZmejkaFDS
 Gui, Add, Button, x12 y229 w170 h30 gEmpit, Стравить службы MPI
 Gui, Add, Text, x325 y285 w160 h20 , ID:%UniqueID%
 
-Gui, Show, h310 w395, ZmejkaFDS v0.15.6
+Gui, Show, h310 w395, ZmejkaFDS v0.15.7
 
 Return
 
@@ -239,13 +243,16 @@ BrowseFileButton:
 	IniWrite, %chunksize%, %filePathIni%, chunksize, chunksize
 	IniWrite, %batchsize%, %filePathIni%, batchsize, batchsize
 	
+	CheckSURFFIX := CheckSURFFIX(filePath)
+	;MsgBox % CheckSURFFIX " в " CheckSURFFIXini " 3 "
 	IniRead, CheckSURFFIX, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
-	if InStr(CheckSURFFIX, "Done")
+	if CheckSURFFIX = 1
 		GuiControl, Enable, StartButton%UniqueID%
 	Else
 	{
-		FileRead, Contents, %filePath%
-		If InStr(Contents, "CheckSURFFIX=Done")
+		CheckSURFFIX := CheckSURFFIX(filepath)   ; ← сохраняем результат функции
+		MsgBox % CheckSURFFIX
+		If (CheckSURFFIX = 1)
 		{
 			CheckSURFFIX := "Done"
 			GuiControl, Enable, StartButton%UniqueID%
@@ -1767,11 +1774,12 @@ RunSURF:
 	If FDS5 = 1
 	{
 		RunWait, "%PyExe%" "%FSF_FDS5%" %ProcessID%, , , PID
-		IniRead, CheckSURFFIX, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
-		FileRead, Contents, %filePath%
-		If InStr(CheckSURFFIX, "Done") && InStr(Contents, "CheckSURFFIX=Done")
-			GuiControl, Enable, StartButton%UniqueID%
-		Else
+		
+		CheckSURFFIX := CheckSURFFIX(filePath)
+		;IniRead, CheckSURFFIX, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
+		;FileRead, Contents, %filePath%
+		;If InStr(CheckSURFFIX, "Done") && InStr(Contents, "CheckSURFFIX=Done")
+		If CheckSURFFIX = 0
 		{
 			result := CustomMsgBox("Вы не провели ускоренный сценарий через SURF_FIX.", "Предупреждение", "OK", "Игнорировать")
 			if result = 1
