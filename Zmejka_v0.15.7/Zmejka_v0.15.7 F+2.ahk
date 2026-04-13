@@ -251,7 +251,7 @@ BrowseFileButton:
 	Else
 	{
 		CheckSURFFIX := CheckSURFFIX(filepath)   ; ← сохраняем результат функции
-		MsgBox % CheckSURFFIX
+		;MsgBox % CheckSURFFIX
 		If (CheckSURFFIX = 1)
 		{
 			CheckSURFFIX := "Done"
@@ -1777,8 +1777,13 @@ RunSURF:
 		
 		CheckSURFFIX := CheckSURFFIX(filePath)
 		;IniRead, CheckSURFFIX, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
-		;FileRead, Contents, %filePath%
-		;If InStr(CheckSURFFIX, "Done") && InStr(Contents, "CheckSURFFIX=Done")
+		FileRead, Contents, %filePath%
+		If InStr(Contents, "CheckSURFFIX=Done")
+		{
+			IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
+			CheckSURFFIX = 1
+		}
+		
 		If CheckSURFFIX = 0
 		{
 			result := CustomMsgBox("Вы не провели ускоренный сценарий через SURF_FIX.", "Предупреждение", "OK", "Игнорировать")
