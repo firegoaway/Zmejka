@@ -72,8 +72,8 @@ SPDZ := A_ScriptDir "\p_libs\INIT_md_v0.2.0.cpython-311.pyc"
 HRRP := A_ScriptDir "\p_libs\HRRP_v0.5.0.cpython-311.pyc"
 MBDL := A_ScriptDir "\p_libs\MDBL_v0.1.0.cpython-311.pyc"
 PFED := A_ScriptDir "\p_libs\plot_density_v0.7.0.cpython-311.pyc"
-FSF := A_ScriptDir "\p_libs\FSF_v0.8.0_pyqt.pyc"
-FSF_FDS5 := A_ScriptDir "\p_libs\FSF_v0.8.0_FDS5_pyqt.pyc"
+FSF := A_ScriptDir "\p_libs\FSF_v0.9.0_pyqt.pyc"
+FSF_FDS5 := A_ScriptDir "\p_libs\FSF_v0.9.0_FDS5_pyqt.pyc"
 FRP := A_ScriptDir "\p_libs\FDS_REAC_Prooner.cpython-311.pyc"
 RIbatulin := A_ScriptDir "\p_libs\update_num_pic.cpython-311.pyc"
 
@@ -149,19 +149,6 @@ Else
 	fileName := "Укажите имя файла сценария (.fds)"
 }
 
-If FileExist(CheckSURFFIXini)
-{
-	;CheckSURFFIX := ""
-	;IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
-	;MsgBox % CheckSURFFIX " в " CheckSURFFIXini " 1 "
-}
-Else
-{
-	;CheckSURFFIX := ""
-	;IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
-	;MsgBox % CheckSURFFIX " в " CheckSURFFIXini " 2 "
-}
-
 ChckDTR := 50
 FDS6 := 1
 FDS5 := 0
@@ -221,7 +208,7 @@ Gui, Add, Button, x102 y269 w80 h30 gAutoUpdateZ, Обновить ZmejkaFDS
 Gui, Add, Button, x12 y229 w170 h30 gEmpit, Стравить службы MPI
 Gui, Add, Text, x325 y285 w160 h20 , ID:%UniqueID%
 
-Gui, Show, h310 w395, ZmejkaFDS v0.15.7
+Gui, Show, h310 w395, ZmejkaFDS v0.15.8
 
 Return
 
@@ -242,29 +229,8 @@ BrowseFileButton:
 	IniWrite, %fileName%, %filePathIni%, fileName, fileName
 	IniWrite, %chunksize%, %filePathIni%, chunksize, chunksize
 	IniWrite, %batchsize%, %filePathIni%, batchsize, batchsize
-	
-	CheckSURFFIX := CheckSURFFIX(filePath)
-	;MsgBox % CheckSURFFIX " в " CheckSURFFIXini " 3 "
-	IniRead, CheckSURFFIX, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
-	if CheckSURFFIX = 1
-		GuiControl, Enable, StartButton%UniqueID%
-	Else
-	{
-		CheckSURFFIX := CheckSURFFIX(filepath)   ; ← сохраняем результат функции
-		;MsgBox % CheckSURFFIX
-		If (CheckSURFFIX = 1)
-		{
-			CheckSURFFIX := "Done"
-			GuiControl, Enable, StartButton%UniqueID%
-			IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
-		}
-		Else
-		{
-			CheckSURFFIX := "None"
-			;GuiControl, Disable, StartButton%UniqueID%
-			IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
-		}
-	}
+
+	GuiControl, Enable, StartButton%UniqueID%
 	
 	GuiControl,, folderPath%UniqueID%, %folderPath%
 	GuiControl,, fileName%UniqueID%, %fileName%
@@ -596,41 +562,6 @@ StartButton:
 		Sleep, 300
 		ToolTip
 		
-		; Функция проверки, что пользователь прогнал _nfs через SURF_FIX
-		IniRead, CheckSURFFIX, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
-		if InStr(CheckSURFFIX, "Done")
-			GuiControl, Enable, StartButton%UniqueID%
-		Else
-		{
-			FileRead, Contents, %filePath%
-			If InStr(Contents, "CheckSURFFIX=Done")
-			{
-				CheckSURFFIX := "Done"
-				GuiControl, Enable, StartButton%UniqueID%
-				IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
-			}
-			Else
-			{
-				result := CustomMsgBox("Вы не провели ускоренный сценарий через SURF_FIX.", "Предупреждение", "OK", "Игнорировать")
-				if result = 1
-				{
-					CheckSURFFIX := "None"
-					GuiControl, Disable, StartButton%UniqueID%
-					IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
-					MsgBox, 48, ZmejkaFDS, % "Пожалуйста, проведите ускоренный сценарий через SURF_FIX."
-				}
-				else if result = 2
-				{
-					CheckSURFFIX := "Done"
-					GuiControl, Enable, StartButton%UniqueID%
-					IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
-				}
-			}
-		}
-		
-		Sleep, 50
-		GuiControl, Disable, StartButton%UniqueID%
-		
 		CheckDUMP(filePath, ChckDTR)
 		sleep, 75
 		RunWait, "%PyExe%" "%Proceed_DUMP%" %ProcessID%, , , PID
@@ -796,8 +727,8 @@ StartButton:
 			Clear_FDS5_SMV(fds5smv)
 			ShowToolTip("Выполнен Clear_FDS5_SMV.`n" fds5smv " очищен.", 1000)
 			
-			RunWait, "%PyExe%" "%Proceed_FDS5_SMV%" %ProcessID%, , , PID
-			ShowToolTip("В " fds5smv " выполнены преобразования для `n'.bf', '.sf' и '.s3d'", 1000)
+			;RunWait, "%PyExe%" "%Proceed_FDS5_SMV%" %ProcessID%, , , PID
+			;ShowToolTip("В " fds5smv " выполнены преобразования для `n'.bf', '.sf' и '.s3d'", 1000)
 			
 			ShowToolTip("Результаты отгружены в программу по расчёту пожарного риска", 1000)
 		}
@@ -1516,8 +1447,8 @@ StopButton:
 			Clear_FDS5_SMV(fds5smv)
 			ShowToolTip("Выполнен Clear_FDS5_SMV.`n" fds5smv " очищен.", 1000)
 			
-			RunWait, "%PyExe%" "%Proceed_FDS5_SMV%" %ProcessID%, , , PID
-			ShowToolTip("В " fds5smv " выполнены преобразования для `n'.bf', '.sf' и '.s3d'", 1000)
+			;RunWait, "%PyExe%" "%Proceed_FDS5_SMV%" %ProcessID%, , , PID
+			;ShowToolTip("В " fds5smv " выполнены преобразования для `n'.bf', '.sf' и '.s3d'", 1000)
 			
 			ShowToolTip("Результаты отгружены в программу по расчёту пожарного риска", 1000)
 		}
@@ -1774,33 +1705,6 @@ RunSURF:
 	If FDS5 = 1
 	{
 		RunWait, "%PyExe%" "%FSF_FDS5%" %ProcessID%, , , PID
-		
-		CheckSURFFIX := CheckSURFFIX(filePath)
-		;IniRead, CheckSURFFIX, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
-		FileRead, Contents, %filePath%
-		If InStr(Contents, "CheckSURFFIX=Done")
-		{
-			IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
-			CheckSURFFIX = 1
-		}
-		
-		If CheckSURFFIX = 0
-		{
-			result := CustomMsgBox("Вы не провели ускоренный сценарий через SURF_FIX.", "Предупреждение", "OK", "Игнорировать")
-			if result = 1
-			{
-				CheckSURFFIX := "None"
-				GuiControl, Disable, StartButton%UniqueID%
-				IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
-				MsgBox, 48, ZmejkaFDS, % "Пожалуйста, проведите ускоренный сценарий через SURF_FIX."
-			}
-			else if result = 2
-			{
-				CheckSURFFIX := "Done"
-				GuiControl, Enable, StartButton%UniqueID%
-				IniWrite, %CheckSURFFIX%, %CheckSURFFIXini%, CheckSURFFIX, CheckSURFFIX
-			}
-		}
 	}
 	Return
 	
